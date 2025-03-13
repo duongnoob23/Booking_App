@@ -1,0 +1,28 @@
+_____________________________________________________Navigation.js_________________________________________________
++ trong phần navigation.js phần navigation là để chuyển đổi qua lại giữa các tab lớn nhất trong ứng dụng 
++ phần con ví dụ HomeStackNavigation là chuyển đổi giữa các stack con trong 1 tab lớn vì vậy navigation phải gọi
+  đến các stack này để vào tab lớn và thao tác qua các trang trong tab lớn
+
+<Tab.Screen
+      name="HomeTab"
+      component={HomeStackNavigator}
+      options={{ title: "Room" }}
+/>
+
+gọi đến ====> 
+
+const HomeStackNavigator = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerTitleAlign: "center",
+      }}
+    >
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Detail" component={DetailScreen} />
+    </Stack.Navigator>
+  );
+};
+
+
+_____________________________________________________  _______________________________________________________
