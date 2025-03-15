@@ -19,6 +19,9 @@ import Ionicons from "react-native-vector-icons/Ionicons"; // Bộ Ionicons
 import Feather from "react-native-vector-icons/Feather"; // Bộ Feather
 import LoginScreen from "../Pages/Auth/LoginScreen";
 import RegisterScreen from "../Pages/Auth/RegisterScreen";
+import VerifyAccountScreen from "../Pages/Auth/VerifyAccountScreen";
+import ForgotPasswordScreen from "../Pages/Auth/ForgotPasswordScreen";
+import TermScreen from "../Pages/Auth/TermScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -44,6 +47,9 @@ const AuthNavigator = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Screen name="VerifyAccount" component={VerifyAccountScreen} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <Stack.Screen name="Term" component={TermScreen} />
     </Stack.Navigator>
   );
 };
@@ -120,7 +126,7 @@ const MainNavigator = () => {
 };
 
 const Navigation = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Trạng thái đăng nhập
+  const [isLoggedIn, setIsLoggedIn] = useState(true); // Trạng thái đăng nhập
 
   return (
     <NavigationContainer>

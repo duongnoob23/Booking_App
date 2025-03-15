@@ -8,65 +8,26 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import LinearGradient from "react-native-linear-gradient";
-const LoginScreen = ({ navigation }) => {
+const ForgotPasswordScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.wrapTitle}>
-        <Text style={styles.title}>Đăng nhập</Text>
+        <Text style={styles.wrapTitleText}>Quên mật khẩu?</Text>
       </View>
       <View style={styles.whiteFrame}>
         {/* Tiêu đề */}
+        <View style={styles.title}>
+          <Text style={styles.titleText}>Hãy điền mail đăng ký của bạn</Text>
+        </View>
         {/* Ô input Email */}
         <View style={[styles.inputContainer, styles.inputContainerFirst]}>
           <Ionicons name="mail-outline" size={20} color="#0090FF" />
           <TextInput placeholder="Email" style={styles.input} />
         </View>
-        {/* Ô input Mật khẩu */}
-        <View style={styles.inputContainer}>
-          <Ionicons name="lock-closed-outline" size={20} color="#0090FF" />
-          <TextInput
-            placeholder="Mật khẩu"
-            secureTextEntry
-            style={styles.input}
-          />
-        </View>
-        {/* ForgotPassword */}
-        {/* Quên mật khẩu */}
-        <Text
-          style={styles.forgotPassword}
-          onPress={() => navigation.navigate("ForgotPassword")}
-        >
-          Quên mật khẩu?
-        </Text>
-        {/* Nút Đăng nhập */}
+
         <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Đăng nhập</Text>
+          <Text style={styles.buttonText}>Gửi</Text>
         </TouchableOpacity>
-        {/* Nút đăng nhập bằng Google và Facebook */}
-        <View>
-          <Text style={styles.textOr}>Hoặc đăng nhập bằng</Text>
-        </View>
-        <View style={styles.socialButtons}>
-          <TouchableOpacity
-            style={[styles.socialButton, { backgroundColor: "#3b5998" }]}
-          >
-            <Text style={styles.socialButtonText}>FACEBOOK</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.socialButton, { backgroundColor: "#db4437" }]}
-          >
-            <Text style={styles.socialButtonText}>GOOGLE</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Chưa có tài khoản? </Text>
-          <Text
-            style={styles.footerLink}
-            onPress={() => navigation.navigate("Register")}
-          >
-            Đăng ký
-          </Text>
-        </View>
       </View>
 
       {/* Text chuyển sang Đăng ký */}
@@ -100,12 +61,23 @@ const styles = StyleSheet.create({
     display: "flex",
     alignItems: "flex-start",
   },
-  title: {
+  wrapTitleText: {
     fontSize: 24,
     fontWeight: "500",
     color: "white",
     marginBottom: 10,
   },
+  title: {
+    marginTop: 50,
+    fontSize: 24,
+    fontWeight: "500",
+    marginBottom: 10,
+  },
+  titleText: {
+    textAlign: "center",
+    color: "gray",
+  },
+
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -136,6 +108,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 10,
     alignItems: "center",
+    marginTop: 20,
   },
   buttonText: {
     color: "#fff",
@@ -168,4 +141,4 @@ const styles = StyleSheet.create({
   footerLink: { color: "#00FF94", textDecorationLine: "underline" },
 });
 
-export default LoginScreen;
+export default ForgotPasswordScreen;
