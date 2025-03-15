@@ -7,10 +7,58 @@ import {
   StyleSheet,
   SafeAreaView,
   Image,
+  Button,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome"; // Sử dụng FontAwesome cho icons
-
+import { FlatList } from "react-native";
 const HomeScreen = () => {
+  const dealData = [
+    { id: "1", name: "Heden Golf", image: "https://via.placeholder.com/100" },
+    { id: "2", name: "Onomo", image: "https://via.placeholder.com/100" },
+    { id: "3", name: "Adagio", image: "https://via.placeholder.com/100" },
+    { id: "4", name: "Sofitel", image: "https://via.placeholder.com/100" },
+  ];
+
+  const continueSearch = [
+    {
+      id: "1",
+      name: "Heden Golf",
+      image:
+        "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
+      details: " 23-26 Tháng 8, 6-7 Người lớn, 1 trẻ em",
+    },
+    {
+      id: "2",
+      name: "Onomo",
+      image:
+        "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
+      details: " 23-26 Tháng 8, 6-7 Người lớn, 1 trẻ em",
+    },
+    {
+      id: "3",
+      name: "Adagio",
+      image:
+        "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
+      details: " 23-26 Tháng 8, 6-7 Người lớn, 1 trẻ em",
+    },
+    {
+      id: "4",
+      name: "Sofitel",
+      image:
+        "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
+      details: " 23-26 Tháng 8, 6-7 Người lớn, 1 trẻ em",
+    },
+    {
+      id: "5",
+      name: "Sofitel",
+      image:
+        "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
+      details: " 23-26 Tháng 8, 6-7 Người lớn, 1 trẻ em",
+    },
+  ];
+  // Chia continueSearch thành 2 phần
+  console.log(continueSearch.length / 2);
+  const WidthtwoRowScrollView = 210 * Math.ceil(continueSearch.length / 2);
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -77,38 +125,35 @@ const HomeScreen = () => {
               <Text style={styles.viewAllText}>XEM TẤT CẢ</Text>
             </TouchableOpacity>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {/* Fake Recent Search Item 1 */}
-            <View style={styles.recentSearchItem}>
-              <Image
-                source={{
-                  uri: "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
-                }}
-                style={styles.recentSearchImage}
-              />
-              <View style={styles.recentSearchDetails}>
-                <Text style={styles.recentSearchText}>Ivory Coast</Text>
-                <Text style={styles.recentSearchSubText}>
-                  23-26 Tháng 8, 6-7 Người lớn, 1 trẻ em
-                </Text>
+          <View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View
+                style={[
+                  styles.twoRowScrollView,
+                  { width: WidthtwoRowScrollView },
+                ]}
+              >
+                {continueSearch?.map((item, index) => {
+                  return (
+                    <View key={index} style={styles.recentSearchItem}>
+                      <Image
+                        source={{
+                          uri: `${item.image}`,
+                        }}
+                        style={styles.recentSearchImage}
+                      />
+                      <View style={styles.recentSearchDetails}>
+                        <Text style={styles.recentSearchText}>{item.name}</Text>
+                        <Text style={styles.recentSearchSubText}>
+                          {item.details}
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                })}
               </View>
-            </View>
-            {/* Fake Recent Search Item 2 */}
-            <View style={styles.recentSearchItem}>
-              <Image
-                source={{
-                  uri: "https://media.istockphoto.com/id/840793714/fr/photo/dazur-%C3%A0-nice.webp?a=1&b=1&s=612x612&w=0&k=20&c=jObDEGRB-t88Z8gV5ajGiUfGYTlSlVSioFItP5VLQbk=",
-                }}
-                style={styles.recentSearchImage}
-              />
-              <View style={styles.recentSearchDetails}>
-                <Text style={styles.recentSearchText}>Senegal</Text>
-                <Text style={styles.recentSearchSubText}>
-                  23-26 Tháng 8, 6-7 Người lớn, 1 trẻ em
-                </Text>
-              </View>
-            </View>
-          </ScrollView>
+            </ScrollView>
+          </View>
         </View>
 
         {/* Weekend Deals Section */}
@@ -122,37 +167,76 @@ const HomeScreen = () => {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {/* Fake Deal Item 1 */}
             <View style={styles.dealItem}>
-              <Image
-                source={{ uri: "https://via.placeholder.com/100" }}
-                style={styles.dealImage}
-              />
-              <Text style={styles.dealText}>Heden Golf</Text>
+              <View style={styles.dealImage}>
+                <Image
+                  source={{
+                    uri: "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
+                  }}
+                  style={styles.image}
+                />
+              </View>
+              <View style={styles.dealDetails}>
+                <Text style={styles.dealName}>Heden golf</Text>
+                <View style={styles.dealReviews}>
+                  <Icon
+                    style={styles.iconStart}
+                    name="star"
+                    size={24}
+                    color="#EBA731"
+                  />
+                  <Text style={styles.dealPoint}>8.1</Text>
+                  <Text style={styles.dealReviewsText}>Đánh giá (556) </Text>
+                </View>
+                <Text style={styles.dealDesc}>
+                  Nằm trong những khu vườn cảnh quan ...
+                </Text>
+                <View style={styles.dealFooter}>
+                  <Text style={styles.dealSale}>Giảm 25%</Text>
+                  <Text style={styles.dealPrice}> 127$</Text>
+                  <TouchableOpacity>
+                    <Text style={styles.dealBooking}>Đặt ngay</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
             {/* Fake Deal Item 2 */}
             <View style={styles.dealItem}>
-              <Image
-                source={{ uri: "https://via.placeholder.com/100" }}
-                style={styles.dealImage}
-              />
-              <Text style={styles.dealText}>Onomo</Text>
-            </View>
-            {/* Fake Deal Item 3 */}
-            <View style={styles.dealItem}>
-              <Image
-                source={{ uri: "https://via.placeholder.com/100" }}
-                style={styles.dealImage}
-              />
-              <Text style={styles.dealText}>Adagio</Text>
-            </View>
-            {/* Fake Deal Item 4 */}
-            <View style={styles.dealItem}>
-              <Image
-                source={{ uri: "https://via.placeholder.com/100" }}
-                style={styles.dealImage}
-              />
-              <Text style={styles.dealText}>Sofitel</Text>
+              <View style={styles.dealImage}>
+                <Image
+                  source={{
+                    uri: "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
+                  }}
+                  style={styles.image}
+                />
+              </View>
+              <View style={styles.dealDetails}>
+                <Text style={styles.dealName}>Heden golf</Text>
+                <View style={styles.dealReviews}>
+                  <Icon
+                    style={styles.iconStart}
+                    name="star"
+                    size={24}
+                    color="#EBA731"
+                  />
+                  <Text style={styles.dealPoint}>8.1</Text>
+                  <Text style={styles.dealReviewsText}>Đánh giá (556) </Text>
+                </View>
+                <Text style={styles.dealDesc}>
+                  Nằm trong những khu vườn cảnh quan ...
+                </Text>
+                <View style={styles.dealFooter}>
+                  <Text style={styles.dealSale}>Giảm 25%</Text>
+                  <Text style={styles.dealPrice}> 127$</Text>
+                  <TouchableOpacity>
+                    <Text style={styles.dealBooking}>Đặt ngay</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
           </ScrollView>
+        </View>
+        <View>
+          <Text>{"\n\n"} </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -231,7 +315,7 @@ const styles = StyleSheet.create({
     fontWeight: "400",
   },
   section: {
-    marginTop: 20,
+    marginTop: 10,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -249,6 +333,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#007AFF",
   },
+  twoRowScrollView: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
   recentSearchItem: {
     flexDirection: "row",
     backgroundColor: "#F5F5F5",
@@ -256,11 +344,13 @@ const styles = StyleSheet.create({
     padding: 10,
     marginRight: 10,
     alignItems: "center",
-    width: 250,
+    width: 200,
+    height: 70,
+    marginBottom: 10,
   },
   recentSearchImage: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     borderRadius: 5,
   },
   recentSearchDetails: {
@@ -268,26 +358,105 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   recentSearchText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "bold",
     color: "#000000",
   },
   recentSearchSubText: {
-    fontSize: 12,
+    fontSize: 10,
     color: "#666666",
     marginTop: 2,
   },
   dealItem: {
-    alignItems: "center",
+    alignItems: "flex-start",
     backgroundColor: "#FFFFFF",
-    borderRadius: 5,
+    borderRadius: 8,
     marginRight: 10,
-    width: 100,
+    width: 250,
+    backgroundColor: "#EFEFEF",
   },
   dealImage: {
-    width: 100,
-    height: 100,
+    width: 250,
+    height: 150,
     borderRadius: 5,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: 240,
+    height: 140,
+    borderRadius: 5,
+  },
+  dealDetails: {
+    marginLeft: 8,
+    marginRight: 10,
+    width: "100%",
+  },
+  dealName: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginTop: 5,
+    marginBottom: 5,
+    color: "black",
+  },
+  dealReviews: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  iconStart: {
+    marginRight: 10,
+  },
+  dealPoint: {
+    color: "red",
+    fontWeight: "400",
+    marginRight: 10,
+    fontSize: 12,
+  },
+
+  dealReact: {
+    fontSize: 12,
+  },
+  dealReviewsText: {
+    fontSize: 12,
+  },
+  dealLocation: {
+    color: "black",
+    marginRight: 12,
+  },
+  dealLocationName: {
+    fontSize: 12,
+  },
+  dealFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  dealSale: {
+    color: "#EBA731",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  dealPrice: {
+    fontWeight: "600",
+    fontSize: 14,
+  },
+  dealDesc: {
+    fontSize: 12,
+    fontWeight: 400,
+    marginBottom: 5,
+  },
+  dealBooking: {
+    fontSize: 14,
+    fontWeight: 400,
+    borderRadius: 10,
+    backgroundColor: "#00F598",
+    color: "white",
+    paddingHorizontal: 20,
+    paddingVertical: 4,
   },
   dealText: {
     fontSize: 14,
