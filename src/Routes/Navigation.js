@@ -22,6 +22,7 @@ import RegisterScreen from "../Pages/Auth/RegisterScreen";
 import VerifyAccountScreen from "../Pages/Auth/VerifyAccountScreen";
 import ForgotPasswordScreen from "../Pages/Auth/ForgotPasswordScreen";
 import TermScreen from "../Pages/Auth/TermScreen";
+import HotelDetails from "../Pages/Hotels/HotelDetails";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -36,6 +37,11 @@ const HomeStackNavigator = () => {
     >
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Detail" component={DetailScreen} />
+      <Stack.Screen
+        name="HotelDetails"
+        component={HotelDetails}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };

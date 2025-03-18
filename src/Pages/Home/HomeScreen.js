@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome"; // Sử dụng FontAwesome cho icons
 import { FlatList } from "react-native";
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const dealData = [
     { id: "1", name: "Heden Golf", image: "https://via.placeholder.com/100" },
     { id: "2", name: "Onomo", image: "https://via.placeholder.com/100" },
@@ -166,7 +166,10 @@ const HomeScreen = () => {
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {/* Fake Deal Item 1 */}
-            <View style={styles.dealItem}>
+            <TouchableOpacity
+              style={styles.dealItem}
+              onPress={() => navigation.navigate("HotelDetails")}
+            >
               <View style={styles.dealImage}>
                 <Image
                   source={{
@@ -198,41 +201,8 @@ const HomeScreen = () => {
                   </TouchableOpacity>
                 </View>
               </View>
-            </View>
+            </TouchableOpacity>
             {/* Fake Deal Item 2 */}
-            <View style={styles.dealItem}>
-              <View style={styles.dealImage}>
-                <Image
-                  source={{
-                    uri: "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
-                  }}
-                  style={styles.image}
-                />
-              </View>
-              <View style={styles.dealDetails}>
-                <Text style={styles.dealName}>Heden golf</Text>
-                <View style={styles.dealReviews}>
-                  <Icon
-                    style={styles.iconStart}
-                    name="star"
-                    size={24}
-                    color="#EBA731"
-                  />
-                  <Text style={styles.dealPoint}>8.1</Text>
-                  <Text style={styles.dealReviewsText}>Đánh giá (556) </Text>
-                </View>
-                <Text style={styles.dealDesc}>
-                  Nằm trong những khu vườn cảnh quan ...
-                </Text>
-                <View style={styles.dealFooter}>
-                  <Text style={styles.dealSale}>Giảm 25%</Text>
-                  <Text style={styles.dealPrice}> 127$</Text>
-                  <TouchableOpacity>
-                    <Text style={styles.dealBooking}>Đặt ngay</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
           </ScrollView>
         </View>
         <View>

@@ -1,11 +1,8 @@
-import React from "react";
-import { View, Text } from "react-native";
 const NotificationScreen = () => {
-  return (
-    <View>
-      <Text>Notification</Text>
-    </View>
-  );
+  return <></>;
 };
 
 export default NotificationScreen;
+
+// https://www.youtube.com/watch?v=UEfFjfW7Zes link video
+// thử cùng một thư viện ở project khác xemxem

@@ -25,4 +25,43 @@ const HomeStackNavigator = () => {
 };
 
 
-_____________________________________________________  _______________________________________________________
+_____________________________________________________  Cannot read property 'bubblingEventTypes' of null _______________________________________________________
+lỗi này thường xuất hiện khi cài thêm thư viện mới , cả picker và linear gradient
+chưa fix được
+Expo Go chỉ hỗ trợ một tập hợp các thư viện native được tích hợp sẵn trong Expo SDK (gọi là managed workflow).
+
+Nếu bạn sử dụng một thư viện yêu cầu mã native (như react-native-wheel-pick, vốn có thể phụ thuộc vào react-native-gesture-handler), bạn cần:
+Khai báo plugin trong app.json để Expo Go biết cách tích hợp thư viện.
+
+Hoặc chuyển sang bare workflow (dùng expo prebuild) nếu thư viện không được hỗ trợ trong Expo Go.
+
+{
+  "expo": {
+    "name": "sample-app",
+    "slug": "sample-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
+
+
+Hạn chế trên Android: Android không có thành phần Picker mặc định giống Wheel Picker như iOS. Để đạt được giao diện Wheel Picker trên Android, bạn cần dùng các thư viện bên thứ ba hoặc tùy chỉnh native code, điều này thường vượt ngoài khả năng của Expo Go.
