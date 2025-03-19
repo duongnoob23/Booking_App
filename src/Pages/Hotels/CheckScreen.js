@@ -29,7 +29,8 @@ const CheckScreen = () => {
       description:
         "Ngắm cảnh tự nhiên hùng vĩ, chùa Linh Ứng và khám phá thiên nhiên hoang dã.",
       image:
-        "https://images.unsplash.com/photo-1611892440504-42a792e24d3c?q=80&w=2940&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2940&auto=format&fit=crop",
+
       rating: 4.4,
       reviews: 1649,
       distance: "27 min",
@@ -47,24 +48,26 @@ const CheckScreen = () => {
       <View style={styles.activity__info}>
         <Text style={styles.activity__title}>{item.title}</Text>
         <Text style={styles.activity__description}>{item.description}</Text>
-        <View style={styles.activity__rating}>
+        <View style={styles.activity__text}>
           <View>
             <Text>Đánh giá {item.reviews}</Text>
           </View>
-          <View></View>
+          <View>
+            <Text>Khoảng cách</Text>
+          </View>
         </View>
-        {/* <View style={styles.activity__rating}>
-          <Ionicons name="star" size={14} color="#EBA731" />
-          <Text style={styles.activity__ratingText}>
-            {item.rating} ({item.reviews})
-          </Text>
-          <Text style={styles.activity__distance}>
-            Khoảng cách {item.distance}
-          </Text>
-        </View> */}
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.button__text}>Chỉ đường</Text>
-        </TouchableOpacity>
+        <View style={styles.activity__icon}>
+          <View style={{ flexDirection: "row" }}>
+            <Ionicons name="star" size={18} color="#EBA731" />
+            <Text style={styles.activity__ratingText}>{item.rating}</Text>
+          </View>
+          <View>
+            <View style={{ flexDirection: "row" }}>
+              <Ionicons name="car-outline" size={18} color="#EBA731" />
+              <Text>{item.distance}</Text>
+            </View>
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -234,6 +237,14 @@ const styles = StyleSheet.create({
     color: "#666",
     lineHeight: 16,
     marginBottom: 10,
+  },
+  activity__text: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  activity__icon: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   activity__rating: {
     flexDirection: "row",

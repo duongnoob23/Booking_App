@@ -223,3 +223,6 @@ __________________________________________________________________________Custom
 
 , phần zoom ảnh
 2. code giao diện của Quân
+
+vấn đề từ bên hotelDetails sang bên infoconfirm có giữ lại header ko hay chỉ chuyển thân
+nếu chỉ chuyển thân thì dùng modal hay dùng kiểu ẩn hiện file

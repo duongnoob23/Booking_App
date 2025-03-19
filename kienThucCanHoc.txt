@@ -1,0 +1,19 @@
+
+
++ học cách duyệt mảng Flatlist,scrollview vuốt màn hình dọc/ngang/dọc-ngangngang
++ học cách tạo input otp focus liên tục
++ học cách điều hướng navigation.navigate("file")
++ học cách tạo tab con của tab cha (HotelDetail là con của HomeScreen là con của HomeStackNavigation)
++ useLayoutEffect
++ cách sử dụng navigationBottomtab
+  cách ẩn hiện thanh tab ngoài cùng
++ cách sử dụng navigationTopTab
++ cách sử dụng navigation trong 1 file bất kì, custom navigationnavigation
++ cách sử dụng stack.screen createNativeStackNavigator()
++ sử dụng tab.screen createBottomTabNavigator()
++ xác thực người dùng bằng token của biến toàn cục
++ học cách chatgpt,grokk
++ học cách chia layout header,footer fix cứng, body thay đổi linh động với navigationBottomtab
++ học cách zoom ảnh
++ học mở modal
++ học xử lý sự kiện backhande

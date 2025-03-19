@@ -45,7 +45,10 @@ const HomeStackNavigator = () => {
       <Stack.Screen
         name="HotelDetails"
         component={HotelDetails}
-        options={{ headerShown: false }}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
       />
     </Stack.Navigator>
   );
