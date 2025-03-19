@@ -23,9 +23,14 @@ import VerifyAccountScreen from "../Pages/Auth/VerifyAccountScreen";
 import ForgotPasswordScreen from "../Pages/Auth/ForgotPasswordScreen";
 import TermScreen from "../Pages/Auth/TermScreen";
 import HotelDetails from "../Pages/Hotels/HotelDetails";
+import PhotoScreen from "../Pages/Hotels/PhotoScreen";
+import PriceScreen from "../Pages/Hotels/PriceScreen";
+import CheckScreen from "../Pages/Hotels/CheckScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+// stack cho home option
 
 // Stack cho phần Home
 const HomeStackNavigator = () => {
