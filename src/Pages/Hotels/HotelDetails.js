@@ -18,29 +18,35 @@ import PhotoScreen from "./PhotoScreen";
 import CheckScreen from "./CheckScreen";
 import InfoConfirmScreen from "./InfoConfirmScreen";
 import OrderConfirmScreen from "./OrderConfirmScreen";
-
 const HotelDetails = ({ navigation }) => {
   const [css, setCss] = useState(1);
   const Tab = createMaterialTopTabNavigator();
   const [showInfoConfirm, setShowInfoConfirm] = useState(false);
-  const [showOrderConfirm, setShowOrderConfirm] = useState(true);
+  const [showOrderConfirm, setShowOrderConfirm] = useState(false);
 
   useEffect(() => {
     const backAction = () => {
-      if (showInfoConfirm) {
-        setShowInfoConfirm(false); // Quay lại trạng thái ban đầu của HotelDetails
-        return true; // Ngăn hành vi mặc định (thoát màn hình)
+      if (showOrderConfirm && !showInfoConfirm) {
+        setShowOrderConfirm(false);
+        setShowInfoConfirm(true);
+        return true;
       }
 
-      return false; // Để hành vi mặc định hoạt động (quay về HomeScreen)
+      if (showInfoConfirm && !showOrderConfirm) {
+        setShowInfoConfirm(false);
+        return true;
+      }
+
+      return false;
     };
+    // thằng lồn này sẽ được gọi khi mà ấn nút quay lạilại
 
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
       backAction
-    );
+    ); // đăng ký nút quay lại thôi còn lại chả làm cái đéo gì cả
 
-    return () => backHandler.remove(); // Dọn dẹp listener khi component unmount
+    return () => backHandler.remove(); // thằng cu này sẽ được gọi khi mà chuyển sang trang mới hoặc back về, mục đích là xóa cái thằng nãy đăng ký đi
   }, [showInfoConfirm]);
 
   useLayoutEffect(() => {
@@ -62,6 +68,11 @@ const HotelDetails = ({ navigation }) => {
   // Khi navigation thay đổi, cập nhật css
   const handleInfoConfirm = () => {
     setShowInfoConfirm(true);
+  };
+
+  const handleOrderConfirm = () => {
+    setShowInfoConfirm(false);
+    setShowOrderConfirm(true);
   };
 
   const CustomTabBar = ({ state, descriptors, navigation }) => {
@@ -209,7 +220,9 @@ const HotelDetails = ({ navigation }) => {
           </View>
         </>
       )}
-      {showInfoConfirm && <InfoConfirmScreen />}
+      {showInfoConfirm && (
+        <InfoConfirmScreen handleOrderConfirm={handleOrderConfirm} />
+      )}
       {showOrderConfirm && <OrderConfirmScreen />}
     </View>
   );

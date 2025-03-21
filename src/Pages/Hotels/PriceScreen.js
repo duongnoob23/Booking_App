@@ -9,11 +9,12 @@ import {
   ScrollView,
   StyleSheet,
   Dimensions,
+  navigation,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/FontAwesome"; // Sử dụng FontAwesome cho icons
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-const PriceScreen = () => {
+const PriceScreen = ({ navigation }) => {
   const foodList = [
     {
       id: 1,
@@ -41,6 +42,12 @@ const PriceScreen = () => {
       urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
     },
   ];
+
+  const handleOrderFood = () => {
+    navigation.navigate("OrderFood");
+    // navigation.navigate("FoodDetails");
+  };
+
   return (
     <ScrollView style={styles.body}>
       {/* Title and description */}
@@ -166,7 +173,7 @@ const PriceScreen = () => {
         <View style={styles.footer__food}>
           <View style={styles.footer__food__title}>
             <Text style={styles.footer__food__text}>ĐỒ ĂN</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => handleOrderFood()}>
               <Text style={[styles.footer__food__text, { color: "blue" }]}>
                 XEM THÊM
               </Text>

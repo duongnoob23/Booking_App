@@ -26,6 +26,8 @@ import HotelDetails from "../Pages/Hotels/HotelDetails";
 import PhotoScreen from "../Pages/Hotels/PhotoScreen";
 import PriceScreen from "../Pages/Hotels/PriceScreen";
 import CheckScreen from "../Pages/Hotels/CheckScreen";
+import OrderFood from "../Pages/Foods/OrderFood";
+import FoodDetails from "../Pages/Foods/FoodDetails";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -45,6 +47,22 @@ const HomeStackNavigator = () => {
       <Stack.Screen
         name="HotelDetails"
         component={HotelDetails}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="OrderFood"
+        component={OrderFood}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="FoodDetails"
+        component={FoodDetails}
         options={{
           headerShown: false,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng

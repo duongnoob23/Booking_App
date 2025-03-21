@@ -8,7 +8,8 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { cloneDeep } from "lodash";
-const InfoConfirmScreen = () => {
+const InfoConfirmScreen = (props) => {
+  const { handleOrderConfirm } = props;
   const [infomation, setInfomation] = useState({
     firstName: "",
     secondName: "",
@@ -24,14 +25,12 @@ const InfoConfirmScreen = () => {
   };
 
   const handleInfoConfirm = () => {
-    console.log(infomation);
+    handleOrderConfirm();
   };
   return (
     <View style={styles.container}>
-      {/* Tiêu đề */}
       <Text style={styles.title}>THÔNG TIN CÁ NHÂN</Text>
 
-      {/* Trường Họ */}
       <View style={styles.inputContainer}>
         <View>
           <Ionicons
@@ -49,7 +48,6 @@ const InfoConfirmScreen = () => {
         />
       </View>
 
-      {/* Trường Tên */}
       <View style={styles.inputContainer}>
         <View>
           <Ionicons
@@ -67,10 +65,8 @@ const InfoConfirmScreen = () => {
         />
       </View>
 
-      {/* Trường Email */}
       <View style={styles.inputContainer}>
         <View>
-          {" "}
           <Ionicons
             name="mail-outline"
             size={20}
@@ -86,7 +82,6 @@ const InfoConfirmScreen = () => {
         />
       </View>
 
-      {/* Trường Số điện thoại */}
       <View style={styles.inputContainer}>
         <View>
           <Ionicons
@@ -115,7 +110,6 @@ const InfoConfirmScreen = () => {
         </View>
       </View>
 
-      {/* Nút Xác nhận thông tin */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => handleInfoConfirm()}

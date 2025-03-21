@@ -1,81 +1,100 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+} from "react-native";
 
 const OrderConfirmScreen = () => {
   const [paymentMethod, setPaymentMethod] = useState("ZaloPay");
 
   return (
-    <View style={styles.container}>
-      {/* Tiêu đề */}
-      <Text style={styles.title}>THÔNG TIN KHÁCH HÀNG</Text>
+    <SafeAreaView style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Tiêu đề */}
+        <Text style={styles.title}>THÔNG TIN KHÁCH HÀNG</Text>
 
-      {/* Thông tin khách hàng */}
-      <View style={styles.infoSection}>
-        <Text style={styles.infoLabel}>Tên</Text>
-        <Text style={styles.infoValue}>Nguyễn Quân</Text>
-        <Text style={styles.infoLabel}>Email</Text>
-        <Text style={styles.infoValue}>quannt03@gmail.com</Text>
-        <Text style={styles.infoLabel}>Số điện thoại</Text>
-        <Text style={styles.infoValue}>+84 84986156736</Text>
-      </View>
-
-      {/* Thông tin phòng */}
-      <View style={styles.infoSection}>
-        <Text style={styles.subTitle}>THÔNG TIN PHÒNG</Text>
-        <View style={styles.roomInfo}>
-          <Text style={styles.roomLabel}>Số phòng</Text>
-          <Text style={styles.roomValue}>1</Text>
-        </View>
-        <View style={styles.roomInfo}>
-          <Text style={styles.roomLabel}>Loại phòng</Text>
-          <Text style={styles.roomValue}>Vip</Text>
-        </View>
-        <View style={styles.roomInfo}>
-          <Text style={styles.roomLabel}>Phòng</Text>
-          <Text style={styles.roomValue}>3 đêm (127,000 x 3 = 381,000)</Text>
-        </View>
-        <View style={styles.roomInfo}>
-          <Text style={styles.roomLabel}>Giảm giá</Text>
-          <Text style={styles.roomValue}>-25,000</Text>
-        </View>
-        <View style={styles.roomInfo}>
-          <Text style={styles.roomLabel}>Tổng tiền</Text>
-          <Text style={[styles.roomValue, { fontWeight: "bold" }]}>
-            355,000
-          </Text>
-        </View>
-      </View>
-
-      {/* Phương thức thanh toán */}
-      <View style={styles.infoSection}>
-        <Text style={styles.subTitle}>PHƯƠNG THỨC THANH TOÁN</Text>
-        <TouchableOpacity
-          style={styles.paymentOption}
-          onPress={() => setPaymentMethod("ZaloPay")}
-        >
-          <View style={styles.radioCircle}>
-            {paymentMethod === "ZaloPay" && (
-              <View style={styles.selectedRadio} />
-            )}
+        {/* Thông tin khách hàng */}
+        <View style={styles.infoSection}>
+          <View style={styles.infoItem}>
+            <Text style={styles.infoLabel}>Tên</Text>
+            <Text style={styles.infoValue}>Nguyễn Quân</Text>
           </View>
-          <Text style={styles.paymentText}>ZaloPay</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.paymentOption}
-          onPress={() => setPaymentMethod("ATM")}
-        >
-          <View style={styles.radioCircle}>
-            {paymentMethod === "ATM" && <View style={styles.selectedRadio} />}
+          <View style={styles.infoItem}>
+            <Text style={styles.infoLabel}>Email</Text>
+            <Text style={styles.infoValue}>quannt03@gmail.com</Text>
           </View>
-          <Text style={styles.paymentText}>ATM</Text>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.infoItem}>
+            <Text style={styles.infoLabel}>Số điện thoại</Text>
+            <Text style={styles.infoValue}>+84 84986156736</Text>
+          </View>
+        </View>
 
-      {/* Nút Xác nhận đặt phòng */}
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Xác nhận đặt phòng</Text>
-      </TouchableOpacity>
-    </View>
+        {/* Thông tin phòng */}
+        <View style={styles.infoSection}>
+          <Text style={styles.subTitle}>THÔNG TIN PHÒNG</Text>
+          <View style={styles.roomInfo}>
+            <Text style={styles.roomLabel}>Số phòng</Text>
+            <Text style={styles.roomValue}>1</Text>
+          </View>
+          <View style={styles.roomInfo}>
+            <Text style={styles.roomLabel}>Loại phòng</Text>
+            <Text style={styles.roomValue}>Vip</Text>
+          </View>
+          <View style={styles.roomInfo}>
+            <Text style={styles.roomLabel}>Phòng</Text>
+            <Text style={styles.roomValue}>3 đêm (127,000 x 3 = 381,000)</Text>
+          </View>
+          <View style={styles.roomInfo}>
+            <Text style={styles.roomLabel}>Giảm giá</Text>
+            <Text style={styles.roomValue}>-25,000</Text>
+          </View>
+          <View style={styles.roomInfo}>
+            <Text style={styles.roomLabel}>Tổng tiền</Text>
+            <Text style={[styles.roomValue, { fontWeight: "bold" }]}>
+              355,000
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.infoSection}>
+          <Text style={styles.subTitle}>MÃ GIẢM GIÁ</Text>
+          <Text>TEST 10</Text>
+        </View>
+        {/* Phương thức thanh toán */}
+        <View style={styles.infoSection}>
+          <Text style={styles.subTitle}>PHƯƠNG THỨC THANH TOÁN</Text>
+          <TouchableOpacity
+            style={styles.paymentOption}
+            onPress={() => setPaymentMethod("ZaloPay")}
+          >
+            <View style={styles.radioCircle}>
+              {paymentMethod === "ZaloPay" && (
+                <View style={styles.selectedRadio} />
+              )}
+            </View>
+            <Text style={styles.paymentText}>ZaloPay</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.paymentOption}
+            onPress={() => setPaymentMethod("ATM")}
+          >
+            <View style={styles.radioCircle}>
+              {paymentMethod === "ATM" && <View style={styles.selectedRadio} />}
+            </View>
+            <Text style={styles.paymentText}>ATM</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Nút Xác nhận đặt phòng */}
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Xác nhận đặt phòng</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -84,22 +103,26 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     paddingHorizontal: 20,
-    paddingVertical: 30,
+    paddingVertical: 20,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#000",
-    marginBottom: 20,
-  },
-  subTitle: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "400",
     color: "#000",
     marginBottom: 10,
   },
+  subTitle: {
+    fontSize: 16,
+    fontWeight: "400",
+    color: "#000",
+    marginBottom: 5,
+  },
   infoSection: {
-    marginBottom: 30,
+    marginBottom: 10,
+  },
+  infoItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   infoLabel: {
     fontSize: 14,
@@ -109,12 +132,12 @@ const styles = StyleSheet.create({
   infoValue: {
     fontSize: 16,
     color: "#000",
-    marginBottom: 15,
+    marginBottom: 5,
   },
   roomInfo: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 5,
   },
   roomLabel: {
     fontSize: 14,
@@ -127,7 +150,7 @@ const styles = StyleSheet.create({
   paymentOption: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 10,
   },
   radioCircle: {
     width: 20,
@@ -150,16 +173,16 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   button: {
-    backgroundColor: "#007AFF", // Màu xanh dương thay vì gradient
-    paddingVertical: 15,
-    borderRadius: 25,
+    backgroundColor: "#00F598", // Màu xanh dương thay vì gradient
+    paddingVertical: 12,
+    borderRadius: 14,
     alignItems: "center",
     marginTop: 30,
   },
   buttonText: {
     fontSize: 16,
-    color: "#fff",
-    fontWeight: "bold",
+    color: "white",
+    fontWeight: "400",
   },
 });
 
