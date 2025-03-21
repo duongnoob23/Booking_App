@@ -11,10 +11,10 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-const OrderFood = () => {
+const OrderFood = ({ navigation }) => {
   // State để quản lý loại đồ ăn được focus
-  const [selectedCategory, setSelectedCategory] = useState("Burgers");
-
+  const [selectedCategory, setSelectedCategory] = useState(1);
+  console.log(selectedCategory);
   // Danh sách loại đồ ăn (giả lập)
   const categories = [
     "Bữa sáng",
@@ -67,7 +67,8 @@ const OrderFood = () => {
       description: "Rất ngon",
       price: "25.000Đ",
       discount: "25% OFF",
-      image: "https://via.placeholder.com/80", // Thay bằng URL ảnh thực tế
+      image:
+        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop", // Thay bằng URL ảnh thực tế
     },
     {
       id: "2",
@@ -77,7 +78,8 @@ const OrderFood = () => {
       description: "Rất ngon",
       price: "15.000Đ",
       discount: "25% OFF",
-      image: "https://via.placeholder.com/80",
+      image:
+        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
     },
     {
       id: "3",
@@ -87,7 +89,8 @@ const OrderFood = () => {
       description: "Rất ngon",
       price: "50.000Đ",
       discount: "25% OFF",
-      image: "https://via.placeholder.com/80",
+      image:
+        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
     },
     {
       id: "4",
@@ -97,10 +100,36 @@ const OrderFood = () => {
       description: "Rất ngon",
       price: "8.000Đ",
       discount: "25% OFF",
-      image: "https://via.placeholder.com/80",
+      image:
+        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
+    },
+    {
+      id: "5",
+      name: "Burger",
+      rating: 3.9,
+      reviews: 200,
+      description: "Rất ngon",
+      price: "8.000Đ",
+      discount: "25% OFF",
+      image:
+        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
+    },
+    {
+      id: "6",
+      name: "Burger",
+      rating: 3.9,
+      reviews: 200,
+      description: "Rất ngon",
+      price: "8.000Đ",
+      discount: "25% OFF",
+      image:
+        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
     },
   ];
 
+  const handleToFoodDetails = () => {
+    navigation.navigate("FoodDetails");
+  };
   console.log(categories[0]);
   // Hàm render mỗi món ăn
   const renderFoodItem = ({ item }) => (
@@ -111,7 +140,7 @@ const OrderFood = () => {
         <View style={styles.ratingContainer}>
           <Ionicons name="star" size={16} color="#FFD700" />
           <Text style={styles.ratingText}>{item.rating}</Text>
-          <Text style={styles.reviewsText}>({item.reviews})</Text>
+          <Text style={styles.reviewsText}>Đánh giá ({item.reviews})</Text>
         </View>
         <Text style={styles.description}>{item.description}</Text>
         <View style={styles.priceContainer}>
@@ -119,7 +148,10 @@ const OrderFood = () => {
           <Text style={styles.price}>{item.price}</Text>
         </View>
       </View>
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => handleToFoodDetails()}
+      >
         <Text style={styles.addButtonText}>Thêm</Text>
       </TouchableOpacity>
     </View>
@@ -140,9 +172,18 @@ const OrderFood = () => {
           <View style={styles.list}>
             {categories2.map((item, index) => {
               return (
-                <TouchableOpacity key={item.id} style={styles.item}>
-                  <View style={styles.itemIcon}>
-                    <Ionicons name={item.nameIcon} size={28} color="#B7C9D4" />
+                <TouchableOpacity key={item.id} style={[styles.item]}>
+                  <View
+                    style={[
+                      styles.itemIcon,
+                      selectedCategory === item.id ? styles.selectFood : "",
+                    ]}
+                  >
+                    <Ionicons
+                      name={item.nameIcon}
+                      size={28}
+                      color={selectedCategory === item.id ? "white" : "#B7C9D4"}
+                    />
                   </View>
                   <Text style={styles.itemText}>{item.name}</Text>
                 </TouchableOpacity>
@@ -196,7 +237,7 @@ const OrderFood = () => {
           <Text style={styles.footerPrice}>Tổng giá: 50.000Đ</Text>
         </View>
         <TouchableOpacity style={styles.cartButton}>
-          <Ionicons name="cart-outline" size={24} color="#fff" />
+          <Ionicons name="cart-outline" size={30} color="white" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -255,8 +296,8 @@ const styles = StyleSheet.create({
   },
   item: {
     backgroundColor: "white",
-    paddingHorizontal: 15, // Thêm padding ngang cho item
-    paddingVertical: 8, // Thêm padding dọc cho item
+    paddingHorizontal: 5, // Thêm padding ngang cho item
+    paddingVertical: 5, // Thêm padding dọc cho item
     marginHorizontal: 5, // Khoảng cách giữa các item
     borderRadius: 15, // Bo góc cho item
     flexDirection: "column",
@@ -264,8 +305,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   itemIcon: {
-    width: "55",
-    height: "55",
+    width: "50",
+    height: "50",
     // padding: 10,
     borderRadius: 100,
     justifyContent: "center",
@@ -278,6 +319,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "400",
   },
+  selectFood: {
+    backgroundColor: "#00BD6B",
+    color: "#white",
+  },
   // Food List
   foodList: {
     flex: 1,
@@ -287,7 +332,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#E0E0E0",
-    alignItems: "center",
+    alignItems: "flex-end",
   },
   foodImage: {
     width: 80,
@@ -300,7 +345,7 @@ const styles = StyleSheet.create({
   },
   foodName: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "400",
     color: "#000",
   },
   ratingContainer: {
@@ -325,26 +370,29 @@ const styles = StyleSheet.create({
   priceContainer: {
     flexDirection: "row",
     marginTop: 5,
+    // justifyContent: "space-around",
   },
   discount: {
     fontSize: 14,
-    color: "#00BD6B",
+    color: "#FFD700",
     marginRight: 5,
+    fontWeight: "bold",
   },
   price: {
     fontSize: 14,
     color: "#000",
     fontWeight: "bold",
+    marginLeft: "20",
   },
   addButton: {
-    backgroundColor: "#E0F7FA",
+    backgroundColor: "#00F598",
     paddingVertical: 5,
     paddingHorizontal: 15,
-    borderRadius: 15,
+    borderRadius: 8,
   },
   addButtonText: {
     fontSize: 14,
-    color: "#00ACC1",
+    color: "white",
     fontWeight: "bold",
   },
   // Footer
@@ -352,10 +400,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 15,
-    backgroundColor: "#F5F5F5",
+    // padding: 15,
+    backgroundColor: "white",
     borderTopWidth: 1,
     borderTopColor: "#E0E0E0",
+    paddingLeft: 10,
   },
   footerCount: {
     fontSize: 12,
@@ -363,13 +412,15 @@ const styles = StyleSheet.create({
   },
   footerPrice: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "400",
     color: "#000",
   },
   cartButton: {
-    backgroundColor: "#00ACC1",
-    padding: 10,
-    borderRadius: 25,
+    backgroundColor: "#00F598",
+    padding: 20,
+    borderRadius: 0,
+    width: "auto",
+    height: "100%",
   },
   footer__food__items: {
     flexDirection: "row",

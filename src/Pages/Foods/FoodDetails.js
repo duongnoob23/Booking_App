@@ -1,20 +1,38 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ImageBackground,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // Để hiển thị icon ngôi sao (rating)
 
 const FoodDetails = () => {
   return (
     <View style={styles.container}>
       {/* Hình ảnh món ăn */}
+      <Ionicons name="chevron-back-outline" size={40} color="black" />
+
       <Image
         source={{
-          uri: "https://example.com/hamburger.jpg", // Thay bằng URL hình ảnh thực tế
+          uri: "https://media.istockphoto.com/id/2061716709/fr/photo/burger-de-c%C3%B4tes-grill%C3%A9es.webp?a=1&b=1&s=612x612&w=0&k=20&c=PvlYSm7Q_q7ro2i7tMJ4lnjELvPeBKnWIyzvOObmkEQ=", // Thay bằng URL hình ảnh thực tế
         }}
         style={styles.foodImage}
       />
-
       {/* Tiêu đề và đánh giá */}
       <View style={styles.header}>
+        <View>
+          <Ionicons name="chevron-back-outline" size={40} color="black" />
+          <Text>Danh sách đồ ăn</Text>
+        </View>
+        <ImageBackground
+          source={{
+            uri: "https://media.istockphoto.com/id/2061716709/fr/photo/burger-de-c%C3%B4tes-grill%C3%A9es.webp?a=1&b=1&s=612x612&w=0&k=20&c=PvlYSm7Q_q7ro2i7tMJ4lnjELvPeBKnWIyzvOObmkEQ=",
+          }}
+          style={styles.foodImage}
+        ></ImageBackground>
         <Text style={styles.foodName}>Hamburger</Text>
         <View style={styles.ratingContainer}>
           <Ionicons name="star" size={16} color="#FFD700" />
@@ -22,7 +40,6 @@ const FoodDetails = () => {
           <Text style={styles.reviewCount}>Đánh giá (200)</Text>
         </View>
       </View>
-
       {/* Mô tả món ăn */}
       <Text style={styles.description}>
         Một chiếc bánh vòng hạt anh túc được chế biến hoàn hảo, kèm phô mai, mứt
@@ -30,10 +47,8 @@ const FoodDetails = () => {
         chua, hai nửa lát tây và hai nửa lát pastrami. Hoàn thiện món ăn này chỉ
         mất năm phút và chứa chưa đến 400 calo.
       </Text>
-
       {/* Giá tiền */}
       <Text style={styles.price}>Giá: 15.000Đ</Text>
-
       {/* Nút Thêm vào giỏ */}
       <TouchableOpacity style={styles.addButton}>
         <Text style={styles.addButtonText}>THÊM VÀO GIỎ</Text>
