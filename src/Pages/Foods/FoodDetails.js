@@ -6,34 +6,56 @@ import {
   StyleSheet,
   TouchableOpacity,
   ImageBackground,
+  BackHandler,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // Để hiển thị icon ngôi sao (rating)
 
-const FoodDetails = () => {
+import { Ionicons } from "@expo/vector-icons"; // Để hiển thị icon ngôi sao (rating)
+import { useEffect } from "react";
+const FoodDetails = ({ navigation }) => {
+  const handleToOrderFood = () => {
+    navigation.navigate("OrderFood");
+  };
+
+  const handleToFoodCart = () => {
+    navigation.navigate("FoodCart");
+  };
+
+  // useEffect(() => {
+  //   const actionBack = () => {
+  //     navigation.navigate("OrderFood");
+  //     return true;
+  //   };
+
+  //   const backHanlder = BackHandler.addEventListener(
+  //     "hardwareBackPress",
+  //     actionBack
+  //   );
+
+  //   return () => backHanlder.remove();
+  // }, []);
   return (
     <View style={styles.container}>
       {/* Hình ảnh món ăn */}
-      <Ionicons name="chevron-back-outline" size={40} color="black" />
-
-      <Image
+      <ImageBackground
         source={{
-          uri: "https://media.istockphoto.com/id/2061716709/fr/photo/burger-de-c%C3%B4tes-grill%C3%A9es.webp?a=1&b=1&s=612x612&w=0&k=20&c=PvlYSm7Q_q7ro2i7tMJ4lnjELvPeBKnWIyzvOObmkEQ=", // Thay bằng URL hình ảnh thực tế
+          uri: "https://media.istockphoto.com/id/2061716709/fr/photo/burger-de-c%C3%B4tes-grill%C3%A9es.webp?a=1&b=1&s=612x612&w=0&k=20&c=PvlYSm7Q_q7ro2i7tMJ4lnjELvPeBKnWIyzvOObmkEQ=",
         }}
         style={styles.foodImage}
-      />
+      >
+        <Ionicons
+          style={styles.iconChevron}
+          name="chevron-back-outline"
+          size={40}
+          color="white"
+          onPress={() => handleToOrderFood()}
+        />
+      </ImageBackground>
+
       {/* Tiêu đề và đánh giá */}
       <View style={styles.header}>
         <View>
-          <Ionicons name="chevron-back-outline" size={40} color="black" />
-          <Text>Danh sách đồ ăn</Text>
+          <Text style={styles.foodName}>Hamburger</Text>
         </View>
-        <ImageBackground
-          source={{
-            uri: "https://media.istockphoto.com/id/2061716709/fr/photo/burger-de-c%C3%B4tes-grill%C3%A9es.webp?a=1&b=1&s=612x612&w=0&k=20&c=PvlYSm7Q_q7ro2i7tMJ4lnjELvPeBKnWIyzvOObmkEQ=",
-          }}
-          style={styles.foodImage}
-        ></ImageBackground>
-        <Text style={styles.foodName}>Hamburger</Text>
         <View style={styles.ratingContainer}>
           <Ionicons name="star" size={16} color="#FFD700" />
           <Text style={styles.ratingText}>3.9</Text>
@@ -50,8 +72,13 @@ const FoodDetails = () => {
       {/* Giá tiền */}
       <Text style={styles.price}>Giá: 15.000Đ</Text>
       {/* Nút Thêm vào giỏ */}
-      <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonText}>THÊM VÀO GIỎ</Text>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => handleToFoodCart()}
+      >
+        <View style={styles.positionButton}>
+          <Text style={styles.addButtonText}>THÊM VÀO GIỎ</Text>
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -59,37 +86,50 @@ const FoodDetails = () => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
     backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 15,
-    marginVertical: 10,
-    marginHorizontal: 15,
+    // borderRadius: 10,
+    // padding: 15,
+    // marginVertical: 10,
+    // marginHorizontal: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    elevation: 3, // Hiệu ứng bóng cho Android
+    // elevation: 3, // Hiệu ứng bóng cho Android
   },
   foodImage: {
     width: "100%",
-    height: 200,
+    height: 250,
     borderRadius: 10,
     marginBottom: 10,
+    position: "relative",
+  },
+  iconChevron: {
+    position: "absolute",
+    top: 20,
+    left: 20,
   },
   header: {
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     marginBottom: 10,
+    // paddingVertical: 10,
+    paddingHorizontal: 10,
   },
   foodName: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#000",
+    marginBottom: 10,
   },
   ratingContainer: {
     flexDirection: "row",
-    alignItems: "center",
+    marginBottom: 10,
   },
   ratingText: {
     fontSize: 14,
@@ -100,29 +140,39 @@ const styles = StyleSheet.create({
   reviewCount: {
     fontSize: 14,
     color: "#666",
+    marginLeft: 20,
   },
   description: {
     fontSize: 14,
     color: "#666",
-    lineHeight: 20,
+    lineHeight: 25,
     marginBottom: 10,
+    paddingHorizontal: 10,
   },
   price: {
-    fontSize: 16,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#000",
     marginBottom: 15,
+    paddingHorizontal: 10,
   },
   addButton: {
-    backgroundColor: "#00C4B4", // Màu xanh lam gradient
+    marginTop: "auto",
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  positionButton: {
+    width: "95%",
+    backgroundColor: "#00F598", // Màu xanh lam gradient
     paddingVertical: 10,
-    borderRadius: 25,
+    borderRadius: 10,
     alignItems: "center",
   },
   addButtonText: {
     fontSize: 16,
     color: "#fff",
-    fontWeight: "bold",
+    fontWeight: "400",
   },
 });
 

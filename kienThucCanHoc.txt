@@ -16,4 +16,5 @@
 + học cách chia layout header,footer fix cứng, body thay đổi linh động với navigationBottomtab
 + học cách zoom ảnh
 + học mở modal
-+ học xử lý sự kiện backhande
++ học xử lý sự kiện backhandler
++ cách sử dụng FlatList

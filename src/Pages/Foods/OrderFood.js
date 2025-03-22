@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
   SafeAreaView,
+  BackHandler,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
@@ -39,7 +40,7 @@ const OrderFood = ({ navigation }) => {
     {
       id: 3,
       name: "Bữa sáng",
-      nameIcon: "beef-outline",
+      nameIcon: "pizza-outline",
     },
     {
       id: 4,
@@ -130,10 +131,36 @@ const OrderFood = ({ navigation }) => {
   const handleToFoodDetails = () => {
     navigation.navigate("FoodDetails");
   };
+
+  const handleToHotelDetails = () => {
+    navigation.navigate("HotelDetails");
+  };
+
+  const handleToFoodCart = () => {
+    navigation.navigate("FoodCart");
+  };
+
+  // useEffect(() => {
+  //   const actionBack = () => {
+  //     navigation.navigate("HotelDetails");
+  //     return true;
+  //   };
+
+  //   const backHanlder = BackHandler.addEventListener(
+  //     "hardwareBackPress",
+  //     actionBack
+  //   );
+
+  //   return () => backHanlder.remove();
+  // }, []);
+
   console.log(categories[0]);
   // Hàm render mỗi món ăn
   const renderFoodItem = ({ item }) => (
-    <View style={styles.foodItem}>
+    <TouchableOpacity
+      style={styles.foodItem}
+      onPress={() => handleToFoodDetails()}
+    >
       <Image source={{ uri: item.image }} style={styles.foodImage} />
       <View style={styles.foodInfo}>
         <Text style={styles.foodName}>{item.name}</Text>
@@ -150,18 +177,18 @@ const OrderFood = ({ navigation }) => {
       </View>
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => handleToFoodDetails()}
+        onPress={() => handleToFoodCart()}
       >
         <Text style={styles.addButtonText}>Thêm</Text>
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => handleToHotelDetails()}>
           <Ionicons name="chevron-back-outline" size={28} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Đồ ăn</Text>
@@ -193,34 +220,6 @@ const OrderFood = ({ navigation }) => {
         </ScrollView>
       </View>
       {/* Danh sách loại đồ ăn (Category List) */}
-      {/* <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.categoryList}
-      >
-        {categories.map((category, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.categoryItem,
-              //   selectedCategory === category
-              //     ? styles.categoryItemFocused
-              //     : styles.categoryItemUnfocused,
-            ]}
-            onPress={() => setSelectedCategory(category)}
-          >
-            <Text
-              style={
-                selectedCategory === category
-                  ? styles.categoryTextFocused
-                  : styles.categoryTextUnfocused
-              }
-            >
-              {category}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView> */}
 
       {/* Danh sách món ăn (Food List) */}
       <FlatList
@@ -236,7 +235,10 @@ const OrderFood = ({ navigation }) => {
           <Text style={styles.footerCount}>Tổng số: 2</Text>
           <Text style={styles.footerPrice}>Tổng giá: 50.000Đ</Text>
         </View>
-        <TouchableOpacity style={styles.cartButton}>
+        <TouchableOpacity
+          style={styles.cartButton}
+          onPress={() => handleToFoodCart()}
+        >
           <Ionicons name="cart-outline" size={30} color="white" />
         </TouchableOpacity>
       </View>
@@ -386,14 +388,14 @@ const styles = StyleSheet.create({
   },
   addButton: {
     backgroundColor: "#00F598",
-    paddingVertical: 5,
-    paddingHorizontal: 15,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
     borderRadius: 8,
   },
   addButtonText: {
-    fontSize: 14,
+    fontSize: 15,
     color: "white",
-    fontWeight: "bold",
+    fontWeight: "400",
   },
   // Footer
   footer: {
@@ -439,3 +441,40 @@ const styles = StyleSheet.create({
 });
 
 export default OrderFood;
+{
+  /* <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.categoryList}
+      >
+        {categories.map((category, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.categoryItem,
+              //   selectedCategory === category
+              //     ? styles.categoryItemFocused
+              //     : styles.categoryItemUnfocused,
+            ]}
+            onPress={() => setSelectedCategory(category)}
+          >
+            <Text
+              style={
+                selectedCategory === category
+                  ? styles.categoryTextFocused
+                  : styles.categoryTextUnfocused
+              }
+            >
+              {category}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView> */
+}
+
+// viêts navigation top bar
+// viết danh sách món ăn theo top bar
+// css lại phàn giỏ hàng và tổng tiền
+// cách sử dụng redux chia sẻ data giữa các component
+// ấn nút thêm thì sẽ thêm sản phẩm vào shopcart
+// hiêu ứng sản phẩm nhảy vào shop

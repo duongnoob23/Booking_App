@@ -56,6 +56,10 @@ const HomeScreen = ({ navigation }) => {
       details: " 23-26 Tháng 8, 6-7 Người lớn, 1 trẻ em",
     },
   ];
+
+  const handleToRate = (name) => {
+    navigation.navigate(`${name}`);
+  };
   // Chia continueSearch thành 2 phần
   console.log(continueSearch.length / 2);
   const WidthtwoRowScrollView = 210 * Math.ceil(continueSearch.length / 2);
@@ -113,7 +117,12 @@ const HomeScreen = ({ navigation }) => {
         </View>
 
         {/* Search Button */}
-        <TouchableOpacity style={styles.searchButton}>
+        <TouchableOpacity
+          style={styles.searchButton}
+          onPress={() => handleToRate("RateReviews")}
+          // onPress={() => handleToRate("RateApp")}
+          // onPress={() => handleToRate("RateDetails")}
+        >
           <Text style={styles.searchButtonText}>Tìm kiếm</Text>
         </TouchableOpacity>
 

@@ -45,7 +45,10 @@ const PriceScreen = ({ navigation }) => {
 
   const handleOrderFood = () => {
     navigation.navigate("OrderFood");
-    // navigation.navigate("FoodDetails");
+  };
+
+  const handleToFoodDetail = () => {
+    navigation.navigate("FoodDetails");
   };
 
   return (
@@ -184,7 +187,10 @@ const PriceScreen = ({ navigation }) => {
               {foodList &&
                 foodList?.map((item, index) => {
                   return (
-                    <TouchableOpacity key={index}>
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => handleToFoodDetail()}
+                    >
                       <Image
                         source={{
                           uri: `${item.urL}`,

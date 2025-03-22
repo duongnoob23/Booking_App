@@ -28,6 +28,12 @@ import PriceScreen from "../Pages/Hotels/PriceScreen";
 import CheckScreen from "../Pages/Hotels/CheckScreen";
 import OrderFood from "../Pages/Foods/OrderFood";
 import FoodDetails from "../Pages/Foods/FoodDetails";
+import FoodCart from "../Pages/Foods/FoodCart";
+import OrderPayment from "../Pages/Payment/OrderPayment";
+import SuccessPayment from "../Pages/Payment/SuccessPayment";
+import RateReviews from "../Pages/Reviews/RateReviews";
+import RateDetails from "../Pages/Reviews/RateDetails";
+import RateApp from "../Pages/Reviews/RateApp";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -63,6 +69,54 @@ const HomeStackNavigator = () => {
       <Stack.Screen
         name="FoodDetails"
         component={FoodDetails}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="FoodCart"
+        component={FoodCart}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="OrderPayment"
+        component={OrderPayment}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="SuccessPayment"
+        component={SuccessPayment}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="RateReviews"
+        component={RateReviews}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="RateDetails"
+        component={RateDetails}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="RateApp"
+        component={RateApp}
         options={{
           headerShown: false,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
@@ -169,3 +223,5 @@ const Navigation = () => {
 };
 
 export default Navigation;
+
+// bạn hãy xem kĩ 2 giao diện này và code lại cho tôi , đúng đến từng chi tiết margin pixel padding , lineheight, color ko cần linear gradient giống nhất có thể cho tôi, sử dụng styleSheet với react-native và đặt tên css chuẩn  Bemm, hay code và tự test lại giao diện, đánh giấ xem giống yêu cầu bao nhiêu phần trăm

@@ -226,3 +226,78 @@ __________________________________________________________________________Custom
 
 vấn đề từ bên hotelDetails sang bên infoconfirm có giữ lại header ko hay chỉ chuyển thân
 nếu chỉ chuyển thân thì dùng modal hay dùng kiểu ẩn hiện file
+
+
+___________________________________________________________________FlatList______________________________________________________________________________
+tại sao bên trong Flatlistconst renderListFood = ({ item }) => {
+    return (
+      <View style={styles.foodCart__item}>
+        <Image
+          source={{
+            uri: ${item.url},
+          }} // Thay bằng URL hình ảnh thực tế
+          style={styles.foodCart__itemImage}
+        />
+        <View style={styles.foodCart__itemDetails}>
+          <Text style={styles.foodCart__itemName}>{item.name}</Text>
+          <Text style={styles.foodCart__itemPrice}>{item.price}</Text>
+        </View>
+        <View style={styles.foodCart__itemQuantity}>
+          <TouchableOpacity style={styles.foodCart__itemButton}>
+            <Text style={styles.foodCart__itemButtonText}>−</Text>
+          </TouchableOpacity>
+          <Text style={styles.foodCart__itemQuantityText}>{item.quantity}</Text>
+          <TouchableOpacity style={styles.foodCart__itemButton}>
+            <Text style={styles.foodCart__itemButtonText}>+</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+<FlatList
+        data={FoodList}
+        renderItem={renderListFood}
+        keyExtractor={(item) => item.id}
+        style={styles.foodCart__items}
+      />const FoodList = [
+    {
+      id: 1,
+      name: "Bagels with turkey and bacon",
+      url: "https://media.istockphoto.com/id/2061716709/fr/photo/burger-de-c%C3%B4tes-grill%C3%A9es.webp?a=1&b=1&s=612x612&w=0&k=20&c=PvlYSm7Q_q7ro2i7tMJ4lnjELvPeBKnWIyzvOObmkEQ=",
+      price: "10.000",
+      quantity: "1",
+    },
+    {
+      id: 2,
+      name: "Sandwich",
+      url: "https://media.istockphoto.com/id/2061716709/fr/photo/burger-de-c%C3%B4tes-grill%C3%A9es.webp?a=1&b=1&s=612x612&w=0&k=20&c=PvlYSm7Q_q7ro2i7tMJ4lnjELvPeBKnWIyzvOObmkEQ=",
+      price: "10.000",
+      quantity: "1",
+    },
+  ];bên trong hàm render phải dùng ({item}) mới hoạt động, dùng (item) không hoạt động
+const renderListFood = ({ item }) => {bạn có thể nói rõ vấn đề này để tôi hiểu bản chất của flatList ko
+
+Cấu trúc dữ liệu mà renderItem nhận được
+Hàm renderItem không nhận trực tiếp phần tử item từ mảng data. Thay vào đó, FlatList truyền vào một object với cấu trúc như sau:
+javascript
+
+{
+  item: phần_tử_trong_mảng_data,
+  index: chỉ_số_của_phần_tử_trong_mảng,
+  separators: một_số_hàm_để_xử_lý_việc_thêm/xóa_phân_cách (ít dùng)
+}
+
+item: Là phần tử cụ thể trong mảng data (ví dụ: { id: 1, name: "Bagels with turkey and bacon", ... }).
+
+index: Là chỉ số của phần tử trong mảng (0, 1, 2, ...).
+
+separators: Một object chứa các hàm để xử lý phân cách (thường không cần dùng).
+
+Vì vậy, tham số đầu tiên mà hàm renderItem nhận được không phải là item trực tiếp, mà là một object chứa item, index, và separators.
+
+Cú pháp ({ item }) sử dụng destructuring assignment trong JavaScript để lấy trực tiếp thuộc tính item từ object mà FlatList truyền vào.
+
+({ item }) nghĩa là: "Lấy thuộc tính item từ object đầu vào và gán nó vào biến item để sử dụng trong hàm."
+
+Đây là cách đúng vì FlatList truyền vào một object { item, index, separators }.
+
