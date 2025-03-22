@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { View, Text, Image, StyleSheet, navigation } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // Để hiển thị icon ngôi sao (rating)
 // Thank You Screen
 const SuccessPayment = ({ navigation }) => {
   useEffect(() => {
@@ -26,9 +25,9 @@ const SuccessPayment = ({ navigation }) => {
           size={150}
           color="white"
         />
-        <Text style={styles.thankYou__title}>THANK YOU</Text>
-        <Text style={styles.thankYou__subtitle1}>YOUR ORDER IS </Text>
-        <Text style={styles.thankYou__subtitle1}>SUCCESSFUL</Text>
+        <Text style={styles.thankYou__title}>CẢM ƠN </Text>
+        <Text style={styles.thankYou__subtitle1}>BẠN ĐÃ ĐẶT MÓN </Text>
+        <Text style={styles.thankYou__subtitle1}>THÀNH CÔNG </Text>
       </View>
     </View>
   );

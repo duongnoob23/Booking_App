@@ -6,16 +6,25 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
+  navigation,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const RateDetails = () => {
+const RateDetails = ({ navigation }) => {
+  const handleTo = () => {
+    navigation.navigate("");
+  };
   return (
     <View style={styles.rateDetail}>
       {/* Header */}
       <View style={styles.rateDetail__header}>
-        <TouchableOpacity>
-          <Text style={styles.rateDetail__headerBack}>←</Text>
+        <TouchableOpacity onPress={() => handleTo()}>
+          <Ionicons
+            style={styles.iconBed}
+            name="chevron-back-outline"
+            size={25}
+            color="black"
+          />
         </TouchableOpacity>
         <Text style={styles.rateDetail__headerTitle}>Chi tiết đánh giá</Text>
       </View>
@@ -28,12 +37,7 @@ const RateDetails = () => {
           </Text>
           <View style={styles.rateDetail__stars}>
             {[...Array(5)].map((_, index) => (
-              <Ionicons
-                key={index}
-                name="star-outline"
-                size={20}
-                color="#CCCCCC"
-              />
+              <Ionicons key={index} name="star" size={20} color="orange" />
             ))}
           </View>
         </View>
@@ -94,19 +98,27 @@ const RateDetails = () => {
       <Text style={styles.rateDetail__photosLabel}>Ảnh</Text>
       <View style={styles.rateDetail__photos}>
         <Image
-          source={{ uri: "https://via.placeholder.com/80" }} // Thay bằng URL hình ảnh
+          source={{
+            uri: "https://media.istockphoto.com/id/1418701619/vi/anh/bi%E1%BB%83n-hi%E1%BB%87u-kh%C3%A1ch-s%E1%BA%A1n-tr%C3%AAn-m%E1%BA%B7t-ti%E1%BB%81n-t%C3%B2a-nh%C3%A0-trong-th%C3%A0nh-ph%E1%BB%91-%C4%91i-c%C3%B4ng-t%C3%A1c-v%C3%A0-du-l%E1%BB%8Bch.jpg?s=612x612&w=0&k=20&c=x6d_5RIXuQbFpfFYrtKcA4WnLI3HxTmcqy4naLNMA1I=",
+          }} // Thay bằng URL hình ảnh
           style={styles.rateDetail__photo}
         />
         <Image
-          source={{ uri: "https://via.placeholder.com/80" }} // Thay bằng URL hình ảnh
+          source={{
+            uri: "https://media.istockphoto.com/id/1154773904/vi/anh/ph%C3%B2ng-kh%C3%A1ch-s%E1%BA%A1n-tho%E1%BA%A3i-m%C3%A1i.jpg?s=612x612&w=0&k=20&c=4_WqMoGFrvX6GaaCeHsRHgoyWQ1Xu-Akz8PIBx50Bfo=",
+          }} // Thay bằng URL hình ảnh
           style={styles.rateDetail__photo}
         />
         <Image
-          source={{ uri: "https://via.placeholder.com/80" }} // Thay bằng URL hình ảnh
+          source={{
+            uri: "https://media.istockphoto.com/id/591821200/vi/anh/3d-k%E1%BA%BFt-xu%E1%BA%A5t-kh%C3%A1ch-s%E1%BA%A1n-sang-tr%E1%BB%8Dng-l%E1%BB%85-t%C3%A2n-v%C3%A0-ph%C3%B2ng-ch%E1%BB%9D.jpg?s=612x612&w=0&k=20&c=-RRMcBrwAb3L5hWy8J5NzSTTtvoPwTY196Vm6f5VsHo=",
+          }} // Thay bằng URL hình ảnh
           style={styles.rateDetail__photo}
         />
         <Image
-          source={{ uri: "https://via.placeholder.com/80" }} // Thay bằng URL hình ảnh
+          source={{
+            uri: "https://media.istockphoto.com/id/119926339/vi/anh/h%E1%BB%93-b%C6%A1i-resort.jpg?s=612x612&w=0&k=20&c=2gD2N3YByJLQYfk3f1z89qLdLqe1UBVCl_NesEyfTW0=",
+          }} // Thay bằng URL hình ảnh
           style={styles.rateDetail__photo}
         />
       </View>
@@ -118,7 +130,7 @@ const styles = StyleSheet.create({
   rateDetail: {
     flex: 1,
     backgroundColor: "#F5F5F5",
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
   },
   rateDetail__header: {
     flexDirection: "row",
@@ -187,3 +199,5 @@ const styles = StyleSheet.create({
 });
 
 export default RateDetails;
+// tao list hình ảnh, render hình ảnh bẳng scroll view,
+// chỉnh lại css
