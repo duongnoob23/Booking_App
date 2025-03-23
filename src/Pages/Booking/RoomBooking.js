@@ -12,13 +12,8 @@ import { Ionicons } from "@expo/vector-icons"; // Dùng icon từ Expo
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import PriceScreen from "../Hotels/PriceScreen";
 import { useState } from "react";
-import RoomCancelled from "./RoomCancelled";
-import RoomBooking from "./RoomBooking";
-import RoomBooked from "./RoomBooked";
 
-const BookingScreen = () => {
-  const Tab = createMaterialTopTabNavigator();
-  const [css, setCss] = useState(1);
+const RoomBooked = () => {
   const bookings = [
     {
       id: "1",
@@ -31,79 +26,18 @@ const BookingScreen = () => {
       discount: "25% OFF",
       price: 127,
     },
+    {
+      id: "2",
+      image:
+        "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=", // Placeholder cho hình ảnh
+      name: "Heden golf",
+      rating: 3.9,
+      reviews: 200,
+      date: "23 - 7 - 2019",
+      discount: "25% OFF",
+      price: 127,
+    },
   ];
-
-  const CustomTabBar = ({ state, descriptors, navigation }) => {
-    return (
-      <View style={styles.header__tabs}>
-        <TouchableOpacity
-          style={[
-            styles.header__tab,
-            styles.header__tab__1,
-            // css === 1 && styles.active,
-            state.index === 0 && styles.active,
-          ]}
-          onPress={() => {
-            // setCss(1);
-            navigation.navigate("Booked");
-          }}
-        >
-          <Text
-            style={[
-              styles.header__tab__text,
-              // css === 1 && styles.activeText,
-              state.index === 0 && styles.activeText,
-            ]}
-          >
-            Đang đặt
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.header__tab,
-            // css === 2 && styles.active,
-            state.index === 1 && styles.active,
-          ]}
-          onPress={() => {
-            // setCss(2);
-            navigation.navigate("Booking");
-          }}
-        >
-          <Text
-            style={[
-              styles.header__tab__text,
-              // css === 2 && styles.activeText,
-              state.index === 1 && styles.activeText,
-            ]}
-          >
-            Đã đặt
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.header__tab,
-            styles.header__tab__3,
-            // css === 3 && styles.active,
-            state.index === 2 && styles.active,
-          ]}
-          onPress={() => {
-            // setCss(3);
-            navigation.navigate("Cancelled");
-          }}
-        >
-          <Text
-            style={[
-              styles.header__tab__text,
-              // css === 3 && styles.activeText,
-              state.index === 2 && styles.activeText,
-            ]}
-          >
-            Đã hủy
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
 
   const renderBookingItem = ({ item }) => (
     <View style={styles.bookingHistoryScreen__bookingItem}>
@@ -148,59 +82,13 @@ const BookingScreen = () => {
 
   return (
     <View style={styles.bookingHistoryScreen}>
-      {/* Tiêu đề */}
-      {/* <Text style={styles.bookingHistoryScreen__title}>Lịch sử đặt phòng</Text> */}
-
-      {/* Thanh tìm kiếm */}
-      <View style={styles.bookingHistoryScreen__searchBar}>
-        <Ionicons
-          name="search"
-          size={20}
-          color="#0090FF"
-          style={styles.bookingHistoryScreen__searchIcon}
-        />
-        <TextInput
-          style={styles.bookingHistoryScreen__searchInput}
-          placeholder="Search"
-          placeholderTextColor="#999"
-        />
-        <TouchableOpacity>
-          <Ionicons
-            name="close"
-            size={20}
-            color="#999"
-            style={styles.bookingHistoryScreen__clearIcon}
-          />
-        </TouchableOpacity>
-      </View>
-
-      <Tab.Navigator
-        tabBar={(props) => <CustomTabBar {...props} />}
-        initialRouteName="Booking"
-      >
-        <Tab.Screen
-          name="Booked"
-          component={RoomBooked}
-          options={{ tabBarLabel: "Đang đặt " }}
-        />
-        <Tab.Screen
-          name="Booking"
-          component={RoomBooking}
-          options={{ tabBarLabel: "Đã đặt " }}
-        />
-        <Tab.Screen
-          name="Cancelled"
-          component={RoomCancelled}
-          options={{ tabBarLabel: "Đã hủy " }}
-        />
-      </Tab.Navigator>
       {/* Danh sách đặt phòng */}
-      {/* <FlatList
+      <FlatList
         data={bookings}
         renderItem={renderBookingItem}
         keyExtractor={(item) => item.id}
         style={styles.bookingHistoryScreen__bookingList}
-      /> */}
+      />
     </View>
   );
 };
@@ -209,8 +97,8 @@ const styles = StyleSheet.create({
   bookingHistoryScreen: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    paddingTop: 40, // Khoảng cách từ thanh trạng thái
-    paddingHorizontal: 15,
+    //     paddingTop: 40, // Khoảng cách từ thanh trạng thái
+    //     paddingHorizontal: 15,
   },
   bookingHistoryScreen__title: {
     fontSize: 20,
@@ -224,6 +112,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 12,
     paddingHorizontal: 15,
+
     height: 40,
     marginBottom: 15,
     borderWidth: 1,
@@ -252,7 +141,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#E0E0E0",
     borderRadius: 20,
-    paddingVertical: 10,
+    //     paddingVertical: 10,
     alignItems: "center",
     marginHorizontal: 5,
   },
@@ -273,6 +162,7 @@ const styles = StyleSheet.create({
   bookingHistoryScreen__bookingItem: {
     flexDirection: "row",
     marginBottom: 20,
+    //     backgroundColor: "red",
   },
   bookingHistoryScreen__bookingImage: {
     width: 90,
@@ -352,8 +242,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     paddingVertical: 10,
-    // borderBottomWidth: 1,
-    // borderBottomColor: "#ddd",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
   },
   header__tab: {
     paddingVertical: 5,
@@ -382,4 +272,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BookingScreen;
+export default RoomBooked;

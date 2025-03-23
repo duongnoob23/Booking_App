@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import { View, Text, Image, StyleSheet, navigation } from "react-native";
 // Thank You Screen
+import Ionicons from "react-native-vector-icons/Ionicons";
+import Icon from "react-native-vector-icons/FontAwesome";
 const SuccessPayment = ({ navigation }) => {
   useEffect(() => {
     const timeNavigate = setTimeout(() => {

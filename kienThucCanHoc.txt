@@ -43,3 +43,19 @@ việc cần làm
 
 + FindRoom
 // code danh sách phòng khách san, booking
+
++ EditProfile
+
+// code lại phần thêm ảnh vào profile
+
++ HotelDetails,HotelNearby
+// code phần bản đồ zoom lên
+
++ All
+tạo dữ liệu fix cứng đa dạng hơn
+đổi màu sang linear-gradient
+
+tối ưu code lại,khối code nào dùng chung tách riêng rad
+
+0090FF
+00F598

@@ -7,8 +7,8 @@ import {
   StyleSheet,
   navigation,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // Để hiển thị icon ngôi sao (rating)
-
+import Ionicons from "react-native-vector-icons/Ionicons";
+import Icon from "react-native-vector-icons/FontAwesome";
 // Payment Methods Screen
 const OrderPayment = ({ navigation }) => {
   const handleToFoodCart = () => {

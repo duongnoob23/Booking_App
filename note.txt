@@ -300,4 +300,95 @@ Cú pháp ({ item }) sử dụng destructuring assignment trong JavaScript để
 ({ item }) nghĩa là: "Lấy thuộc tính item từ object đầu vào và gán nó vào biến item để sử dụng trong hàm."
 
 Đây là cách đúng vì FlatList truyền vào một object { item, index, separators }.
+____________________________________________________________State.index trong custom topBar_____________________________________________________________________________
+Khái niệm state trong Tab.Navigator
+Trong React Navigation, khi bạn sử dụng createMaterialTopTabNavigator (hoặc bất kỳ navigator nào khác), nó quản lý trạng thái điều hướng nội bộ (navigation state) để theo dõi tab nào đang được hiển thị.
 
+state là một đối tượng được truyền vào CustomTabBar thông qua props của tabBar. Đối tượng state này chứa thông tin về trạng thái điều hướng hiện tại, bao gồm:
+state.routes: Một mảng chứa thông tin về các tab (mỗi tab là một route).
+
+state.index: Chỉ số (index) của tab hiện tại đang active (bắt đầu từ 0).
+
+Cách state.index thay đổi
+state.index thay đổi khi tab hiện tại thay đổi, và điều này xảy ra trong các trường hợp sau:
+Người dùng nhấn vào tab:
+Khi bạn gọi navigation.navigate("TabName") trong CustomTabBar, React Navigation sẽ cập nhật trạng thái điều hướng nội bộ. Điều này làm thay đổi state.index để phản ánh tab mới được chọn.
+
+Người dùng vuốt màn hình:
+Khi người dùng vuốt qua trái/phải để chuyển tab, Tab.Navigator tự động phát hiện hành động vuốt và cập nhật trạng thái điều hướng. state.index sẽ thay đổi để khớp với tab mới mà người dùng vuốt đến.
+
+Thay đổi tab bằng code:
+Nếu bạn sử dụng các API của React Navigation (như navigation.jumpTo hoặc navigation.navigate), state.index cũng sẽ được cập nhật.
+
+Giả sử người dùng đang ở tab "Đang đặt" (state.index = 0):
+Tab "Đang đặt" có style active (nền xanh, chữ trắng).
+
+Người dùng vuốt sang tab "Đã đặt":
+Tab.Navigator cập nhật state.index thành 1.
+
+CustomTabBar re-render và áp dụng style active cho tab "Đã đặt".
+
+Người dùng nhấn vào tab "Đã hủy":
+navigation.navigate("Cancelled") được gọi.
+
+Tab.Navigator cập nhật state.index thành 2.
+
+CustomTabBar re-render và áp dụng style active cho tab "Đã hủy".
+
+
+>>>>>>>>>>>>>>> tabBar cũ
+
+
+const CustomTabBar = ({ state, descriptors, navigation }) => {
+    return (
+      <View style={styles.header__tabs}>
+        <TouchableOpacity
+          style={[
+            styles.header__tab,
+            styles.header__tab__1,
+            css === 1 && styles.active,
+          ]}
+          onPress={() => {
+            setCss(1);
+            navigation.navigate("Price");
+          }}
+        >
+          <Text
+            style={[styles.header__tab__text, css === 1 && styles.activeText]}
+          >
+            Bảng giá (106)
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.header__tab, css === 2 && styles.active]}
+          onPress={() => {
+            setCss(2);
+            navigation.navigate("Photo");
+          }}
+        >
+          <Text
+            style={[styles.header__tab__text, css === 2 && styles.activeText]}
+          >
+            Ảnh (10)
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.header__tab,
+            styles.header__tab__3,
+            css === 3 && styles.active,
+          ]}
+          onPress={() => {
+            setCss(3);
+            navigation.navigate("Check");
+          }}
+        >
+          <Text
+            style={[styles.header__tab__text, css === 3 && styles.activeText]}
+          >
+            Lần check (24)
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };

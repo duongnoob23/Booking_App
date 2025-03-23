@@ -82,28 +82,41 @@ const HotelDetails = ({ navigation }) => {
           style={[
             styles.header__tab,
             styles.header__tab__1,
-            css === 1 && styles.active,
+            // css === 1 && styles.active,
+            state.index === 0 && styles.active,
           ]}
           onPress={() => {
-            setCss(1);
+            // setCss(1);
             navigation.navigate("Price");
           }}
         >
           <Text
-            style={[styles.header__tab__text, css === 1 && styles.activeText]}
+            style={[
+              styles.header__tab__text,
+              // css === 1 && styles.activeText,
+              state.index === 0 && styles.activeText,
+            ]}
           >
             Bảng giá (106)
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.header__tab, css === 2 && styles.active]}
+          style={[
+            styles.header__tab,
+            // css === 2 && styles.active,
+            state.index === 1 && styles.active,
+          ]}
           onPress={() => {
-            setCss(2);
+            // setCss(2);
             navigation.navigate("Photo");
           }}
         >
           <Text
-            style={[styles.header__tab__text, css === 2 && styles.activeText]}
+            style={[
+              styles.header__tab__text,
+              // css === 2 && styles.activeText,
+              state.index === 1 && styles.activeText,
+            ]}
           >
             Ảnh (10)
           </Text>
@@ -112,15 +125,20 @@ const HotelDetails = ({ navigation }) => {
           style={[
             styles.header__tab,
             styles.header__tab__3,
-            css === 3 && styles.active,
+            // css === 3 && styles.active,
+            state.index === 2 && styles.active,
           ]}
           onPress={() => {
-            setCss(3);
+            // setCss(3);
             navigation.navigate("Check");
           }}
         >
           <Text
-            style={[styles.header__tab__text, css === 3 && styles.activeText]}
+            style={[
+              styles.header__tab__text,
+              // css === 3 && styles.activeText,
+              state.index === 2 && styles.activeText,
+            ]}
           >
             Lần check (24)
           </Text>
@@ -128,7 +146,6 @@ const HotelDetails = ({ navigation }) => {
       </View>
     );
   };
-
   return (
     <View style={styles.container}>
       {/* Header */}

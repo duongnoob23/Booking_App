@@ -1,6 +1,8 @@
 // src/route/navigation.js
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
+
+import { TouchableOpacity, Text } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useState } from "react";
@@ -40,6 +42,11 @@ import ChangePasswordScreen from "../Pages/Setting/ChangePasswordScreen";
 import PointsHistory from "../Pages/Profile/PointsHistory";
 import Points from "../Pages/Profile/Points";
 import RewardMember from "../Pages/Profile/RewardMember";
+import Discount from "../Pages/Promotion/Discount";
+import DiscountHistory from "../Pages/Promotion/DiscountHistory ";
+import NotificationsScreen from "../Pages/Notification/NotificationScreen";
+import DiscountHistoryUse from "../Pages/Promotion/DiscountHistoryUse";
+import DiscountHistoryExpired from "../Pages/Promotion/DiscountHistoryExpired";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -52,6 +59,7 @@ const HomeStackNavigator = () => {
     <Stack.Navigator
       screenOptions={{
         headerTitleAlign: "center",
+        title: "Trang chủ ",
       }}
     >
       <Stack.Screen name="Home" component={HomeScreen} />
@@ -131,7 +139,7 @@ const HomeStackNavigator = () => {
     </Stack.Navigator>
   );
 };
-
+// stack cho phần Account
 const AccountStackNavigator = () => {
   return (
     <Stack.Navigator
@@ -203,6 +211,127 @@ const AccountStackNavigator = () => {
     </Stack.Navigator>
   );
 };
+//stack cho phần Booking
+const BookingStackNavigator = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerTitleAlign: "center",
+      }}
+    >
+      <Stack.Screen
+        name="BookingScreen"
+        component={BookingScreen}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Lịch sử đặt phòng  ",
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
+//stack cho phần Notification
+const NotificationStackNavigator = ({ navigation }) => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerTitleAlign: "center",
+      }}
+    >
+      <Stack.Screen
+        name="Notification"
+        component={NotificationsScreen}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Thông báo",
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate("DiscountHistory")}
+              style={{ marginRight: 10 }}
+            >
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "400",
+                  color: "#007BFF",
+                  // backgroundColor: "red",
+                }}
+              >
+                Xóa
+              </Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
+//stack cho phần Promotion
+const PromotionStackNavigator = ({ navigation }) => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerTitleAlign: "center",
+      }}
+    >
+      <Stack.Screen
+        name="Discount"
+        component={Discount}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Mã giảm giá ",
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate("DiscountHistory")}
+              style={{ marginRight: 10 }}
+            >
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "400",
+                  color: "#007BFF",
+                  // backgroundColor: "red",
+                }}
+              >
+                Lịch sử
+              </Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="DiscountHistory"
+        component={DiscountHistory}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Lịch sử ",
+        }}
+      />
+      <Stack.Screen
+        name="DiscountHistoryUse"
+        component={DiscountHistoryUse}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Lịch sử ",
+        }}
+      />
+      <Stack.Screen
+        name="DiscountHistoryExpired"
+        component={DiscountHistoryExpired}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Lịch sử ",
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
 // Bottom Tab Navigator
 
 const AuthNavigator = () => {
@@ -240,7 +369,7 @@ const MainNavigator = () => {
       />
       <Tab.Screen
         name="PromotionTab"
-        component={PromotionScreen}
+        component={PromotionStackNavigator}
         options={{
           title: "Promotion",
           tabBarIcon: ({ focused, color, size }) => {
@@ -251,7 +380,7 @@ const MainNavigator = () => {
       />
       <Tab.Screen
         name="BookingTab"
-        component={BookingScreen}
+        component={BookingStackNavigator}
         options={{
           title: "Booking",
           tabBarIcon: ({ focused, color, size }) => {
@@ -262,7 +391,7 @@ const MainNavigator = () => {
       />
       <Tab.Screen
         name="NotificationTab"
-        component={NotificationScreen}
+        component={NotificationStackNavigator}
         options={{
           title: "Notification",
           tabBarIcon: ({ focused, color, size }) => {
