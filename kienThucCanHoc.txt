@@ -39,4 +39,7 @@ việc cần làm
 
 + FoodCart
 // xử lý logic chỉnh quantity thì chỉnh data trong mảng
-// logic ấn thêm thì món ăn sẽ thêm vào danh sách giỏ hàng
+// logic ấn thêm thì món ăn sẽ thêm vào danh sách giỏ hàng 
+
++ FindRoom
+// code danh sách phòng khách san, booking

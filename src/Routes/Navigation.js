@@ -34,6 +34,12 @@ import SuccessPayment from "../Pages/Payment/SuccessPayment";
 import RateReviews from "../Pages/Reviews/RateReviews";
 import RateDetails from "../Pages/Reviews/RateDetails";
 import RateApp from "../Pages/Reviews/RateApp";
+import EditProfile from "../Pages/Profile/EditProfile";
+import SettingsScreen from "../Pages/Setting/SettingsScreen";
+import ChangePasswordScreen from "../Pages/Setting/ChangePasswordScreen";
+import PointsHistory from "../Pages/Profile/PointsHistory";
+import Points from "../Pages/Profile/Points";
+import RewardMember from "../Pages/Profile/RewardMember";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -126,6 +132,77 @@ const HomeStackNavigator = () => {
   );
 };
 
+const AccountStackNavigator = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerTitleAlign: "center",
+      }}
+    >
+      <Stack.Screen
+        name="Profile"
+        component={Profile}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfile}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="SettingsScreen"
+        component={SettingsScreen}
+        options={{
+          headerShown: true,
+          tabBarVisible: false,
+          title: "Cài đặt ", // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="ChangePasswordScreen"
+        component={ChangePasswordScreen}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Đổi mật khẩu",
+        }}
+      />
+      <Stack.Screen
+        name="RewardMember"
+        component={RewardMember}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Phần thươngr & Thành viên ",
+        }}
+      />
+      <Stack.Screen
+        name="Points"
+        component={Points}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Điểm thưởng ",
+        }}
+      />
+      <Stack.Screen
+        name="PointsHistory"
+        component={PointsHistory}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Lịch sử điểm thưởng",
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
 // Bottom Tab Navigator
 
 const AuthNavigator = () => {
@@ -198,7 +275,7 @@ const MainNavigator = () => {
       />
       <Tab.Screen
         name="AccountTab"
-        component={AccountScreen}
+        component={AccountStackNavigator}
         options={{
           title: "Account",
           tabBarIcon: ({ focused, color, size }) => {
