@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect } from "react";
+import React, { useState, useLayoutEffect, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   ImageBackground,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-// import * as ImagePicker from "expo-image-picker";
+import * as ImagePicker from "expo-image-picker";
 // import { Ionicons } from "@expo/vector-icons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
@@ -26,10 +26,10 @@ const EditProfile = ({ navigation }) => {
   }, [navigation]);
   // const navigation = useNavigation();
   const route = useRoute();
-  //   const {} = route.params;
-  //   const { userData, onSave } = route.params;
-
-  const userData = [{}];
+  const {} = route.params;
+  const { userData } = route.params;
+  console.log(">>> check userData", userData);
+  // const userData = [{}];
   // State để lưu dữ liệu chỉnh sửa
   const [name, setName] = useState(userData.name);
   const [email, setEmail] = useState(userData.email);
@@ -38,24 +38,24 @@ const EditProfile = ({ navigation }) => {
 
   // Xử lý chọn ảnh
   const pickImage = async () => {
-    //     let result = await ImagePicker.launchImageLibraryAsync({
-    //       mediaTypes: ImagePicker.MediaTypeOptions.All,
-    //       allowsEditing: true,
-    //       aspect: [1, 1],
-    //       quality: 1,
-    //     });
-    //     console.log("Image URI:", result.assets[0].uri);
-    //     if (!result.canceled) {
-    //       setAvatar(result.assets[0].uri);
-    //     }
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+    console.log("Image URI:", result.assets[0].uri);
+    if (!result.canceled) {
+      setAvatar(result.assets[0].uri);
+      const newAvatar = result.assets[0].uri;
+      await handleSaveAvatar(newAvatar);
+    }
   };
 
-  // Xử lý lưu thông tin
-  // const handleSave = async () => {
-  //   const updatedData = { name, email, phone, avatar };
-  //   await AsyncStorage.setItem("userProfile", JSON.stringify(updatedData));
-  //   navigation.goBack();
-  // };
+  const handleSaveAvatar = async (newAvatar) => {
+    const updatedData = { name, email, phone, avatar: newAvatar };
+    await AsyncStorage.setItem("userProfile", JSON.stringify(updatedData));
+  };
 
   const handleSave = async () => {
     const updatedData = { name, email, phone, avatar };
@@ -84,7 +84,7 @@ const EditProfile = ({ navigation }) => {
         <View style={styles.avatarWapper}>
           <Image
             source={{
-              uri: "https://media.istockphoto.com/id/1587604256/vi/anh/ch%C3%A2n-dung-lu%E1%BA%ADt-s%C6%B0-v%C3%A0-ng%C6%B0%E1%BB%9Di-ph%E1%BB%A5-n%E1%BB%AF-da-%C4%91en-v%E1%BB%9Bi-m%C3%A1y-t%C3%ADnh-b%E1%BA%A3ng-n%E1%BB%A5-c%C6%B0%E1%BB%9Di-v%C3%A0-h%E1%BA%A1nh-ph%C3%BAc-t%E1%BA%A1i-n%C6%A1i-l%C3%A0m.jpg?s=612x612&w=0&k=20&c=0hnV6JuSMy8XAV25oJFzQeHPYysYe8cfHUyhgZlQYQc=",
+              uri: `${avatar}`,
             }}
             style={styles.avatar}
           />
@@ -96,6 +96,7 @@ const EditProfile = ({ navigation }) => {
             size={24}
             color="white"
             style={styles.cameraIcon}
+            onPress={pickImage}
           />
         </TouchableOpacity>
       </View>
@@ -267,211 +268,3 @@ const styles = StyleSheet.create({
 });
 
 export default EditProfile;
-// import React from "react";
-// import {
-//   View,
-//   Text,
-//   TextInput,
-//   StyleSheet,
-//   Image,
-//   TouchableOpacity,
-// } from "react-native";
-// import { Ionicons } from "@expo/vector-icons"; // Dùng icon từ Expo (cần cài đặt @expo/vector-icons)
-
-// const EditProfile = () => {
-//   return (
-//     <View style={styles.profileScreen}>
-//       {/* Thanh tiêu đề */}
-//       <View style={styles.profileScreen__header}>
-//         <TouchableOpacity>
-//           <Ionicons name="chevron-back" size={24} color="#007AFF" />
-//         </TouchableOpacity>
-//         <Text style={styles.profileScreen__title}>Chỉnh sửa hồ sơ</Text>
-//       </View>
-
-//       {/* Avatar */}
-//       <View style={styles.profileScreen__avatarContainer}>
-//         <Image
-//           source={{ uri: "https://via.placeholder.com/100" }} // Placeholder cho avatar
-//           style={styles.profileScreen__avatar}
-//         />
-//         <View style={styles.profileScreen__avatarOverlay}>
-//           <Ionicons name="camera" size={24} color="#007AFF" />
-//         </View>
-//       </View>
-
-//       {/* Trường thông tin */}
-//       <View style={styles.profileScreen__form}>
-//         {/* Tên đầy đủ */}
-//         <View style={styles.profileScreen__inputField}>
-//           <Ionicons
-//             name="person"
-//             size={20}
-//             color="#007AFF"
-//             style={styles.profileScreen__inputIcon}
-//           />
-//           <View style={styles.profileScreen__inputWrapper}>
-//             <Text style={styles.profileScreen__inputLabel}>Tên đầy đủ</Text>
-//             <TextInput
-//               style={styles.profileScreen__input}
-//               value="John Smith"
-//               editable={false}
-//             />
-//           </View>
-//         </View>
-
-//         {/* Email */}
-//         <View style={styles.profileScreen__inputField}>
-//           <Ionicons
-//             name="mail"
-//             size={20}
-//             color="#007AFF"
-//             style={styles.profileScreen__inputIcon}
-//           />
-//           <View style={styles.profileScreen__inputWrapper}>
-//             <Text style={styles.profileScreen__inputLabel}>Email</Text>
-//             <TextInput
-//               style={styles.profileScreen__input}
-//               value="johnsmith@gmail.com"
-//               editable={false}
-//             />
-//           </View>
-//         </View>
-
-//         {/* Số điện thoại */}
-//         <View style={styles.profileScreen__inputField}>
-//           <Ionicons
-//             name="phone-portrait"
-//             size={20}
-//             color="#007AFF"
-//             style={styles.profileScreen__inputIcon}
-//           />
-//           <View style={styles.profileScreen__inputWrapper}>
-//             <Text style={styles.profileScreen__inputLabel}>Số điện thoại</Text>
-//             <View style={styles.profileScreen__phoneWrapper}>
-//               <Text style={styles.profileScreen__phoneCode}>+225</Text>
-//               <Ionicons
-//                 name="checkmark-circle"
-//                 size={20}
-//                 color="#00FF00"
-//                 style={styles.profileScreen__phoneIcon}
-//               />
-//               <TextInput
-//                 style={styles.profileScreen__phoneInput}
-//                 value="6968698966"
-//                 editable={false}
-//               />
-//             </View>
-//           </View>
-//         </View>
-//       </View>
-
-//       {/* Nút Cập nhật */}
-//       <TouchableOpacity style={styles.profileScreen__submitButton}>
-//         <Text style={styles.profileScreen__submitButtonText}>Cập nhật</Text>
-//       </TouchableOpacity>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   profileScreen: {
-//     flex: 1,
-//     backgroundColor: "#FFFFFF",
-//     paddingTop: 50, // Khoảng cách từ thanh trạng thái
-//   },
-//   profileScreen__header: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     paddingHorizontal: 15,
-//     marginBottom: 20,
-//   },
-//   profileScreen__title: {
-//     fontSize: 20,
-//     fontWeight: "bold",
-//     color: "#333",
-//     marginLeft: 10,
-//   },
-//   profileScreen__avatarContainer: {
-//     alignItems: "center",
-//     marginBottom: 30,
-//   },
-//   profileScreen__avatar: {
-//     width: 100,
-//     height: 100,
-//     borderRadius: 50,
-//   },
-//   profileScreen__avatarOverlay: {
-//     position: "absolute",
-//     bottom: 0,
-//     right: 0,
-//     width: 36,
-//     height: 36,
-//     borderRadius: 18,
-//     backgroundColor: "#FFFFFF",
-//     borderWidth: 2,
-//     borderColor: "#007AFF",
-//     justifyContent: "center",
-//     alignItems: "center",
-//   },
-//   profileScreen__form: {
-//     paddingHorizontal: 15,
-//   },
-//   profileScreen__inputField: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     marginBottom: 20,
-//   },
-//   profileScreen__inputIcon: {
-//     marginRight: 10,
-//   },
-//   profileScreen__inputWrapper: {
-//     flex: 1,
-//     borderBottomWidth: 1,
-//     borderBottomColor: "#E0E0E0",
-//     paddingBottom: 5,
-//   },
-//   profileScreen__inputLabel: {
-//     fontSize: 16,
-//     fontWeight: "bold",
-//     color: "#333",
-//   },
-//   profileScreen__input: {
-//     fontSize: 16,
-//     color: "#000",
-//     padding: 0, // Đảm bảo không có padding mặc định làm lệch
-//   },
-//   profileScreen__phoneWrapper: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//   },
-//   profileScreen__phoneCode: {
-//     fontSize: 16,
-//     color: "#00FF00",
-//     marginRight: 5,
-//   },
-//   profileScreen__phoneIcon: {
-//     marginRight: 5,
-//   },
-//   profileScreen__phoneInput: {
-//     fontSize: 16,
-//     color: "#000",
-//     flex: 1,
-//     padding: 0,
-//   },
-//   profileScreen__submitButton: {
-//     backgroundColor: "#00A1D6", // Màu trung bình giữa #007AFF và #00C4B4
-//     marginHorizontal: 15,
-//     marginTop: 40,
-//     paddingVertical: 15,
-//     borderRadius: 25,
-//     alignItems: "center",
-//   },
-//   profileScreen__submitButtonText: {
-//     fontSize: 16,
-//     fontWeight: "bold",
-//     color: "#FFFFFF",
-//   },
-// });
-
-// export default EditProfile;

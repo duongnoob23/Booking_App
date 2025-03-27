@@ -19,18 +19,25 @@ const Profile = ({ navigation }) => {
     name: "John Smith",
     email: "johnsmith@gmail.com",
     phone: "+225 698698966",
-    // avatar: require("../../../assets/images/profile.png"),
     avatar:
       "https://media.istockphoto.com/id/1587604256/vi/anh/ch%C3%A2n-dung-lu%E1%BA%ADt-s%C6%B0-v%C3%A0-ng%C6%B0%E1%BB%9Di-ph%E1%BB%A5-n%E1%BB%AF-da-%C4%91en-v%E1%BB%9Bi-m%C3%A1y-t%C3%ADnh-b%E1%BA%A3ng-n%E1%BB%A5-c%C6%B0%E1%BB%9Di-v%C3%A0-h%E1%BA%A1nh-ph%C3%BAc-t%E1%BA%A1i-n%C6%A1i-l%C3%A0m.jpg?s=612x612&w=0&k=20&c=0hnV6JuSMy8XAV25oJFzQeHPYysYe8cfHUyhgZlQYQc=",
   });
-
+  console.log(">>> check userData profile", userData);
   useFocusEffect(
     useCallback(() => {
       const fetchUserData = async () => {
         try {
           const storedData = await AsyncStorage.getItem("userProfile");
           if (storedData) {
-            setUserData(JSON.parse(storedData));
+            // Hợp nhất dữ liệu từ AsyncStorage với dữ liệu mặc định
+            const parsedData = JSON.parse(storedData);
+            setUserData((prevData) => ({
+              ...userData, // Giữ dữ liệu mặc định
+              ...parsedData, // Ghi đè bằng dữ liệu từ AsyncStorage nếu có
+            }));
+          } else {
+            // Nếu AsyncStorage trống, lưu dữ liệu mặc định vào đó
+            await AsyncStorage.setItem("userProfile", JSON.stringify(userData));
           }
         } catch (error) {
           console.error("Lỗi khi lấy dữ liệu người dùng:", error);
@@ -41,8 +48,10 @@ const Profile = ({ navigation }) => {
     }, [])
   );
 
+  const handleUpdateUserDate = () => {};
+
   const handleToEditProfile = () => {
-    navigation.navigate("EditProfile");
+    navigation.navigate("EditProfile", { userData });
     // navigation.navigate("Chỉnh sửa hồ sơ", { userData });
   };
   const handleToRewardMember = () => {

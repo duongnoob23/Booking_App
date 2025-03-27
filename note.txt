@@ -356,7 +356,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
           <Text
             style={[styles.header__tab__text, css === 1 && styles.activeText]}
           >
-            Bảng giá (106)
+            
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -369,7 +369,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
           <Text
             style={[styles.header__tab__text, css === 2 && styles.activeText]}
           >
-            Ảnh (10)
+            
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -392,3 +392,11 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
       </View>
     );
   };
+
+  ______________________________________________________Lỗi ip wifi không tự thay đổi theo______________________________________________________________-
+
+set ip của expo theo ip wifi, dành cho máy ko tự thay đổi ip 
+$env:REACT_NATIVE_PACKAGER_HOSTNAME = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -like "Wi-Fi*" }).IPAddress
+
+kiểm tra ip của máy hiện tại 
+$env:REACT_NATIVE_PACKAGER_HOSTNAME
