@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome"; // Sử dụng FontAwesome cho icons
 import { FlatList } from "react-native";
+// import LinearGradient from "react-native-linear-gradient";
 const HomeScreen = ({ navigation }) => {
   const dealData = [
     { id: "1", name: "Heden Golf", image: "https://via.placeholder.com/100" },
@@ -120,8 +121,6 @@ const HomeScreen = ({ navigation }) => {
         <TouchableOpacity
           style={styles.searchButton}
           onPress={() => handleToRate("RateReviews")}
-          // onPress={() => handleToRate("RateApp")}
-          // onPress={() => handleToRate("RateDetails")}
         >
           <Text style={styles.searchButtonText}>Tìm kiếm</Text>
         </TouchableOpacity>
@@ -281,7 +280,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   searchButton: {
-    backgroundColor: "#00F598", // Thay cho gradient vì thiếu react-native-linear-gradient
+    // backgroundColor: "#00F598", // Thay cho gradient vì thiếu react-native-linear-gradient
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: "center",
@@ -443,6 +442,22 @@ const styles = StyleSheet.create({
     color: "#000000",
     marginTop: 5,
     textAlign: "center",
+  },
+  searchButton: {
+    marginVertical: 15,
+    borderRadius: 8,
+    overflow: "hidden", // Đảm bảo gradient không bị cắt bởi borderRadius
+  },
+  gradientButton: {
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  searchButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

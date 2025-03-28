@@ -13,7 +13,8 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 // import { Ionicons } from "@expo/vector-icons";
 import Ionicons from "react-native-vector-icons/Ionicons";
-
+// import PhoneInput from "react-native-phone-number-input";
+// import { parsePhoneNumberFromString } from "libphonenumber-js"; // Import thư viện để phân tích số điện thoại
 import AsyncStorage from "@react-native-async-storage/async-storage";
 // import PhoneInput from "react-native-phone-input";
 
@@ -27,7 +28,7 @@ const EditProfile = ({ navigation }) => {
   // const navigation = useNavigation();
   const route = useRoute();
   const {} = route.params;
-  const { userData } = route.params;
+  const { userData, onSave } = route.params;
   console.log(">>> check userData", userData);
   // const userData = [{}];
   // State để lưu dữ liệu chỉnh sửa
@@ -36,6 +37,8 @@ const EditProfile = ({ navigation }) => {
   const [phone, setPhone] = useState(userData.phone);
   const [avatar, setAvatar] = useState(userData.avatar);
 
+  const tmp = phone;
+  const Sphone = parsePhoneNumberFromString(tmp);
   // Xử lý chọn ảnh
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -153,7 +156,26 @@ const EditProfile = ({ navigation }) => {
           </View>
         </View>
       </View>
-
+      {/* <View style={styles.inputContainer}>
+        <Text style={styles.inputLabel}>Số điện thoại</Text>
+        <View style={styles.inputText}>
+          <Ionicons
+            name="phone-portrait-outline"
+            size={20}
+            color="#0090FF"
+            style={styles.icon}
+          />
+          <PhoneInput
+            defaultValue={
+              Sphone && Sphone.nationalNumber ? Sphone.nationalNumber : ""
+            }
+            defaultCode={Sphone && Sphone.country ? Sphone.country : ""}
+            onChangeFormattedText={(text) => setPhone(text)}
+            containerStyle={styles.phoneContainer}
+            textContainerStyle={styles.textContainer}
+          />
+        </View>
+      </View> */}
       {/* <TextInput
         style={styles.input}
         value={email}

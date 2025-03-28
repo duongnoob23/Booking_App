@@ -47,6 +47,8 @@ import DiscountHistory from "../Pages/Promotion/DiscountHistory ";
 import NotificationsScreen from "../Pages/Notification/NotificationScreen";
 import DiscountHistoryUse from "../Pages/Promotion/DiscountHistoryUse";
 import DiscountHistoryExpired from "../Pages/Promotion/DiscountHistoryExpired";
+import PhoneLogin from "../Pages/Auth/PhoneLogin";
+import GoogleLogin from "../Pages/Auth/GoogleLogin";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -338,6 +340,8 @@ const AuthNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="GoogleLogin" component={GoogleLogin} />
+      <Stack.Screen name="PhoneLogin" component={PhoneLogin} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="VerifyAccount" component={VerifyAccountScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
@@ -418,7 +422,7 @@ const MainNavigator = () => {
 };
 
 const Navigation = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Trạng thái đăng nhập
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Trạng thái đăng nhập
 
   return (
     <NavigationContainer>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -8,25 +8,57 @@ import {
   Alert,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import LinearGradient from "react-native-linear-gradient";
-import { auth } from "../../../config/firebaseConfig";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { auth, app } from "../../../config/firebaseConfig";
+import { getAuth, signInWithPhoneNumber } from "firebase/auth";
+import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
 
-/* 
-{"data": 
-{"accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQzMTgyOTA3LCJleHAiOjE3NDMyNjkzMDd9.QPIwLj0wTe5y1n98COb4H8SeWYk11w3FQpe31BunkqA", 
-"roles": ["ROLE_USER"]}, 
-"message": "Authenticated successfully", 
-"statusCode": 200} 
- */
+// const auth = getAuth(app);
+//  +84986156736
+// +8498247480284982474802
+const PhoneLogin = ({ navigation }) => {
+  const [phoneNumber, setPhoneNumber] = useState("");
+  // const [confirm, setConfirm] = useState("PhoneLogin"); // PhoneOTP
+  const [confirm, setConfirm] = useState(null); // PhoneOTP
+  const [code, setCode] = useState("");
+  const recaptchaVerifier = useRef(null);
 
-const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  // const auth = getAuth();
-
-  const sendTokenToBackend = async (idToken) => {
+  // Gửi OTP
+  const sendOTP = async () => {
     try {
+      console.log(">>> check phone ", phoneNumber);
+      const confirmation = await signInWithPhoneNumber(
+        auth,
+        phoneNumber,
+        recaptchaVerifier.current
+      );
+      console.log(">>> ", confirmation);
+      setConfirm(confirmation);
+      Alert.alert("OTP đã được gửi!");
+    } catch (error) {
+      Alert.alert("Lỗi gửi OTP: " + error.message);
+    }
+  };
+
+  // Xác thực OTP và gửi ID Token đến backend
+  const verifyOTP = async () => {
+    try {
+      const userCredential = await confirm.confirm(code);
+      const idToken = await userCredential.user.getIdToken(); // Lấy ID Token từ Firebase
+
+      // Gửi ID Token đến backend để xác thực
+      // const response = await fetch("http://localhost/api/auth/firebase", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ idToken }),
+      // });
+
+      // const data = await response.json();
+      // if (data.jwtToken) {
+      //   Alert.alert("Đăng nhập thành công!", `JWT: ${data.jwtToken}`);
+      // } else {
+      //   Alert.alert("Lỗi xác thực với backend!");
+      // }
+
       const response = await fetch(
         "https://api-booking-app-gbfsg5f0e4hwfzh0.japaneast-01.azurewebsites.net/api/auth/firebase",
         {
@@ -45,91 +77,83 @@ const LoginScreen = ({ navigation }) => {
         Alert.alert("Lỗi xác thực với backend!");
       }
     } catch (error) {
-      Alert.alert("Lỗi gửi token!", error.message);
-      console.log(error);
+      Alert.alert("OTP không đúng, thử lại!");
     }
   };
 
-  const handleEmailLogin = async () => {
-    console.log(">>>> run");
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      // console.log(userCredential);
-      const idToken = await userCredential.user.getIdToken(); // Lấy ID Token từ Firebase
-      console.log("idToken->", idToken);
-      sendTokenToBackend(idToken);
-    } catch (error) {
-      Alert.alert("Lỗi đăng nhập", error.message);
-    }
-  };
-  const handleToPhoneLogin = () => {
-    navigation.navigate("PhoneLogin");
-    setEmail("");
-    setPassword("");
+  const handleToLogin = () => {
+    navigation.navigate("Login");
   };
 
-  const handleToGoogleLogin = () => {
-    navigation.navigate("GoogleLogin");
-    setEmail("");
-    setPassword("");
-  };
   return (
     <View style={styles.container}>
+      <FirebaseRecaptchaVerifierModal
+        ref={recaptchaVerifier}
+        firebaseConfig={app.options}
+      />
+
       <View style={styles.wrapTitle}>
-        <Text style={styles.title}>Đăng nhập với Email </Text>
+        <Text style={styles.title}>Đăng nhập với số điện thoại</Text>
       </View>
       <View style={styles.whiteFrame}>
         {/* Tiêu đề */}
-        {/* Ô input Email */}
-        <View style={[styles.inputContainer, styles.inputContainerFirst]}>
-          <Ionicons name="mail-outline" size={20} color="#0090FF" />
-          <TextInput
-            placeholder="Email"
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-          />
-        </View>
-        {/* Ô input Mật khẩu */}
-        <View style={styles.inputContainer}>
-          <Ionicons name="lock-closed-outline" size={20} color="#0090FF" />
-          <TextInput
-            placeholder="Mật khẩu"
-            secureTextEntry
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-          />
-        </View>
-        {/* ForgotPassword */}
-        {/* Quên mật khẩu */}
+        {/* Ô input Phone */}
+        {!confirm ? (
+          <>
+            <View style={[styles.inputContainer, styles.inputContainerFirst]}>
+              <Ionicons name="call-outline" size={20} color="#0090FF" />
+              <TextInput
+                placeholder="Phone"
+                style={styles.input}
+                value={phoneNumber}
+                onChangeText={setPhoneNumber}
+                keyboardType="phone-pad"
+              />
+            </View>
+
+            <TouchableOpacity style={styles.button} onPress={sendOTP}>
+              <Text style={styles.buttonText}>Gửi OTP </Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            <View style={[styles.inputContainer, styles.inputContainerFirst]}>
+              <Ionicons name="call-outline" size={20} color="#0090FF" />
+              <TextInput
+                placeholder="OTP"
+                style={styles.input}
+                value={code}
+                onChangeText={setCode}
+                keyboardType="phone-pad"
+              />
+            </View>
+
+            <TouchableOpacity style={styles.button} onPress={verifyOTP}>
+              <Text style={styles.buttonText}>Xác Thực OTP</Text>
+            </TouchableOpacity>
+          </>
+        )}
+
+        {/* Nút Đăng nhập */}
+
         <Text
           style={styles.forgotPassword}
           onPress={() => navigation.navigate("ForgotPassword")}
         >
           Quên mật khẩu?
         </Text>
-        {/* Nút Đăng nhập */}
-        <TouchableOpacity style={styles.button} onPress={handleEmailLogin}>
-          <Text style={styles.buttonText}>Đăng nhập</Text>
-        </TouchableOpacity>
         {/* Nút đăng nhập bằng Google và Facebook */}
         <View>
           <Text style={styles.textOr}>Hoặc đăng nhập bằng</Text>
         </View>
         <View style={styles.socialButtons}>
           <TouchableOpacity
-            onPress={() => handleToPhoneLogin()}
+            onPress={() => handleToLogin()}
             style={[styles.socialButton, { backgroundColor: "#3b5998" }]}
           >
-            <Text style={styles.socialButtonText}>Số Điện Thoại </Text>
+            <Text style={styles.socialButtonText}>EMAIL</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => handleToGoogleLogin()}
             style={[styles.socialButton, { backgroundColor: "#db4437" }]}
           >
             <Text style={styles.socialButtonText}>GOOGLE</Text>
@@ -145,12 +169,10 @@ const LoginScreen = ({ navigation }) => {
           </Text>
         </View>
       </View>
-
-      {/* Text chuyển sang Đăng ký */}
     </View>
   );
 };
-export default LoginScreen;
+export default PhoneLogin;
 
 const styles = StyleSheet.create({
   container: {
@@ -187,13 +209,13 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 50,
     borderBottomColor: "gray",
     borderBottomWidth: 1,
   },
   inputContainerFirst: {
     marginTop: 60,
-    marginBottom: 20,
+    marginBottom: 50,
   },
   input: {
     flex: 1,
@@ -205,8 +227,8 @@ const styles = StyleSheet.create({
   forgotPassword: {
     color: "#FF8C00",
     textAlign: "center",
-    marginBottom: 40,
-    marginTop: 40,
+    marginBottom: 60,
+    marginTop: 20,
     fontSize: 13,
   },
   button: {
@@ -214,6 +236,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 10,
     alignItems: "center",
+    marginTop: 0,
   },
   buttonText: {
     color: "#fff",

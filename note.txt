@@ -400,3 +400,12 @@ $env:REACT_NATIVE_PACKAGER_HOSTNAME = (Get-NetIPAddress -AddressFamily IPv4 | Wh
 
 kiểm tra ip của máy hiện tại 
 $env:REACT_NATIVE_PACKAGER_HOSTNAME
+
+
+_______________________________________________________Lỗi cannot read property 'bubblingeventtypes' of null react-native _____________________________________________________
+lỗi này xảy ra ở rất nhiều thứ, không có nguyên nhân cụ thể
+cách fix là chuyển qua lại các tab lỗi để xem cụ thể là lỗi ở phần nào, nó sẽ có phần located at:
+còn nếu ở tab lỗi cannot read property 'bubblingeventtypes' thì ko fix được
+
+đọc kĩ các lỗi xem thiểu thư viện gì
+tải bằng expo install để tự tải phiên bản phù hợp không xung đột
