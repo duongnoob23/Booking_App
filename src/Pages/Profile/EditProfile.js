@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useEffect } from "react";
+import React, { useState, useLayoutEffect, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,8 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 // import { parsePhoneNumberFromString } from "libphonenumber-js"; // Import thư viện để phân tích số điện thoại
 import AsyncStorage from "@react-native-async-storage/async-storage";
 // import PhoneInput from "react-native-phone-input";
+import PhoneInput from "react-native-phone-number-input";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 const EditProfile = ({ navigation }) => {
   useLayoutEffect(() => {
@@ -37,8 +39,12 @@ const EditProfile = ({ navigation }) => {
   const [phone, setPhone] = useState(userData.phone);
   const [avatar, setAvatar] = useState(userData.avatar);
 
+  const phoneInputRef = useRef(null);
   const tmp = phone;
   const Sphone = parsePhoneNumberFromString(tmp);
+
+  // const tmp = phone;
+  // const Sphone = parsePhoneNumberFromString(tmp);
   // Xử lý chọn ảnh
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -156,7 +162,8 @@ const EditProfile = ({ navigation }) => {
           </View>
         </View>
       </View>
-      {/* <View style={styles.inputContainer}>
+
+      <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Số điện thoại</Text>
         <View style={styles.inputText}>
           <Ionicons
@@ -166,6 +173,8 @@ const EditProfile = ({ navigation }) => {
             style={styles.icon}
           />
           <PhoneInput
+            // ref={phoneInputRef}
+            // defaultValue={phone}
             defaultValue={
               Sphone && Sphone.nationalNumber ? Sphone.nationalNumber : ""
             }
@@ -175,19 +184,7 @@ const EditProfile = ({ navigation }) => {
             textContainerStyle={styles.textContainer}
           />
         </View>
-      </View> */}
-      {/* <TextInput
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Email"
-        keyboardType="email-address"
-      /> */}
-      {/* <PhoneInput
-        initialCountry="vn"
-        value={phone}
-        onChangePhoneNumber={setPhone}
-      /> */}
+      </View>
 
       {/* Nút cập nhật */}
       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>

@@ -11,7 +11,13 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import LinearGradient from "react-native-linear-gradient";
 import { auth } from "../../../config/firebaseConfig";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-
+import { useAppDispatch, useAppSelector } from "../../Redux/hook";
+import {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+  logout,
+} from "../../Redux/Slice/authSlice";
 /* 
 {"data": 
 {"accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQzMTgyOTA3LCJleHAiOjE3NDMyNjkzMDd9.QPIwLj0wTe5y1n98COb4H8SeWYk11w3FQpe31BunkqA", 
@@ -24,7 +30,7 @@ const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   // const auth = getAuth();
-
+  const dispatch = useAppDispatch();
   const sendTokenToBackend = async (idToken) => {
     try {
       const response = await fetch(
@@ -39,6 +45,8 @@ const LoginScreen = ({ navigation }) => {
       const data = await response.json();
       console.log(">>> data", data);
       if (data.data.accessToken) {
+        dispatch(loginSuccess(data.data));
+        console.log("Đăng nhập thành công!");
         // Alert.alert("Đăng nhập thành công!", `JWT: ${data.data.accessToken}`);
         Alert.alert("Đăng nhập thành công!");
       } else {
@@ -52,7 +60,9 @@ const LoginScreen = ({ navigation }) => {
 
   const handleEmailLogin = async () => {
     console.log(">>>> run");
+
     try {
+      // dispatch(loginStart());
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -67,7 +77,8 @@ const LoginScreen = ({ navigation }) => {
     }
   };
   const handleToPhoneLogin = () => {
-    navigation.navigate("PhoneLogin");
+    // navigation.navigate("PhoneLogin");
+    navigation.navigate("Count");
     setEmail("");
     setPassword("");
   };
@@ -83,6 +94,23 @@ const LoginScreen = ({ navigation }) => {
         <Text style={styles.title}>Đăng nhập với Email </Text>
       </View>
       <View style={styles.whiteFrame}>
+        {/* <View>
+          <Text>số hiện tại là: {count}</Text>
+          <View styles={styles.buttonController}>
+            <TouchableOpacity
+              style={styles.button}
+              // onPress={dispatch(increase())}
+            >
+              <Text style={styles.buttonText}>Tăng</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              // onPress={dispatch(decrease())}
+            >
+              <Text style={styles.buttonText}>Giảm</Text>
+            </TouchableOpacity>
+          </View>
+        </View> */}
         {/* Tiêu đề */}
         {/* Ô input Email */}
         <View style={[styles.inputContainer, styles.inputContainerFirst]}>

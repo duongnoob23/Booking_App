@@ -24,6 +24,7 @@
     "@react-navigation/material-top-tabs": "^6.6.14",
     "@react-navigation/native": "6.1.18",
     "@react-navigation/native-stack": "6.11.0",
+    "@reduxjs/toolkit": "^2.6.1",
     "expo": "52.0.38",
     "expo-auth-session": "6.0.3",
     "expo-constants": "17.0.8",
@@ -50,8 +51,9 @@
     "react-native-tab-view": "^3.5.2",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.13",
+    "react-native-webview": "13.12.5",
     "react-native-wheel-pick": "^1.2.4",
-    "react-native-webview": "13.12.5"
+    "react-redux": "^9.2.0"
   },
   "devDependencies": {
     "@babel/core": "7.25.2",
