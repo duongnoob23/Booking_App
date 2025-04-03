@@ -10,6 +10,7 @@ import SuccessPayment from "../Pages/Payment/SuccessPayment";
 import RateReviews from "../Pages/Reviews/RateReviews";
 import RateDetails from "../Pages/Reviews/RateDetails";
 import RateApp from "../Pages/Reviews/RateApp";
+import MapScreen from "../Pages/Map/MapScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -95,6 +96,15 @@ const HomeStackNavigator = () => {
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
         }}
       />
+
+      <Stack.Screen
+        name="MapScreen"
+        component={MapScreen}
+        options={{
+          headerShown: false,
+          tabBarVisible: false
+        }} />
+
     </Stack.Navigator>
   );
 };

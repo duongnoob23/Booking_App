@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-const CheckScreen = () => {
+const CheckScreen = ({navigation}) => {
   // Dữ liệu giả cho danh sách hoạt động
   const activities = [
     {
@@ -133,6 +133,13 @@ const CheckScreen = () => {
         <ScrollView>
           {activities.map((item) => renderActivityItem(item))}
         </ScrollView>
+      </View>
+
+      {/* Near Map */}
+      <View style={styles.section}>
+        <TouchableOpacity onPress={() => navigation.navigate("MapScreen", {})}>
+          <Image source={require("../../../assets/MapNear.png")}></Image>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );

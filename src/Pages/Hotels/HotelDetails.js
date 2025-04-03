@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Dimensions,
   BackHandler,
+  Button
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -24,6 +25,7 @@ const HotelDetails = ({ navigation }) => {
   const [showInfoConfirm, setShowInfoConfirm] = useState(false);
   const [showOrderConfirm, setShowOrderConfirm] = useState(false);
 
+  const location = "1,2"
   useEffect(() => {
     const backAction = () => {
       if (showOrderConfirm && !showInfoConfirm) {
@@ -63,7 +65,7 @@ const HotelDetails = ({ navigation }) => {
     else if (routeName === "Check") setCss(3);
   }, [navigation]);
 
-  useEffect(() => {}, [showInfoConfirm, showOrderConfirm]);
+  useEffect(() => { }, [showInfoConfirm, showOrderConfirm]);
 
   // Khi navigation thay đổi, cập nhật css
   const handleInfoConfirm = () => {
@@ -192,56 +194,62 @@ const HotelDetails = ({ navigation }) => {
                 <Icon name="map-marker" size={16} color="white" />
               </View>
               <View style={styles.header__location__text}>
-                <Text style={{ color: "white" }}>Đà Nẵng</Text>
+                <TouchableOpacity style={{ color: "white" }} onPress={() => navigation.navigate("MapScreen", { location })}>
+                  <Text style={{ color: "white" }}>Đà Nẵng</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
         </ImageBackground>
-      </View>
+      </View >
 
       {/* Tab Navigator với tabBar tùy chỉnh */}
-      {!showInfoConfirm && !showOrderConfirm && (
-        <>
-          <Tab.Navigator
-            tabBar={(props) => <CustomTabBar {...props} />}
-            initialRouteName="Price"
-          >
-            <Tab.Screen
-              name="Price"
-              component={PriceScreen}
-              options={{ tabBarLabel: "Bảng giá (106)" }}
-            />
-            <Tab.Screen
-              name="Photo"
-              component={PhotoScreen}
-              options={{ tabBarLabel: "Ảnh (10)" }}
-            />
-            <Tab.Screen
-              name="Check"
-              component={CheckScreen}
-              options={{ tabBarLabel: "Lần check (24)" }}
-            />
-          </Tab.Navigator>
-
-          <View style={styles.footer__action}>
-            <Text style={styles.footer__price}>
-              <Text>127,000Đ</Text>
-              <Text style={styles.footer__price__text}>TB/ĐÊM</Text>
-            </Text>
-            <TouchableOpacity
-              style={styles.footer__button}
-              onPress={() => handleInfoConfirm()}
+      {
+        !showInfoConfirm && !showOrderConfirm && (
+          <>
+            <Tab.Navigator
+              tabBar={(props) => <CustomTabBar {...props} />}
+              initialRouteName="Price"
             >
-              <Text style={styles.footer__button__text}>ĐẶT NGAY</Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
-      {showInfoConfirm && (
-        <InfoConfirmScreen handleOrderConfirm={handleOrderConfirm} />
-      )}
+              <Tab.Screen
+                name="Price"
+                component={PriceScreen}
+                options={{ tabBarLabel: "Bảng giá (106)" }}
+              />
+              <Tab.Screen
+                name="Photo"
+                component={PhotoScreen}
+                options={{ tabBarLabel: "Ảnh (10)" }}
+              />
+              <Tab.Screen
+                name="Check"
+                component={CheckScreen}
+                options={{ tabBarLabel: "Lần check (24)" }}
+              />
+            </Tab.Navigator>
+
+            <View style={styles.footer__action}>
+              <Text style={styles.footer__price}>
+                <Text>127,000Đ</Text>
+                <Text style={styles.footer__price__text}>TB/ĐÊM</Text>
+              </Text>
+              <TouchableOpacity
+                style={styles.footer__button}
+                onPress={() => handleInfoConfirm()}
+              >
+                <Text style={styles.footer__button__text}>ĐẶT NGAY</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )
+      }
+      {
+        showInfoConfirm && (
+          <InfoConfirmScreen handleOrderConfirm={handleOrderConfirm} />
+        )
+      }
       {showOrderConfirm && <OrderConfirmScreen />}
-    </View>
+    </View >
   );
 };
 

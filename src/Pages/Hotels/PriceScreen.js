@@ -225,6 +225,9 @@ const PriceScreen = ({ navigation }) => {
           }}
           style={styles.footer__map}
         /> */}
+        <TouchableOpacity onPress={() => navigation.navigate("MapScreen", {})}>
+          <Image source={require("../../../assets/MapNear.png")}></Image>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
