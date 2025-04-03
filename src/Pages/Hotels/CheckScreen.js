@@ -8,34 +8,28 @@ import {
   TouchableOpacity,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useAppSelector } from "../../Redux/hook";
 
 const CheckScreen = () => {
   // Dữ liệu giả cho danh sách hoạt động
-  const activities = [
-    {
-      id: "1",
-      title: "Bà Nà Hills",
-      description:
-        "Trải nghiệm cáp treo, check-in Cầu Vàng và khám phá ngôi làng Pháp.",
-      image:
-        "https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2940&auto=format&fit=crop",
-      rating: 4.4,
-      reviews: 1649,
-      distance: "6 min",
-    },
-    {
-      id: "2",
-      title: "Bán đảo Sơn Trà",
-      description:
-        "Ngắm cảnh tự nhiên hùng vĩ, chùa Linh Ứng và khám phá thiên nhiên hoang dã.",
-      image:
-        "https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2940&auto=format&fit=crop",
 
-      rating: 4.4,
-      reviews: 1649,
-      distance: "27 min",
-    },
-  ];
+  const { hotelList, hotelDetail, loading, error } = useAppSelector(
+    (state) => state.hotel
+  );
+  console.log(">>> 19", hotelDetail?.nearBy?.activityList);
+
+  const activityList = hotelDetail?.nearBy?.activityList?.map(
+    (item, index) => ({
+      id: index,
+      title: item.name,
+      description: item.description,
+      image:
+        "https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2940&auto=format&fit=crop",
+      rating: item.rating,
+      distance: item.distance,
+    })
+  );
+  console.log(">>> 28 CheckScreen", activityList);
 
   // Hàm render từng hoạt động
   const renderActivityItem = (item) => (
@@ -91,10 +85,12 @@ const CheckScreen = () => {
         </Text>
         <View style={styles.rating}>
           <View style={styles.rating__circle}>
-            <Text style={styles.rating__score}>3.9</Text>
+            <Text style={styles.rating__score}>
+              {hotelDetail && hotelDetail?.nearBy?.ratingLocation}
+            </Text>
           </View>
           <Text style={styles.rating__description}>
-            Vị trí thuận lợi cho tham quan, giải trí và di chuyển
+            {hotelDetail && hotelDetail?.nearBy?.descriptionLocation}
           </Text>
         </View>
         <View style={styles.rating__details}>
@@ -131,7 +127,7 @@ const CheckScreen = () => {
       <View style={styles.section}>
         <Text style={styles.section__title}>HOẠT ĐỘNG NÊN TRẢI NGHIỆM</Text>
         <ScrollView>
-          {activities.map((item) => renderActivityItem(item))}
+          {activityList?.map((item) => renderActivityItem(item))}
         </ScrollView>
       </View>
     </ScrollView>
@@ -275,3 +271,28 @@ const styles = StyleSheet.create({
 });
 
 export default CheckScreen;
+//  const activities = [
+//    {
+//      id: "1",
+//      title: "Bà Nà Hills",
+//      description:
+//        "Trải nghiệm cáp treo, check-in Cầu Vàng và khám phá ngôi làng Pháp.",
+//      image:
+//        "https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2940&auto=format&fit=crop",
+//      rating: 4.4,
+//      reviews: 1649,
+//      distance: "6 min",
+//    },
+//    {
+//      id: "2",
+//      title: "Bán đảo Sơn Trà",
+//      description:
+//        "Ngắm cảnh tự nhiên hùng vĩ, chùa Linh Ứng và khám phá thiên nhiên hoang dã.",
+//      image:
+//        "https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2940&auto=format&fit=crop",
+
+//      rating: 4.4,
+//      reviews: 1649,
+//      distance: "27 min",
+//    },
+//  ];

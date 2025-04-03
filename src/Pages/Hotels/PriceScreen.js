@@ -14,35 +14,17 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/FontAwesome"; // Sử dụng FontAwesome cho icons
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-const PriceScreen = ({ navigation }) => {
-  const foodList = [
-    {
-      id: 1,
-      name: "Hamberger",
-      urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-    },
-    {
-      id: 2,
-      name: "Hamberger",
-      urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-    },
-    {
-      id: 3,
-      name: "Hamberger",
-      urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-    },
-    {
-      id: 4,
-      name: "Hamberger",
-      urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-    },
-    {
-      id: 5,
-      name: "Hamberger",
-      urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-    },
-  ];
+import { useAppSelector } from "../../Redux/hook";
+const PriceScreen = ({ navigation, route }) => {
+  // console.log(">>> route PriceScreen", route);
+  // const [dataPrice, setDataPrice] = useState(route.params.data);
+  // console.log(">>> dataPrice", dataPrice);
 
+  const { hotelList, hotelDetail, loading, error } = useAppSelector(
+    (state) => state.hotel
+  );
+  // console.log("------------------------------");
+  // console.log(">>> 53 PriceScreen", hotelDetail);
   const handleOrderFood = () => {
     navigation.navigate("OrderFood");
   };
@@ -57,10 +39,8 @@ const PriceScreen = ({ navigation }) => {
       <View style={styles.body__section}>
         <Text style={styles.body__title}>MÔ TẢ KHÁCH SẠN</Text>
         <Text style={styles.body__description}>
-          Tọa lạc trong khu vực trung tâm đầy năng động với nhiều khách sạn cao
-          cấp, khách sạn Eden Đà Nẵng là điểm đến hoàn hảo cho các kỳ nghỉ dài
-          hạn hoặc các chuyến đi công tác ngắn ngày. Khách sạn tọa lạc tại trung
-          tâm thành phố Đà Nẵng cách Sân bay Quốc tế Đà Nẵng 17 km.
+          {hotelDetail && hotelDetail.review.description}
+          {/* {hotelDetail && hotelDetail.review.} */}
         </Text>
       </View>
       {/* Facilities */}
@@ -89,11 +69,15 @@ const PriceScreen = ({ navigation }) => {
       <View style={styles.body__section}>
         <View style={styles.body__info}>
           <Ionicons name="location-outline" size={25} color="#007AFF" />
-          <Text style={styles.body__info__text}>Đà Nẵng</Text>
+          <Text style={styles.body__info__text}>
+            {hotelDetail && hotelDetail.review.location}
+          </Text>
         </View>
         <View style={styles.body__info}>
           <Ionicons name="call-outline" size={25} color="#007AFF" />
-          <Text style={styles.body__info__text}>+84986156736</Text>
+          <Text style={styles.body__info__text}>
+            {hotelDetail && hotelDetail.review.phoneNumber}
+          </Text>
         </View>
         <View style={styles.body__info__view}>
           <View style={styles.body__info}>
@@ -174,7 +158,7 @@ const PriceScreen = ({ navigation }) => {
 
       <View style={styles.footer}>
         <View style={styles.footer__food}>
-          <View style={styles.footer__food__title}>
+          {/* <View style={styles.footer__food__title}>
             <Text style={styles.footer__food__text}>ĐỒ ĂN</Text>
             <TouchableOpacity onPress={() => handleOrderFood()}>
               <Text style={[styles.footer__food__text, { color: "blue" }]}>
@@ -202,7 +186,7 @@ const PriceScreen = ({ navigation }) => {
                   );
                 })}
             </View>
-          </ScrollView>
+          </ScrollView> */}
           {/* <View style={styles.footer__food__items}>
                   <Image
                     source={{
@@ -413,3 +397,31 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+
+//  const foodList = [
+//    {
+//      id: 1,
+//      name: "Hamberger",
+//      urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
+//    },
+//    {
+//      id: 2,
+//      name: "Hamberger",
+//      urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
+//    },
+//    {
+//      id: 3,
+//      name: "Hamberger",
+//      urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
+//    },
+//    {
+//      id: 4,
+//      name: "Hamberger",
+//      urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
+//    },
+//    {
+//      id: 5,
+//      name: "Hamberger",
+//      urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
+//    },
+//  ];

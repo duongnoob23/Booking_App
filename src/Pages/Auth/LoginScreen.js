@@ -18,6 +18,7 @@ import {
   loginFailure,
   logout,
 } from "../../Redux/Slice/authSlice";
+import { API_BASE_URL } from "../../Constant/Constant";
 /* 
 {"data": 
 {"accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQzMTgyOTA3LCJleHAiOjE3NDMyNjkzMDd9.QPIwLj0wTe5y1n98COb4H8SeWYk11w3FQpe31BunkqA", 
@@ -26,6 +27,8 @@ import {
 "statusCode": 200} 
  */
 
+// "https://api-booking-app-gbfsg5f0e4hwfzh0.japaneast-01.azurewebsites.net/api/auth/firebase",
+// "https://localhost:9090/api/auth/firebase",
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,22 +36,21 @@ const LoginScreen = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const sendTokenToBackend = async (idToken) => {
     try {
-      const response = await fetch(
-        "https://api-booking-app-gbfsg5f0e4hwfzh0.japaneast-01.azurewebsites.net/api/auth/firebase",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tokenId: idToken }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/auth/firebase`, {
+        // const response = await fetch("https://api-booking-app-gbfsg5f0e4hwfzh0.japaneast-01.azurewebsites.net/api/auth/firebase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tokenId: idToken }),
+      });
 
       const data = await response.json();
       console.log(">>> data", data);
       if (data.data.accessToken) {
-        dispatch(loginSuccess(data.data));
+        // dispatch(loginSuccess(data.data)); isLoggedIn = true auto
         console.log("Đăng nhập thành công!");
         // Alert.alert("Đăng nhập thành công!", `JWT: ${data.data.accessToken}`);
         Alert.alert("Đăng nhập thành công!");
+        // navigation.navigate("Login");
       } else {
         Alert.alert("Lỗi xác thực với backend!");
       }
@@ -72,6 +74,7 @@ const LoginScreen = ({ navigation }) => {
       const idToken = await userCredential.user.getIdToken(); // Lấy ID Token từ Firebase
       console.log("idToken->", idToken);
       sendTokenToBackend(idToken);
+      navigation.navigate("Login");
     } catch (error) {
       Alert.alert("Lỗi đăng nhập", error.message);
     }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,15 +11,12 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome"; // Sử dụng FontAwesome cho icons
 import { FlatList } from "react-native";
+import { API_BASE_URL } from "../../Constant/Constant";
+import { useAppDispatch, useAppSelector } from "../../Redux/hook";
+import { fetchHotelList } from "../../Redux/Slice/hotelSlice";
+// import HotelRequestList from "../../Components/RenderList/hotelRequestList";
 // import LinearGradient from "react-native-linear-gradient";
 const HomeScreen = ({ navigation }) => {
-  const dealData = [
-    { id: "1", name: "Heden Golf", image: "https://via.placeholder.com/100" },
-    { id: "2", name: "Onomo", image: "https://via.placeholder.com/100" },
-    { id: "3", name: "Adagio", image: "https://via.placeholder.com/100" },
-    { id: "4", name: "Sofitel", image: "https://via.placeholder.com/100" },
-  ];
-
   const continueSearch = [
     {
       id: "1",
@@ -57,12 +54,59 @@ const HomeScreen = ({ navigation }) => {
       details: " 23-26 Tháng 8, 6-7 Người lớn, 1 trẻ em",
     },
   ];
+  const { hotelList, hotelDetail, loading, error } = useAppSelector(
+    (state) => state.hotel
+  );
 
-  const handleToRate = (name) => {
-    navigation.navigate(`${name}`);
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    // console.log(">>> dispatch");
+    dispatch(fetchHotelList());
+  }, [dispatch]);
+
+  const HotelRequestList = ({ item }) => {
+    return (
+      <TouchableOpacity
+        style={styles.dealItem}
+        onPress={() => navigation.navigate("HotelDetails", { item })}
+      >
+        <View style={styles.dealImage}>
+          <Image
+            source={{
+              uri: `${item.imageUrl}`,
+            }}
+            style={styles.image}
+          />
+        </View>
+        <View style={styles.dealDetails}>
+          <Text style={styles.dealName}>{item.hotelName}</Text>
+          <View style={styles.dealReviews}>
+            <Icon
+              style={styles.iconStart}
+              name="star"
+              size={24}
+              color="#EBA731"
+            />
+            <Text style={styles.dealPoint}>{item.hotelRating} </Text>
+            <Text style={styles.dealReviewsText}>
+              Đánh giá ({item.sumReview}){" "}
+            </Text>
+          </View>
+          <Text style={styles.dealDesc}>{item.promotionName}</Text>
+          <View style={styles.dealFooter}>
+            <Text style={styles.dealSale}>Giảm 25%</Text>
+            <Text style={styles.dealPrice}> {item.price}</Text>
+            <TouchableOpacity>
+              <Text style={styles.dealBooking}>Đặt ngay </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
   };
+
   // Chia continueSearch thành 2 phần
-  console.log(continueSearch.length / 2);
+  // console.log(continueSearch.length / 2);
   const WidthtwoRowScrollView = 210 * Math.ceil(continueSearch.length / 2);
   return (
     <SafeAreaView style={styles.container}>
@@ -117,14 +161,17 @@ const HomeScreen = ({ navigation }) => {
           />
         </View>
 
-        {/* Search Button */}
         <TouchableOpacity
-          style={styles.searchButton}
-          onPress={() => handleToRate("RateReviews")}
+          style={styles.newButton}
+          onPress={() => navigation.navigate("test")}
         >
-          <Text style={styles.searchButtonText}>Tìm kiếm</Text>
+          <Text style={styles.newButtonText}> Tìm kiếm </Text>
         </TouchableOpacity>
+        {/* Search Button */}
 
+        {/* <TouchableOpacity style={styles.newButton}>
+          <Text> Tìm kiếm</Text>
+        </TouchableOpacity> */}
         {/* Recent Searches Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -172,46 +219,19 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.viewAllText}>XEM TẤT CẢ</Text>
             </TouchableOpacity>
           </View>
+
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {/* Fake Deal Item 1 */}
-            <TouchableOpacity
-              style={styles.dealItem}
-              onPress={() => navigation.navigate("HotelDetails")}
-            >
-              <View style={styles.dealImage}>
-                <Image
-                  source={{
-                    uri: "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
-                  }}
-                  style={styles.image}
-                />
-              </View>
-              <View style={styles.dealDetails}>
-                <Text style={styles.dealName}>Heden golf</Text>
-                <View style={styles.dealReviews}>
-                  <Icon
-                    style={styles.iconStart}
-                    name="star"
-                    size={24}
-                    color="#EBA731"
-                  />
-                  <Text style={styles.dealPoint}>8.1</Text>
-                  <Text style={styles.dealReviewsText}>Đánh giá (556) </Text>
-                </View>
-                <Text style={styles.dealDesc}>
-                  Nằm trong những khu vườn cảnh quan ...
-                </Text>
-                <View style={styles.dealFooter}>
-                  <Text style={styles.dealSale}>Giảm 25%</Text>
-                  <Text style={styles.dealPrice}> 127$</Text>
-                  <TouchableOpacity>
-                    <Text style={styles.dealBooking}>Đặt ngay</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-            {/* Fake Deal Item 2 */}
+            {hotelList &&
+              hotelList.map((item, index) => {
+                return <HotelRequestList key={index} item={item} />;
+              })}
           </ScrollView>
+          {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {hotelRequestList &&
+              hotelRequestList.map((item) => (
+                <HotelRequestList key={item.hotelId.toString()} item={item} />
+              ))}
+          </ScrollView> */}
         </View>
         <View>
           <Text>{"\n\n"} </Text>
@@ -220,7 +240,7 @@ const HomeScreen = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
+export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -279,18 +299,21 @@ const styles = StyleSheet.create({
   arrowIcon: {
     marginLeft: 10,
   },
-  searchButton: {
-    // backgroundColor: "#00F598", // Thay cho gradient vì thiếu react-native-linear-gradient
+  newButton: {
+    backgroundColor: "#00F598",
+    borderRadius: 12,
+    paddingHorizontal: 15,
     paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 10,
-    elevation: 3,
   },
-  searchButtonText: {
-    color: "#FFFFFF",
+
+  newButtonText: {
+    color: "white",
+    textAlign: "center",
     fontSize: 18,
-    fontWeight: "400",
+    fontWeight: 400,
+  },
+  searchButton: {
+    backgroundColor: "black",
   },
   section: {
     marginTop: 10,
@@ -461,4 +484,22 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+//  const getData = async () => {
+//    try {
+//      const response = await fetch(`${API_BASE_URL}/api/hotel/home`, {
+//        method: "GET",
+//        headers: {
+//          "Content-Type": "application/json",
+//        },
+//      });
+//      if (response) {
+//        const data = await response.json();
+//        // console.log("Dữ liệu từ API:", data);
+//        // console.log(data.data[0].hotelRequestList);
+//        setHotelRequestList(data.data[0].hotelRequestList);
+//      } else {
+//      }
+//    } catch (error) {
+//      console.error("Lỗi khi gọi API:", error);
+//    }
+//  };

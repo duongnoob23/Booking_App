@@ -1,0 +1,9 @@
+{"hotelId": 1,
+ "hotelLocation": "Đà Nẵng", 
+ "hotelName": "Heden Golf", 
+ "hotelRating": 3.9,
+ imageUrl": "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1729241122/Room/nipyn0qgyoyhtgkadlyi.jpg", 
+ "price": 800000, 
+ "promotionName": "Ưu đãi đầu năm 2025", 
+ "sumReview": 85},
+ 

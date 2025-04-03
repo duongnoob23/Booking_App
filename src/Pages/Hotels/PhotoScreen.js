@@ -8,8 +8,10 @@ import {
   Dimensions,
   TouchableOpacity,
   Modal,
+  ScrollView,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useAppSelector } from "../../Redux/hook";
 
 // Lấy chiều rộng màn hình để tính toán kích thước ảnh
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -24,119 +26,139 @@ const PhotoScreen = () => {
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0); // Chỉ số ảnh hiện tại
 
+  const { hotelList, hotelDetail, loading, error } = useAppSelector(
+    (state) => state.hotel
+  );
+  // console.log("-------------------------");
+  // console.log(">>> 32 PhotoSCreen", hotelDetail.images);
+
+  const photoList2 = hotelDetail?.images?.map((item, index) => ({
+    id: index,
+    url: item,
+  }));
+
+  // console.log(photoList2);
   // Danh sách ảnh từ Unsplash (ảnh khách sạn, phong cảnh, nội thất)
-  const photoList = [
-    {
-      id: "1",
-      url: "https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2940&auto=format&fit=crop",
-    },
-    {
-      id: "3",
-      url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2940&auto=format&fit=crop",
-    },
+  // const photoList = [
+  //   {
+  //     id: "1",
+  //     url: "https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2940&auto=format&fit=crop",
+  //   },
+  //   {
+  //     id: "3",
+  //     url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2940&auto=format&fit=crop",
+  //   },
 
-    {
-      id: "10",
-      url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2940&auto=format&fit=crop",
-    },
-    {
-      id: "11",
-      url: "https://images.unsplash.com/photo-1598928636135-d146006ff4be?q=80&w=2940&auto=format&fit=crop",
-    },
-    {
-      id: "12",
-      url: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=2940&auto=format&fit=crop",
-    },
-    {
-      id: "1",
-      url: "https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2940&auto=format&fit=crop",
-    },
-    {
-      id: "3",
-      url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2940&auto=format&fit=crop",
-    },
+  //   {
+  //     id: "10",
+  //     url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2940&auto=format&fit=crop",
+  //   },
+  //   {
+  //     id: "11",
+  //     url: "https://images.unsplash.com/photo-1598928636135-d146006ff4be?q=80&w=2940&auto=format&fit=crop",
+  //   },
+  //   {
+  //     id: "12",
+  //     url: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=2940&auto=format&fit=crop",
+  //   },
+  //   {
+  //     id: "1",
+  //     url: "https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2940&auto=format&fit=crop",
+  //   },
+  //   {
+  //     id: "3",
+  //     url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2940&auto=format&fit=crop",
+  //   },
 
-    {
-      id: "10",
-      url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2940&auto=format&fit=crop",
-    },
-    {
-      id: "11",
-      url: "https://images.unsplash.com/photo-1598928636135-d146006ff4be?q=80&w=2940&auto=format&fit=crop",
-    },
-    {
-      id: "12",
-      url: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=2940&auto=format&fit=crop",
-    },
-    {
-      id: "1",
-      url: "https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2940&auto=format&fit=crop",
-    },
-    {
-      id: "3",
-      url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2940&auto=format&fit=crop",
-    },
+  //   {
+  //     id: "10",
+  //     url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2940&auto=format&fit=crop",
+  //   },
+  //   {
+  //     id: "11",
+  //     url: "https://images.unsplash.com/photo-1598928636135-d146006ff4be?q=80&w=2940&auto=format&fit=crop",
+  //   },
+  //   {
+  //     id: "12",
+  //     url: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=2940&auto=format&fit=crop",
+  //   },
+  //   {
+  //     id: "1",
+  //     url: "https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2940&auto=format&fit=crop",
+  //   },
+  //   {
+  //     id: "3",
+  //     url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2940&auto=format&fit=crop",
+  //   },
 
-    {
-      id: "10",
-      url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2940&auto=format&fit=crop",
-    },
-    {
-      id: "11",
-      url: "https://images.unsplash.com/photo-1598928636135-d146006ff4be?q=80&w=2940&auto=format&fit=crop",
-    },
-    {
-      id: "12",
-      url: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=2940&auto=format&fit=crop",
-    },
-  ];
+  //   {
+  //     id: "10",
+  //     url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2940&auto=format&fit=crop",
+  //   },
+  //   {
+  //     id: "11",
+  //     url: "https://images.unsplash.com/photo-1598928636135-d146006ff4be?q=80&w=2940&auto=format&fit=crop",
+  //   },
+  //   {
+  //     id: "12",
+  //     url: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=2940&auto=format&fit=crop",
+  //   },
+  // ];
 
   // Hàm render từng ảnh
-  const renderPhotoItem = ({ item, index }) => (
-    <TouchableOpacity
-      onPress={() => {
-        setSelectedPhoto(item.url);
-        setCurrentIndex(index); // Lưu chỉ số của ảnh được chọn
-        setModalVisible(true);
-      }}
-      style={styles.photoItem}
-    >
-      <Image
-        source={{ uri: item.url }}
-        style={styles.photoImage}
-        resizeMode="cover"
-      />
-    </TouchableOpacity>
-  );
+  const RenderPhotoItem = ({ item, index }) => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          setSelectedPhoto(item.url);
+          setCurrentIndex(index); // Lưu chỉ số của ảnh được chọn
+          setModalVisible(true);
+        }}
+        style={styles.photoItem}
+      >
+        <Image
+          source={{ uri: item.url }}
+          style={styles.photoImage}
+          resizeMode="cover"
+        />
+      </TouchableOpacity>
+    );
+  };
 
   // Xử lý chuyển sang ảnh trước
   const handlePrePhoto = () => {
     if (currentIndex > 0) {
       const newIndex = currentIndex - 1;
       setCurrentIndex(newIndex);
-      setSelectedPhoto(photoList[newIndex].url);
+      setSelectedPhoto(photoList2[newIndex].url);
     }
   };
 
   // Xử lý chuyển sang ảnh tiếp theo
   const handleNextPhoto = () => {
-    if (currentIndex < photoList.length - 1) {
+    if (currentIndex < photoList2.length - 1) {
       const newIndex = currentIndex + 1;
       setCurrentIndex(newIndex);
-      setSelectedPhoto(photoList[newIndex].url);
+      setSelectedPhoto(photoList2[newIndex].url);
     }
   };
 
   return (
     <View style={styles.container}>
       <FlatList
-        data={photoList}
-        renderItem={renderPhotoItem}
+        data={photoList2}
+        renderItem={RenderPhotoItem}
         keyExtractor={(item) => item.id}
         numColumns={NUM_COLUMNS} // 3 cột mỗi hàng
         contentContainerStyle={styles.photoList}
         showsVerticalScrollIndicator={false}
       />
+      {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {hotelDetail &&
+          photoList?.map((item, index) => {
+            return <RenderPhotoItem key={index} item={item} />;
+          })}
+      </ScrollView> */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -167,17 +189,17 @@ const PhotoScreen = () => {
             </TouchableOpacity>
 
             {/* Nút Previous */}
-            {currentIndex > 0 && (
+            {/* {currentIndex > 0 && (
               <TouchableOpacity
                 style={styles.preButton}
                 onPress={handlePrePhoto}
               >
                 <Ionicons name="chevron-back-outline" size={30} color="#fff" />
               </TouchableOpacity>
-            )}
+            )} */}
 
             {/* Nút Next */}
-            {currentIndex < photoList.length - 1 && (
+            {/* {currentIndex < photoList2.length - 1 && (
               <TouchableOpacity
                 style={styles.nextButton}
                 onPress={handleNextPhoto}
@@ -188,7 +210,7 @@ const PhotoScreen = () => {
                   color="#fff"
                 />
               </TouchableOpacity>
-            )}
+            )} */}
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>

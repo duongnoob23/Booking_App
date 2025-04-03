@@ -10,6 +10,7 @@ import SuccessPayment from "../Pages/Payment/SuccessPayment";
 import RateReviews from "../Pages/Reviews/RateReviews";
 import RateDetails from "../Pages/Reviews/RateDetails";
 import RateApp from "../Pages/Reviews/RateApp";
+import UserListScreen from "../Pages/Home/UserListScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -90,6 +91,14 @@ const HomeStackNavigator = () => {
       <Stack.Screen
         name="RateApp"
         component={RateApp}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="test"
+        component={UserListScreen}
         options={{
           headerShown: false,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
