@@ -15,6 +15,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/FontAwesome"; // Sử dụng FontAwesome cho icons
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useAppSelector } from "../../Redux/hook";
+import SkeletonPriceScreen from "../../Components/Skeleton/Hotels/SkeletonPriceScreen";
 const PriceScreen = ({ navigation, route }) => {
   // console.log(">>> route PriceScreen", route);
   // const [dataPrice, setDataPrice] = useState(route.params.data);
@@ -32,6 +33,10 @@ const PriceScreen = ({ navigation, route }) => {
   const handleToFoodDetail = () => {
     navigation.navigate("FoodDetails");
   };
+
+  // if (loading) {
+  //   return <SkeletonPriceScreen />;
+  // }
 
   return (
     <ScrollView style={styles.body}>
@@ -157,58 +162,7 @@ const PriceScreen = ({ navigation, route }) => {
       </View>
 
       <View style={styles.footer}>
-        <View style={styles.footer__food}>
-          {/* <View style={styles.footer__food__title}>
-            <Text style={styles.footer__food__text}>ĐỒ ĂN</Text>
-            <TouchableOpacity onPress={() => handleOrderFood()}>
-              <Text style={[styles.footer__food__text, { color: "blue" }]}>
-                XEM THÊM
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.footer__food__items}>
-              {foodList &&
-                foodList?.map((item, index) => {
-                  return (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => handleToFoodDetail()}
-                    >
-                      <Image
-                        source={{
-                          uri: `${item.urL}`,
-                        }}
-                        style={styles.footer__food__item}
-                      />
-                      <Text style={styles.footer__item__text}>{item.name}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-            </View>
-          </ScrollView> */}
-          {/* <View style={styles.footer__food__items}>
-                  <Image
-                    source={{
-                      uri: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-                    }}
-                    style={styles.footer__food__item}
-                  />
-                  <Image
-                    source={{
-                      uri: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop",
-                    }}
-                    style={styles.footer__food__item}
-                  />
-                </View> */}
-        </View>
-
-        {/* <Image
-          source={{
-            uri: "https://maps.googleapis.com/maps/api/staticmap?center=DaNang,Vietnam&zoom=13&size=400x200&key=YOUR_API_KEY",
-          }}
-          style={styles.footer__map}
-        /> */}
+        <View style={styles.footer__food}></View>
       </View>
     </ScrollView>
   );

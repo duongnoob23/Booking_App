@@ -22,6 +22,7 @@ import SkeletonPlaceholder from "react-native-skeleton-placeholder";
 import { API_BASE_URL } from "../../Constant/Constant";
 import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import { fetchHotelById } from "../../Redux/Slice/hotelSlice";
+import SkeletonHotelDetails from "../../Components/Skeleton/Hotels/SkeletonHotelDetails";
 
 const HotelDetails = ({ navigation, route }) => {
   const hotelId = route.params.item.hotelId;
@@ -165,161 +166,111 @@ const HotelDetails = ({ navigation, route }) => {
       </View>
     );
   };
+
+  if (loading) {
+    return <SkeletonHotelDetails />;
+  }
+
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <ImageBackground
-          source={{
-            uri: `${item.imageUrl}`,
-          }}
-          style={styles.header__image}
-        >
-          <View style={styles.header__overlay}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
-            </TouchableOpacity>
-            <Text style={styles.header__title}>{item.hotelName}</Text>
-            <TouchableOpacity style={styles.header__icon__start}>
-              <Ionicons name="share-outline" size={24} color="#fff" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.header__info}>
-            <View style={styles.header__rating}>
-              <View style={styles.header__rating__group}>
-                <View>
-                  <Icon
-                    style={styles.iconStart}
-                    name="star"
-                    size={24}
-                    color="#EBA731"
-                  />
-                </View>
-                <View>
-                  <Text style={styles.header__rating__score}>
-                    {hotelDetail && hotelDetail?.review.rating}
-                  </Text>
-                </View>
-              </View>
-              <Text style={styles.header__rating__text}>
-                {hotelDetail && hotelDetail.review.sumReview} Người đã thích
-              </Text>
-            </View>
-            <View style={styles.header__location}>
-              <View>
-                <Icon name="map-marker" size={16} color="white" />
-              </View>
-              <View style={styles.header__location__text}>
-                <Text style={{ color: "white" }}>
-                  {hotelDetail && hotelDetail.review.location}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </ImageBackground>
-      </View>
-
-      {/* <View style={styles.headerSkeleton}>
-        <ImageBackground
-          source={{
-            uri: `https://media.istockphoto.com/id/612005802/photo/concrete-wide-texture.webp?a=1&b=1&s=612x612&w=0&k=20&c=VpvMnQxtDj1c1pegkrjimOGjv-zx9YDz1iufcjxnaag=`,
-          }}
-          style={styles.header__imageSkeleton}
-        >
-          <View style={styles.header__overlaySkeleton}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
-            </TouchableOpacity>
-            <Text style={styles.header__titleSkeleton}>{item.hotelName}</Text>
-            <TouchableOpacity style={styles.header__icon__startSkeleton}>
-              <Ionicons name="share-outline" size={24} color="#fff" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.header__infoSkeleton}>
-            <View style={styles.header__ratingSkeleton}>
-              <View style={styles.header__rating__groupSkeleton}>
-                <View>
-                  <Icon
-                    style={styles.iconStartSkeleton}
-                    name="star"
-                    size={24}
-                    color="#EBA731"
-                  />
-                </View>
-                <View>
-                  <Text style={styles.header__rating__scoreSkeleton}>
-                    {hotelDetail && hotelDetail?.review.rating}
-                  </Text>
-                </View>
-              </View>
-              <Text style={styles.header__rating__textSkeleton}>
-                {hotelDetail && hotelDetail.review.sumReview} Người đã thích
-              </Text>
-            </View>
-            <View style={styles.header__locationSkeleton}>
-              <View>
-                <Icon
-                  name="map-marker"
-                  size={16}
-                  color="#CCCED3"
-                  style={styles.iconStartSkeleton}
-                />
-              </View>
-              <View style={styles.header__location__textSkeleton}>
-                <Text style={{ color: "#CCCED3" }}>
-                  {hotelDetail && hotelDetail.review.location}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </ImageBackground>
-      </View> */}
-
-      {/* Tab Navigator với tabBar tùy chỉnh */}
-      {!showInfoConfirm && !showOrderConfirm && (
-        <>
-          <Tab.Navigator
-            tabBar={(props) => <CustomTabBar {...props} />}
-            initialRouteName="Price"
+    <>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <ImageBackground
+            source={{
+              uri: `${item.imageUrl}`,
+            }}
+            style={styles.header__image}
           >
-            <Tab.Screen
-              name="Price"
-              component={PriceScreen}
-              options={{ tabBarLabel: "Bảng giá (106)" }}
-            />
-            <Tab.Screen
-              name="Photo"
-              component={PhotoScreen}
-              options={{ tabBarLabel: "Ảnh (10)" }}
-            />
-            <Tab.Screen
-              name="Check"
-              component={CheckScreen}
-              options={{ tabBarLabel: "Lần check (24)" }}
-            />
-          </Tab.Navigator>
+            <View style={styles.header__overlay}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Ionicons name="arrow-back" size={24} color="#fff" />
+              </TouchableOpacity>
+              <Text style={styles.header__title}>{item.hotelName}</Text>
+              <TouchableOpacity style={styles.header__icon__start}>
+                <Ionicons name="share-outline" size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
 
-          <View style={styles.footer__action}>
-            <Text style={styles.footer__price}>
-              <Text>{hotelDetail && hotelDetail.priceMin}</Text>
-              <Text style={styles.footer__price__text}>TB/ĐÊM</Text>
-            </Text>
-            <TouchableOpacity
-              style={styles.footer__button}
-              onPress={() => handleInfoConfirm()}
+            <View style={styles.header__info}>
+              <View style={styles.header__rating}>
+                <View style={styles.header__rating__group}>
+                  <View>
+                    <Icon
+                      style={styles.iconStart}
+                      name="star"
+                      size={24}
+                      color="#EBA731"
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.header__rating__score}>
+                      {hotelDetail && hotelDetail?.review.rating}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={styles.header__rating__text}>
+                  {hotelDetail && hotelDetail.review.sumReview} Người đã thích
+                </Text>
+              </View>
+              <View style={styles.header__location}>
+                <View>
+                  <Icon name="map-marker" size={16} color="white" />
+                </View>
+                <View style={styles.header__location__text}>
+                  <Text style={{ color: "white" }}>
+                    {hotelDetail && hotelDetail.review.location}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </ImageBackground>
+        </View>
+
+        {/* Tab Navigator với tabBar tùy chỉnh */}
+        {!showInfoConfirm && !showOrderConfirm && (
+          <>
+            <Tab.Navigator
+              tabBar={(props) => <CustomTabBar {...props} />}
+              initialRouteName="Price"
             >
-              <Text style={styles.footer__button__text}>ĐẶT NGAY</Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
-      {showInfoConfirm && (
-        <InfoConfirmScreen handleOrderConfirm={handleOrderConfirm} />
-      )}
-      {showOrderConfirm && <OrderConfirmScreen />}
-    </View>
+              <Tab.Screen
+                name="Price"
+                component={PriceScreen}
+                options={{ tabBarLabel: "Bảng giá (106)" }}
+              />
+              <Tab.Screen
+                name="Photo"
+                component={PhotoScreen}
+                options={{ tabBarLabel: "Ảnh (10)" }}
+              />
+              <Tab.Screen
+                name="Check"
+                component={CheckScreen}
+                options={{ tabBarLabel: "Lần check (24)" }}
+              />
+            </Tab.Navigator>
+
+            <View style={styles.footer__action}>
+              <Text style={styles.footer__price}>
+                <Text>{hotelDetail && hotelDetail.priceMin}</Text>
+                <Text style={styles.footer__price__text}>TB/ĐÊM</Text>
+              </Text>
+              <TouchableOpacity
+                style={styles.footer__button}
+                onPress={() => handleInfoConfirm()}
+              >
+                <Text style={styles.footer__button__text}>ĐẶT NGAY</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+        {showInfoConfirm && (
+          <InfoConfirmScreen handleOrderConfirm={handleOrderConfirm} />
+        )}
+        {showOrderConfirm && <OrderConfirmScreen />}
+      </View>
+    </>
   );
 };
 export default HotelDetails;
@@ -402,94 +353,6 @@ const styles = StyleSheet.create({
   },
   // E4E6EB
   // CCCED3
-  // -------------------------- Skeleton
-  headerSkeleton: {
-    backgroundColor: "#fff",
-  },
-  header__imageSkeleton: {
-    width: "100%",
-    height: 250,
-    justifyContent: "space-between",
-  },
-  header__overlaySkeleton: {
-    flexDirection: "row",
-    alignItems: "center",
-    // padding: 15,
-    margin: 15,
-  },
-  header__icon__startSkeleton: {
-    marginLeft: "auto",
-  },
-  header__titleSkeleton: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#CCCED3",
-    // padding: 15,
-    marginHorizontal: 15,
-    marginVertical: 15,
-    backgroundColor: "#CCCED3",
-    borderRadius: 15,
-  },
-  header__infoSkeleton: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 15,
-    alignItems: "flex-end",
-  },
-  header__ratingSkeleton: {
-    flexDirection: "column",
-    alignItems: "flex-start",
-  },
-  header__rating__groupSkeleton: {
-    flexDirection: "row",
-    width: 200,
-    alignItems: "center",
-  },
-  header__rating__scoreSkeleton: {
-    fontSize: 16,
-    fontWeight: "400",
-    color: "white",
-    // paddingVertical: 2,
-    // paddingHorizontal: 6,
-    marginVertical: 2,
-    marginHorizontal: 6,
-    borderRadius: 5,
-    marginLeft: 5,
-    backgroundColor: "#CCCED3",
-    borderRadius: 15,
-    color: "#CCCED3",
-  },
-  iconStartSkeleton: {
-    fontSize: 16,
-    width: 16,
-    height: 16,
-    backgroundColor: "#CCCED3",
-    borderRadius: 15,
-    color: "#CCCED3",
-  },
-  header__rating__textSkeleton: {
-    fontSize: 14,
-    color: "white",
-    backgroundColor: "#CCCED3",
-    borderRadius: 15,
-    color: "#CCCED3",
-  },
-  header__locationSkeleton: {
-    fontSize: 14,
-    color: "white",
-    width: 100,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    color: "white",
-  },
-  header__location__textSkeleton: {
-    marginLeft: 5,
-    backgroundColor: "#CCCED3",
-    borderRadius: 15,
-    color: "#CCCED3",
-  },
-  // ---------------------------------------
   header__tabs: {
     flexDirection: "row",
     justifyContent: "center",
