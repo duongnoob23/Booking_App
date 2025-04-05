@@ -409,3 +409,10 @@ còn nếu ở tab lỗi cannot read property 'bubblingeventtypes' thì ko fix �
 
 đọc kĩ các lỗi xem thiểu thư viện gì
 tải bằng expo install để tự tải phiên bản phù hợp không xung đột
+
+
+Trong React Native, component Modal là một thành phần đặc biệt. Khi bạn sử dụng Modal, nó luôn được render ở tầng cao nhất của ứng dụng, bất kể bạn đặt nó ở đâu trong cây giao diện (JSX). Điều này có nghĩa là nó không bị ảnh hưởng bởi vị trí của các thành phần cha (như TouchableOpacity hay inputContainer).
+
+Khi Modal được hiển thị (visible={true}), nó tạo một lớp phủ (overlay) bao phủ toàn bộ màn hình, và nội dung bên trong modal sẽ được đặt ở một vị trí độc lập, không phụ thuộc vào vị trí của inputContainer. Đây là thiết kế mặc định của Modal để đảm bảo nó luôn hiển thị trên tất cả các thành phần khác.
+
+tạm thời modal mình sẽ để ở giữa màn hình và chỉ cho chọn chứ chưa cho nhập input và gợi ý từ giống 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { cloneElement, useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -8,14 +8,24 @@ import {
   SafeAreaView,
   Image,
   Button,
+  Modal,
+  Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome"; // Sử dụng FontAwesome cho icons
 import { FlatList } from "react-native";
 import { API_BASE_URL } from "../../Constant/Constant";
 import { useAppDispatch, useAppSelector } from "../../Redux/hook";
-import { fetchHotelList } from "../../Redux/Slice/hotelSlice";
-// import HotelRequestList from "../../Components/RenderList/hotelRequestList";
-// import LinearGradient from "react-native-linear-gradient";
+import {
+  fetchHotelList,
+  fetchLocationList,
+} from "../../Redux/Slice/hotelSlice";
+import ModalLocationList from "../../Components/Modal/ModalLocationList";
+import cloneDeep from "lodash/cloneDeep";
+import { Picker } from "@react-native-picker/picker";
+import ModalCheckIn from "../../Components/Modal/ModalCheckIn";
+import ModalCheckOut from "../../Components/Modal/ModalCheckOut";
+import ModalGuestsAndRooms from "../../Components/Modal/ModalGuestsAndRooms";
+
 const HomeScreen = ({ navigation }) => {
   const continueSearch = [
     {
@@ -54,14 +64,52 @@ const HomeScreen = ({ navigation }) => {
       details: " 23-26 Tháng 8, 6-7 Người lớn, 1 trẻ em",
     },
   ];
-  const { hotelList, hotelDetail, loading, error } = useAppSelector(
-    (state) => state.hotel
-  );
+
+  const { hotelList, locationList, hotelDetail, loading, error } =
+    useAppSelector((state) => state.hotel);
+
+  const [open, setOpen] = useState({
+    Modal_1: true,
+    Modal_CheckIn: false,
+    Modal_CheckOut: false,
+    Modal_GuestsAndRooms: false,
+  });
+
+  const [modalPosition, setModalPosition] = useState({
+    top: 0,
+    left: 0,
+    width: 0,
+  });
+
+  const formatToYYYYMMDD = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng từ 0-11, cần +1
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const checkinDate = formatToYYYYMMDD(today);
+  const checkoutDate = formatToYYYYMMDD(tomorrow);
+
+  const [inforFilter, setInforFilter] = useState({
+    locationId: "0",
+    checkin: checkinDate,
+    checkout: checkoutDate,
+    adults: 1,
+    children: 0,
+    roomNumber: 1,
+    amenityIds: [],
+    serviceIds: [],
+  });
 
   const dispatch = useAppDispatch();
   useEffect(() => {
-    // console.log(">>> dispatch");
     dispatch(fetchHotelList());
+    dispatch(fetchLocationList());
   }, [dispatch]);
 
   const HotelRequestList = ({ item }) => {
@@ -105,9 +153,92 @@ const HomeScreen = ({ navigation }) => {
     );
   };
 
-  // Chia continueSearch thành 2 phần
-  // console.log(continueSearch.length / 2);
+  const handleFilterHotel = () => {
+    console.log(inforFilter);
+  };
+
+  const inputContainerRef = useRef(null);
+
+  const handleOpenModal = (name) => {
+    const open_ = cloneDeep(open);
+    open_[name] = true;
+    setOpen(open_);
+
+    if (inputContainerRef.current) {
+      inputContainerRef.current.measure((fx, fy, width, height, px, py) => {
+        setModalPosition({ top: px + 2 * height, left: 0, width: "100%" });
+      });
+    }
+  };
+
+  const handleCloseModal = (name) => {
+    const open_ = cloneDeep(open);
+    open_[name] = false;
+    setOpen(open_);
+  };
+
+  // console.log(">>> 160 homeScreen inforFilter", inforFilter);
+  // console.log(">>> 16159 homeScreen location", locationList);
+
   const WidthtwoRowScrollView = 210 * Math.ceil(continueSearch.length / 2);
+
+  const [selectDay, setSelectDay] = useState({
+    day: 4,
+    month: 4,
+    year: 2025,
+  });
+
+  const handleModalCheck = (name, value) => {
+    const open_ = cloneDeep(open);
+    open_[name] = value;
+
+    if (name === "Modal_CheckIn" || name === "Modal_CheckOut") {
+      const day =
+        inforFilter[name === "Modal_CheckIn" ? "checkin" : "checkout"];
+      setSelectDay({
+        day: +day.split("-")[2],
+        month: +day.split("-")[1],
+        year: +day.split("-")[0],
+      });
+    }
+
+    setOpen(open_);
+  };
+  // console.log(selectDay);
+
+  const handleConfirmDate = (name) => {
+    const formattedDate = `${selectDay.year}-${String(selectDay.month).padStart(
+      2,
+      "0"
+    )}-${String(selectDay.day).padStart(2, "0")}`;
+
+    if (name === "checkin") {
+      const today = new Date();
+
+      const dateToday = formatToYYYYMMDD(today);
+      const date1 = new Date(dateToday);
+      const date2 = new Date(formattedDate);
+      if (date2 < date1) {
+        Alert.alert("Ngày CheckIn phải lớn hơn ngày hiện tại");
+        return;
+      }
+    } else {
+      const date1 = new Date(inforFilter.checkin);
+      const date2 = new Date(formattedDate);
+      // console.log(date1, date2);
+      if (date2 <= date1) {
+        Alert.alert("Ngày CheckOut phải lớn hơn ngày CheckIn");
+        return;
+      }
+    }
+    setInforFilter({
+      ...inforFilter,
+      [name]: formattedDate,
+    });
+    const nameModal = name === "checkin" ? "Modal_CheckIn" : "Modal_CheckOut";
+    handleModalCheck(nameModal, false);
+  };
+  // console.log(inforFilter);
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -119,60 +250,95 @@ const HomeScreen = ({ navigation }) => {
       </View>
 
       {/* Body */}
-      <ScrollView style={styles.body}>
+      <ScrollView View style={styles.body} scrollEnabled={!open.Modal_1}>
         {/* "Khách Sạn" Text */}
         <View style={styles.hotelLabelContainer}>
           <Text style={styles.hotelLabel}>Khách Sạn</Text>
         </View>
-
         {/* Input Fields */}
-        <View style={styles.inputContainer}>
+        <TouchableOpacity
+          style={styles.inputContainer}
+          ref={inputContainerRef}
+          onPress={() => handleOpenModal("Modal_1")}
+        >
           <Icon name="map-marker" size={24} color="#0090FF" />
-          <Text style={styles.inputText}>Bạn muốn ở đâu</Text>
-        </View>
-        <View style={styles.inputContainer}>
+          <Text style={styles.inputText}>
+            {inforFilter.locationId !== "0"
+              ? locationList?.find(
+                  (item) => item.id.toString() === inforFilter.locationId
+                )?.name || "Bạn muốn ở đâu"
+              : "Bạn muốn ở đâu"}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.inputContainer}
+          onPress={() => handleModalCheck("Modal_CheckIn", true)}
+        >
           <Icon name="calendar" size={24} color="#0090FF" />
-          <Text style={styles.inputText}>Ngày & giờ nhận phòng</Text>
+          <Text style={styles.inputText}>{inforFilter.checkin}</Text>
           <Icon
             name="angle-down"
             size={20}
             color="#0090FF"
             style={styles.arrowIcon}
           />
-        </View>
-        <View style={styles.inputContainer}>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.inputContainer}
+          onPress={() => handleModalCheck("Modal_CheckOut", true)}
+        >
           <Icon name="calendar" size={24} color="#0090FF" />
-          <Text style={styles.inputText}>Ngày & giờ thanh toán</Text>
+          <Text style={styles.inputText}>{inforFilter.checkout}</Text>
           <Icon
             name="angle-down"
             size={20}
             color="#0090FF"
             style={styles.arrowIcon}
           />
-        </View>
-        <View style={styles.inputContainer}>
+        </TouchableOpacity>
+        // MODALLLL
+        <ModalCheckIn
+          visible={open.Modal_CheckIn}
+          onClose={handleModalCheck}
+          selectDay={selectDay}
+          setSelectDay={setSelectDay}
+          confirm={handleConfirmDate}
+        />
+        <ModalCheckOut
+          visible={open.Modal_CheckOut}
+          onClose={handleModalCheck}
+          selectDay={selectDay}
+          setSelectDay={setSelectDay}
+          confirm={handleConfirmDate}
+        />
+        <TouchableOpacity
+          style={styles.inputContainer}
+          onPress={() => handleModalCheck("Modal_GuestsAndRooms", true)}
+        >
           <Icon name="building" size={24} color="#0090FF" />
-          <Text style={styles.inputText}>0 Người lớn, 0 Trẻ em, 0 Phòng</Text>
+          <Text style={styles.inputText}>
+            {inforFilter.adults} Người lớn, {inforFilter.children} Trẻ em,{" "}
+            {inforFilter.roomNumber} Phòng
+          </Text>
           <Icon
             name="angle-down"
             size={20}
             color="#0090FF"
             style={styles.arrowIcon}
           />
-        </View>
-
+        </TouchableOpacity>
+        <ModalGuestsAndRooms
+          visible={open.Modal_GuestsAndRooms}
+          onClose={handleModalCheck}
+          inforFilter={inforFilter}
+          setInforFilter={setInforFilter}
+        />
         <TouchableOpacity
           style={styles.newButton}
-          onPress={() => navigation.navigate("test")}
+          onPress={() => handleFilterHotel()}
         >
           <Text style={styles.newButtonText}> Tìm kiếm </Text>
         </TouchableOpacity>
-        {/* Search Button */}
-
-        {/* <TouchableOpacity style={styles.newButton}>
-          <Text> Tìm kiếm</Text>
-        </TouchableOpacity> */}
-        {/* Recent Searches Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>TIẾP TỤC TÌM KIẾM CỦA BẠN</Text>
@@ -210,7 +376,6 @@ const HomeScreen = ({ navigation }) => {
             </ScrollView>
           </View>
         </View>
-
         {/* Weekend Deals Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -226,13 +391,16 @@ const HomeScreen = ({ navigation }) => {
                 return <HotelRequestList key={index} item={item} />;
               })}
           </ScrollView>
-          {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {hotelRequestList &&
-              hotelRequestList.map((item) => (
-                <HotelRequestList key={item.hotelId.toString()} item={item} />
-              ))}
-          </ScrollView> */}
         </View>
+        {open.Modal_1 && (
+          <ModalLocationList
+            position={modalPosition}
+            onClose={() => handleCloseModal("Modal_1")}
+            onSelect={(locationId) =>
+              setInforFilter({ ...inforFilter, locationId })
+            }
+          />
+        )}
         <View>
           <Text>{"\n\n"} </Text>
         </View>
@@ -282,6 +450,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderBottomColor: "gray",
     borderBottomWidth: 1,
+    position: "relative",
     // borderWidth: 1,
     // borderColor: "#E0E0E0",
     // borderRadius: 5,
@@ -482,6 +651,100 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  modalOverlay: {
+    // flex: 1,
+    // backgroundColor: "rgba(0, 0, 0, 0.5)", // Nền mờ
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    maxHeight: "800",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    width: "80%",
+    borderRadius: 10,
+    padding: 20,
+    maxHeight: "60%", // Giới hạn chiều cao của modal
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  locationItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  locationText: {
+    fontSize: 16,
+    marginLeft: 10,
+  },
+  closeButton: {
+    marginTop: 20,
+    backgroundColor: "#0090FF",
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  datePickerContainer: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    width: "90%",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  pickerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  picker: {
+    flex: 1,
+    height: 150,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  modalButton: {
+    backgroundColor: "#f5f5f5",
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+    marginHorizontal: 5,
+    alignItems: "center",
+  },
+  confirmButton: {
+    backgroundColor: "#0090FF",
+  },
+  modalButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
 });
 
 //  const getData = async () => {
@@ -503,3 +766,63 @@ const styles = StyleSheet.create({
 //      console.error("Lỗi khi gọi API:", error);
 //    }
 //  };
+
+{
+  /* <Modal
+            animationType="slide"
+            transparent={true}
+            visible={open.Modal_1}
+            onRequestClose={() => handleCloseModal("Modal_1")} 
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Chọn địa điểm</Text>
+
+                <FlatList
+                  data={locations}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.locationItem}
+                      onPress={() => {
+                      
+                        setInforFilter({
+                          ...inforFilter,
+                          locationId: item.id.toString(),
+                        });
+                        handleCloseModal("Modal_1");
+                      }}
+                    >
+                      <Icon name="map-marker" size={24} color="#0090FF" />
+                      <Text style={styles.locationText}>{item.name}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => handleCloseModal("Modal_1")}
+                >
+                  <Text style={styles.closeButtonText}>Đóng</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal> */
+}
+
+{
+  /* {open.Modal_1 && (
+          <TouchableWithoutFeedback onPress={() => handleCloseModal("Modal_1")}>
+            <View style={styles.overlay}>
+              <TouchableWithoutFeedback>
+                <ModalLocationList
+                  onClose={() => handleCloseModal("Modal_1")}
+                  onSelect={(locationId) =>
+                    setInforFilter({ ...inforFilter, locationId })
+                  }
+                />
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        )} */
+}

@@ -41,10 +41,29 @@ export const fetchHotelById = createAsyncThunk(
   }
 );
 
+export const fetchLocationList = createAsyncThunk(
+  "hotel/fetchLocationList",
+  async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/location/get_list`, {
+        method: "GET",
+        headers: { "content-Type": "applicatioin/json" },
+      });
+      const data = await response.json();
+      // console.log(">>> 53 hotelSlice data", data.data);
+      return data.data;
+    } catch (error) {
+      console.error("error in fetch location list:", error);
+      throw error;
+    }
+  }
+);
+
 const hotelSlice = createSlice({
   name: "hotel",
   initialState: {
     hotelList: [], // Danh sách khách sạn (Ưu đãi cuối tuần)
+    locationList: [], // Danh sach Dia Diem
     hotelDetail: null, // Chi tiết khách sạn
     loading: false, // Đang tải hay không
     error: null, // Lỗi nếu có
@@ -79,6 +98,19 @@ const hotelSlice = createSlice({
         state.hotelDetail = action.payload;
       })
       .addCase(fetchHotelById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      // Xử lý fetchLocationList
+      .addCase(fetchLocationList.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchLocationList.fulfilled, (state, action) => {
+        state.loading = false;
+        state.locationList = action.payload;
+      })
+      .addCase(fetchLocationList.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });
