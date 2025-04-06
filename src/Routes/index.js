@@ -12,7 +12,7 @@ const Navigation = () => {
   const auth = useAppSelector((state) => state.auth);
   const checkLogin = auth.isLoggedIn;
   const loading = auth.loading;
-  console.log(">>> auth", auth);
+  // console.log(">>> auth", auth);
   // const count = useAppSelector((state) => state.count.count);
   // console.log(">>> count", count);
   // const loginn = useAppSelector((state) => state.text);

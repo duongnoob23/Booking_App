@@ -16,6 +16,7 @@ import { FlatList } from "react-native";
 import { API_BASE_URL } from "../../Constant/Constant";
 import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import {
+  fetchHotelByLocation,
   fetchHotelList,
   fetchLocationList,
 } from "../../Redux/Slice/hotelSlice";
@@ -65,8 +66,14 @@ const HomeScreen = ({ navigation }) => {
     },
   ];
 
-  const { hotelList, locationList, hotelDetail, loading, error } =
-    useAppSelector((state) => state.hotel);
+  const {
+    hotelList,
+    locationList,
+    hotelDetail,
+    hotelByLocation,
+    loading,
+    error,
+  } = useAppSelector((state) => state.hotel);
 
   const [open, setOpen] = useState({
     Modal_1: true,
@@ -83,11 +90,12 @@ const HomeScreen = ({ navigation }) => {
 
   const formatToYYYYMMDD = (date) => {
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng từ 0-11, cần +1
+    const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
+  console.log(">>> 97 homeScreen list", hotelByLocation);
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
@@ -153,10 +161,6 @@ const HomeScreen = ({ navigation }) => {
     );
   };
 
-  const handleFilterHotel = () => {
-    console.log(inforFilter);
-  };
-
   const inputContainerRef = useRef(null);
 
   const handleOpenModal = (name) => {
@@ -176,9 +180,6 @@ const HomeScreen = ({ navigation }) => {
     open_[name] = false;
     setOpen(open_);
   };
-
-  // console.log(">>> 160 homeScreen inforFilter", inforFilter);
-  // console.log(">>> 16159 homeScreen location", locationList);
 
   const WidthtwoRowScrollView = 210 * Math.ceil(continueSearch.length / 2);
 
@@ -204,7 +205,6 @@ const HomeScreen = ({ navigation }) => {
 
     setOpen(open_);
   };
-  // console.log(selectDay);
 
   const handleConfirmDate = (name) => {
     const formattedDate = `${selectDay.year}-${String(selectDay.month).padStart(
@@ -238,7 +238,13 @@ const HomeScreen = ({ navigation }) => {
     const nameModal = name === "checkin" ? "Modal_CheckIn" : "Modal_CheckOut";
     handleModalCheck(nameModal, false);
   };
-  // console.log(inforFilter);
+
+  const handleFilterHotel = () => {
+    dispatch(fetchHotelByLocation(inforFilter));
+
+    navigation.navigate("ListHotelLocation");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -248,14 +254,11 @@ const HomeScreen = ({ navigation }) => {
           <Icon name="filter" size={24} color="#007AFF" />
         </TouchableOpacity>
       </View>
-
       {/* Body */}
-      <ScrollView View style={styles.body} scrollEnabled={!open.Modal_1}>
-        {/* "Khách Sạn" Text */}
+      <ScrollView style={styles.body} scrollEnabled={!open.Modal_1}>
         <View style={styles.hotelLabelContainer}>
           <Text style={styles.hotelLabel}>Khách Sạn</Text>
         </View>
-        {/* Input Fields */}
         <TouchableOpacity
           style={styles.inputContainer}
           ref={inputContainerRef}
@@ -296,7 +299,7 @@ const HomeScreen = ({ navigation }) => {
             style={styles.arrowIcon}
           />
         </TouchableOpacity>
-        // MODALLLL
+
         <ModalCheckIn
           visible={open.Modal_CheckIn}
           onClose={handleModalCheck}
@@ -376,7 +379,6 @@ const HomeScreen = ({ navigation }) => {
             </ScrollView>
           </View>
         </View>
-        {/* Weekend Deals Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>ƯU ĐÃI CUỐI TUẦN</Text>
@@ -401,14 +403,14 @@ const HomeScreen = ({ navigation }) => {
             }
           />
         )}
-        <View>
-          <Text>{"\n\n"} </Text>
-        </View>
+        {/* <View></View> */}
       </ScrollView>
     </SafeAreaView>
   );
 };
 export default HomeScreen;
+
+// const styles = StyleSheet.create({});
 const styles = StyleSheet.create({
   container: {
     flex: 1,

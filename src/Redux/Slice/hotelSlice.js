@@ -47,7 +47,7 @@ export const fetchLocationList = createAsyncThunk(
     try {
       const response = await fetch(`${API_BASE_URL}/api/location/get_list`, {
         method: "GET",
-        headers: { "content-Type": "applicatioin/json" },
+        headers: { "content-Type": "application/json" },
       });
       const data = await response.json();
       // console.log(">>> 53 hotelSlice data", data.data);
@@ -59,12 +59,36 @@ export const fetchLocationList = createAsyncThunk(
   }
 );
 
+export const fetchHotelByLocation = createAsyncThunk(
+  "hotel/fetchHotelByLocation",
+  async (value) => {
+    try {
+      console.log(">>> 66 hotelSlice value", { value });
+      const response = await fetch(`${API_BASE_URL}/api/hotel/filter`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(value),
+      });
+
+      const data = await response.json();
+      // console.log(">>> 73 hotelSlice data", data?.data?.content);
+      // console.log(">>> 73 hotelSlice data", data);
+      return data?.data?.content;
+    } catch (error) {
+      console.log("error in fetch hotel location:", error);
+      throw error;
+    }
+  }
+);
+// ?locationId=&checkin=2025-04-04&checkout=2025-04-04&adults=0&children=0&roomNumber=0&amenityIds=[]&serviceIds=[]
+
 const hotelSlice = createSlice({
   name: "hotel",
   initialState: {
     hotelList: [], // Danh sách khách sạn (Ưu đãi cuối tuần)
     locationList: [], // Danh sach Dia Diem
-    hotelDetail: null, // Chi tiết khách sạn
+    hotelDetail: null, // Chi tiết khách
+    hotelByLocation: [], // Danh sach Khach san theo dia diem
     loading: false, // Đang tải hay không
     error: null, // Lỗi nếu có
   },
@@ -111,6 +135,18 @@ const hotelSlice = createSlice({
         state.locationList = action.payload;
       })
       .addCase(fetchLocationList.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchHotelByLocation.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchHotelByLocation.fulfilled, (state, action) => {
+        state.loading = false;
+        state.hotelByLocation = action.payload;
+      })
+      .addCase(fetchHotelByLocation.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

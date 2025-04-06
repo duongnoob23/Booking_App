@@ -11,6 +11,7 @@ import RateReviews from "../Pages/Reviews/RateReviews";
 import RateDetails from "../Pages/Reviews/RateDetails";
 import RateApp from "../Pages/Reviews/RateApp";
 import UserListScreen from "../Pages/Home/UserListScreen";
+import ListHotelByLocation from "../Pages/Home/ListHotelByLocation";
 
 const Stack = createNativeStackNavigator();
 
@@ -97,8 +98,8 @@ const HomeStackNavigator = () => {
         }}
       />
       <Stack.Screen
-        name="test"
-        component={UserListScreen}
+        name="ListHotelLocation"
+        component={ListHotelByLocation}
         options={{
           headerShown: false,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
