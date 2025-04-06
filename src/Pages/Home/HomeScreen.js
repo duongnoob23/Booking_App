@@ -16,17 +16,19 @@ import { FlatList } from "react-native";
 import { API_BASE_URL } from "../../Constant/Constant";
 import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import {
+  fetchAmenityList,
   fetchHotelByLocation,
   fetchHotelList,
   fetchLocationList,
 } from "../../Redux/Slice/hotelSlice";
-import ModalLocationList from "../../Components/Modal/ModalLocationList";
+import ModalLocationList from "../../Components/Modal/Home/ModalLocationList";
 import cloneDeep from "lodash/cloneDeep";
 import { Picker } from "@react-native-picker/picker";
-import ModalCheckIn from "../../Components/Modal/ModalCheckIn";
-import ModalCheckOut from "../../Components/Modal/ModalCheckOut";
-import ModalGuestsAndRooms from "../../Components/Modal/ModalGuestsAndRooms";
-
+import ModalCheckIn from "../../Components/Modal/Home/ModalCheckIn";
+import ModalCheckOut from "../../Components/Modal/Home/ModalCheckOut";
+import ModalGuestsAndRooms from "../../Components/Modal/Home/ModalGuestsAndRooms";
+import { skeletonLoading } from "../../Redux/Slice/hotelSlice";
+import { updateFilter } from "../../Redux/Slice/hotelSlice";
 const HomeScreen = ({ navigation }) => {
   const continueSearch = [
     {
@@ -73,6 +75,7 @@ const HomeScreen = ({ navigation }) => {
     hotelByLocation,
     loading,
     error,
+    inforFilter,
   } = useAppSelector((state) => state.hotel);
 
   const [open, setOpen] = useState({
@@ -88,34 +91,27 @@ const HomeScreen = ({ navigation }) => {
     width: 0,
   });
 
-  const formatToYYYYMMDD = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-
-  console.log(">>> 97 homeScreen list", hotelByLocation);
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-
-  const checkinDate = formatToYYYYMMDD(today);
-  const checkoutDate = formatToYYYYMMDD(tomorrow);
-
-  const [inforFilter, setInforFilter] = useState({
-    locationId: "0",
-    checkin: checkinDate,
-    checkout: checkoutDate,
-    adults: 1,
-    children: 0,
-    roomNumber: 1,
-    amenityIds: [],
-    serviceIds: [],
+  // const [inforFilter, setInforFilter] = useState({
+  //   locationId: "0",
+  //   checkin: checkinDate,
+  //   checkout: checkoutDate,
+  //   adults: 0,
+  //   children: 0,
+  //   roomNumber: 1,
+  //   amenityIds: [],
+  //   serviceIds: [],
+  // });
+  const [selectDay, setSelectDay] = useState({
+    day: 4,
+    month: 4,
+    year: 2025,
   });
 
+  // console.log(">>>>> 104 HomeScreen inforFilter", inforFilter);
+  // console.log("----- 105 HomeScreen selectDay", selectDay);
   const dispatch = useAppDispatch();
   useEffect(() => {
+    dispatch(fetchAmenityList());
     dispatch(fetchHotelList());
     dispatch(fetchLocationList());
   }, [dispatch]);
@@ -183,12 +179,6 @@ const HomeScreen = ({ navigation }) => {
 
   const WidthtwoRowScrollView = 210 * Math.ceil(continueSearch.length / 2);
 
-  const [selectDay, setSelectDay] = useState({
-    day: 4,
-    month: 4,
-    year: 2025,
-  });
-
   const handleModalCheck = (name, value) => {
     const open_ = cloneDeep(open);
     open_[name] = value;
@@ -206,12 +196,20 @@ const HomeScreen = ({ navigation }) => {
     setOpen(open_);
   };
 
+  const formatToYYYYMMDD = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const handleConfirmDate = (name) => {
     const formattedDate = `${selectDay.year}-${String(selectDay.month).padStart(
       2,
       "0"
     )}-${String(selectDay.day).padStart(2, "0")}`;
 
+    console.log(selectDay);
     if (name === "checkin") {
       const today = new Date();
 
@@ -231,15 +229,17 @@ const HomeScreen = ({ navigation }) => {
         return;
       }
     }
-    setInforFilter({
-      ...inforFilter,
-      [name]: formattedDate,
-    });
+    // setInforFilter({
+    //   ...inforFilter,
+    //   [name]: formattedDate,
+    // });
+    dispatch(updateFilter({ ...inforFilter, [name]: formattedDate }));
     const nameModal = name === "checkin" ? "Modal_CheckIn" : "Modal_CheckOut";
     handleModalCheck(nameModal, false);
   };
 
   const handleFilterHotel = () => {
+    dispatch(skeletonLoading());
     dispatch(fetchHotelByLocation(inforFilter));
 
     navigation.navigate("ListHotelLocation");
@@ -333,8 +333,8 @@ const HomeScreen = ({ navigation }) => {
         <ModalGuestsAndRooms
           visible={open.Modal_GuestsAndRooms}
           onClose={handleModalCheck}
-          inforFilter={inforFilter}
-          setInforFilter={setInforFilter}
+          // inforFilter={inforFilter}
+          // setInforFilter={setInforFilter}
         />
         <TouchableOpacity
           style={styles.newButton}
@@ -399,7 +399,8 @@ const HomeScreen = ({ navigation }) => {
             position={modalPosition}
             onClose={() => handleCloseModal("Modal_1")}
             onSelect={(locationId) =>
-              setInforFilter({ ...inforFilter, locationId })
+              // setInforFilter({ ...inforFilter, locationId })
+              dispatch(updateFilter({ ...inforFilter, locationId: locationId }))
             }
           />
         )}

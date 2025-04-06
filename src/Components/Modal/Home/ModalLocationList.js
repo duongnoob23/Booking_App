@@ -7,7 +7,7 @@ import {
   StyleSheet,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { useAppSelector } from "../../Redux/hook";
+import { useAppSelector } from "../../../Redux/hook";
 
 const ModalLocationList = ({ position, onClose, onSelect }) => {
   //   const locations = [

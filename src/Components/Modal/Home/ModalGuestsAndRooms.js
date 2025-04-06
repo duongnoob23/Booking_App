@@ -1,16 +1,29 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from "react-native";
+import { useAppSelector, useAppDispatch } from "../../../Redux/hook";
+import { updateFilter } from "../../../Redux/Slice/hotelSlice";
 
 const ModalGuestsAndRooms = ({
   visible,
   onClose,
-  inforFilter,
-  setInforFilter,
+  // inforFilter,
+  // setInforFilter,
 }) => {
+  const {
+    hotelList,
+    locationList,
+    hotelDetail,
+    hotelByLocation,
+    loading,
+    error,
+    inforFilter,
+  } = useAppSelector((state) => state.hotel);
+
+  const dispatch = useAppDispatch();
   const [tempValues, setTempValues] = useState({
-    adults: inforFilter.adults || 1,
+    adults: inforFilter.adults || 0,
     children: inforFilter.children || 0,
-    roomNumber: inforFilter.roomNumber || 1,
+    roomNumber: inforFilter.roomNumber || 0,
   });
 
   const increaseValue = (key) => {
@@ -22,7 +35,7 @@ const ModalGuestsAndRooms = ({
 
   const decreaseValue = (key) => {
     setTempValues((prev) => {
-      if (key === "roomNumber" && prev[key] <= 1) return prev;
+      if (key === "roomNumber" && prev[key] <= 0) return prev;
       if (prev[key] <= 0) return prev;
       return {
         ...prev,
@@ -32,12 +45,20 @@ const ModalGuestsAndRooms = ({
   };
 
   const handleConfirm = () => {
-    setInforFilter((prev) => ({
-      ...prev,
-      adults: tempValues.adults,
-      children: tempValues.children,
-      roomNumber: tempValues.roomNumber,
-    }));
+    // setInforFilter((prev) => ({
+    //   ...prev,
+    //   adults: tempValues.adults,
+    //   children: tempValues.children,
+    //   roomNumber: tempValues.roomNumber,
+    // }));
+    dispatch(
+      updateFilter({
+        ...inforFilter,
+        adults: tempValues.adults,
+        children: tempValues.children,
+        roomNumber: tempValues.roomNumber,
+      })
+    );
     onClose("Modal_GuestsAndRooms", false);
   };
 
