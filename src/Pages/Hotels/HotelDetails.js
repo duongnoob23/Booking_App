@@ -25,8 +25,8 @@ import { fetchHotelById } from "../../Redux/Slice/hotelSlice";
 import SkeletonHotelDetails from "../../Components/Skeleton/Hotels/SkeletonHotelDetails";
 
 const HotelDetails = ({ navigation, route }) => {
-  const hotelId = route.params.item.hotelId;
-  const item = route.params.item;
+  const hotelId = route?.params?.item?.hotelId;
+  const item = route?.params?.item;
 
   // console.log(item);
   // console.log(">>> hotelId", hotelId);
@@ -42,10 +42,10 @@ const HotelDetails = ({ navigation, route }) => {
     (state) => state.hotel
   );
 
-  useEffect(() => {
-    // console.log(">>> 45 dispatch by hotel ID");
-    dispatch(fetchHotelById(hotelId));
-  }, [dispatch]);
+  // useEffect(() => {
+  // console.log(">>> 45 dispatch by hotel ID");
+  // dispatch(fetchHotelById(hotelId));
+  // }, [dispatch]);
 
   // console.log(">>> 50 hotelDetail", hotelDetail);
   useEffect(() => {
@@ -86,7 +86,8 @@ const HotelDetails = ({ navigation, route }) => {
   }, [navigation]);
 
   const handleInfoConfirm = () => {
-    setShowInfoConfirm(true);
+    // setShowInfoConfirm(true);
+    navigation.navigate("HotelRoomList");
     // Khi navigation thay đổi, cập nhật css
   };
 

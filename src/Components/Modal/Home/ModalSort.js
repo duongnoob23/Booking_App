@@ -9,7 +9,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAppDispatch, useAppSelector } from "../../../Redux/hook";
 import { updateFilter } from "../../../Redux/Slice/hotelSlice";
-const ModalSort = ({ onClose, onApply }) => {
+const ModalSort = ({ onClose }) => {
   const { sortList, inforFilter } = useAppSelector((state) => state.hotel);
   const sortData = sortList;
   //   console.log(sortList);
@@ -43,7 +43,6 @@ const ModalSort = ({ onClose, onApply }) => {
   const handleApply = () => {
     dispatch(updateFilter({ ...inforFilter, sortById: selectedSorts }));
     console.log(inforFilter.sortById);
-    onApply();
     onClose();
   };
 

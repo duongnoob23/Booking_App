@@ -10,9 +10,8 @@ import SuccessPayment from "../Pages/Payment/SuccessPayment";
 import RateReviews from "../Pages/Reviews/RateReviews";
 import RateDetails from "../Pages/Reviews/RateDetails";
 import RateApp from "../Pages/Reviews/RateApp";
-import UserListScreen from "../Pages/Home/UserListScreen";
-import ListHotelByLocation from "../Pages/Home/ListHotelByLocation";
-
+import ListHotelByLocation from "../Pages/Hotels/ListHotelByLocation";
+import HotelRoomList from "../Pages/Hotels/HotelRoomList";
 const Stack = createNativeStackNavigator();
 
 const HomeStackNavigator = () => {
@@ -100,6 +99,14 @@ const HomeStackNavigator = () => {
       <Stack.Screen
         name="ListHotelLocation"
         component={ListHotelByLocation}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="HotelRoomList"
+        component={HotelRoomList}
         options={{
           headerShown: false,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng

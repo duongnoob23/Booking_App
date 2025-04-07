@@ -9,7 +9,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAppDispatch, useAppSelector } from "../../../Redux/hook";
 import { updateFilter } from "../../../Redux/Slice/hotelSlice";
-const ModalAmenity = ({ onClose, onApply }) => {
+const ModalAmenity = ({ onClose }) => {
   const { amenityList, inforFilter } = useAppSelector((state) => state.hotel);
   const amenitiesData = amenityList;
   // console.log(amenityList);
@@ -52,7 +52,6 @@ const ModalAmenity = ({ onClose, onApply }) => {
     dispatch(updateFilter({ ...inforFilter, amenityIds: selectedAmenities }));
     console.log(inforFilter.amenityIds);
     onClose();
-    onApply();
   };
 
   // Log để debug
@@ -122,7 +121,7 @@ const ModalAmenity = ({ onClose, onApply }) => {
     </View>
   );
 };
-
+export default ModalAmenity;
 const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: "#FFF",
@@ -220,5 +219,3 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 });
-
-export default ModalAmenity;

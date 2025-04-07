@@ -16,7 +16,7 @@ const CheckScreen = () => {
   const { hotelList, hotelDetail, loading, error } = useAppSelector(
     (state) => state.hotel
   );
-  console.log(">>> 19", hotelDetail?.nearBy?.activityList);
+  // console.log(">>> 19", hotelDetail?.nearBy?.activityList);
 
   const activityList = hotelDetail?.nearBy?.activityList?.map(
     (item, index) => ({
@@ -29,7 +29,7 @@ const CheckScreen = () => {
       distance: item.distance,
     })
   );
-  console.log(">>> 28 CheckScreen", activityList);
+  // console.log(">>> 28 CheckScreen", activityList);
 
   // Hàm render từng hoạt động
   const renderActivityItem = (item) => (

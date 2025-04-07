@@ -125,6 +125,7 @@ const hotelSlice = createSlice({
     hotelDetail: null, // Chi tiết khách
     hotelByLocation: [], // Danh sach Khach san theo dia diem
     loading: false, // Đang tải hay không
+    loadingListHotel: false,
     error: null, // Lỗi nếu có
     inforFilter: {
       locationId: "0",
@@ -192,15 +193,15 @@ const hotelSlice = createSlice({
       })
       // Xử lý fetchHotelByLocation
       .addCase(fetchHotelByLocation.pending, (state) => {
-        state.loading = true;
+        state.loadingListHotel = true;
         state.error = null;
       })
       .addCase(fetchHotelByLocation.fulfilled, (state, action) => {
-        state.loading = false;
+        state.loadingListHotel = false;
         state.hotelByLocation = action.payload;
       })
       .addCase(fetchHotelByLocation.rejected, (state, action) => {
-        state.loading = false;
+        state.loadingListHotel = false;
         state.error = action.error.message;
       })
       // Xử lý fetchAmenityList

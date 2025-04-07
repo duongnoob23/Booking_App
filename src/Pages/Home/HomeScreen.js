@@ -17,6 +17,7 @@ import { API_BASE_URL } from "../../Constant/Constant";
 import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import {
   fetchAmenityList,
+  fetchHotelById,
   fetchHotelByLocation,
   fetchHotelList,
   fetchLocationList,
@@ -116,11 +117,17 @@ const HomeScreen = ({ navigation }) => {
     dispatch(fetchLocationList());
   }, [dispatch]);
 
+  const handleToHotelDetails = (item) => {
+    const id = item?.hotelId;
+    dispatch(fetchHotelById(id));
+    navigation.navigate("HotelDetails", { item });
+  };
+
   const HotelRequestList = ({ item }) => {
     return (
       <TouchableOpacity
         style={styles.dealItem}
-        onPress={() => navigation.navigate("HotelDetails", { item })}
+        onPress={() => handleToHotelDetails(item)}
       >
         <View style={styles.dealImage}>
           <Image

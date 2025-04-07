@@ -199,3 +199,38 @@ dispatch và selector: Gửi hành động và lấy dữ liệu từ store.
 
 createAsyncThunk: Tạo hành động bất đồng bộ với 3 trạng thái (pending, fulfilled, rejected).
 
+
+
+
+
+
+Trong handleApply, inforFilter vẫn là giá trị cũ tại thời điểm onApply được gọi, vì React chưa re-render.
+Để khắc phục, bạn cần một cách để đảm bảo inforFilter là giá trị mới nhất từ store. Cách đơn giản nhất là dùng useEffect, nhưng nếu muốn tránh useEffect, bạn có thể dùng store.getState() từ Redux trực tiếp.
+Giải pháp nhanh và hiệu quả hơn: Dùng store.getState()
+Redux Toolkit cung cấp cách truy cập store trực tiếp qua dispatch hoặc useStore.
+
+đây là cách để lấy state của một initState trong redux khi mà componet chưa kịp render lại ,mặc dù redux reducer đã cập nhật rồi
+
+Cách hoạt động:
+Modal dispatch updateFilter, cập nhật inforFilter trong Redux store.
+Trong handleApply của ListHotelByLocation, bạn dùng store.getState() để lấy state mới nhất từ Redux store ngay sau khi updateFilter chạy (vì updateFilter là đồng bộ).
+Sau đó, gọi fetchHotelByLocation với latestInforFilter, đảm bảo API nhận dữ liệu mới nhất.
+Component sẽ re-render khi hotelByLocation thay đổi (do fetchHotelByLocation).
+Ưu điểm:
+Nhanh: Không cần chờ re-render để lấy state mới, truy cập trực tiếp store.
+Hiệu quả: Không cần useEffect, giảm overhead.
+Phân tách trách nhiệm: Modal chỉ cập nhật state, ListHotelByLocation xử lý API.
+Nhược điểm:
+Dùng store.getState() không phải cách khuyến nghị chính thức của Redux Toolkit (vì phá vỡ tính "reactive" của useAppSelector), nhưng vẫn hoạt động tốt trong trường hợp này.
+Nếu lạm dụng getState(), có thể gây khó khăn khi debug hoặc bảo trì.
+
+Trong dự án thực tế:
+Nếu ưu tiên tối ưu hiệu suất và đơn giản: Dùng Cách 1 (dispatch cả updateFilter và fetchHotelByLocation trong modal).
+Nếu ưu tiên bảo trì và mở rộng: Dùng Cách 2 (dùng useEffect trong ListHotelByLocation).
+Nếu muốn nhanh và hiệu quả nhất trong trường hợp cụ thể này: Dùng giải pháp tối ưu với store.getState().
+Với dự án của bạn:
+Vì bạn đang học và muốn hiểu rõ luồng, tôi khuyên dùng Cách 2 với useEffect:
+Nó đúng với cách hoạt động của Redux/React (re-render khi state thay đổi).
+Dễ bảo trì và mở rộng khi thêm modal mới.
+An toàn hơn store.getState() về mặt kiến trúc.
+Nếu bạn muốn thử giải pháp với store.getState() hoặc cần tối ưu thêm (như debounce API), cứ nói nhé! Tôi sẽ hỗ trợ ngay.

@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,46 +12,14 @@ import {
 import Icon from "@expo/vector-icons/FontAwesome"; // Sử dụng FontAwesome cho biểu tượng
 import Ionicons from "react-native-vector-icons/Ionicons";
 import SkeletonListHotelByLocation from "../../Components/Skeleton/Home/SkeletonListHotelByLocation";
-import { useAppSelector } from "../../Redux/hook";
+import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import ModalAmenity from "../../Components/Modal/Home/ModalAmenity";
 import ModalSort from "../../Components/Modal/Home/ModalSort";
+import {
+  fetchHotelById,
+  fetchHotelByLocation,
+} from "../../Redux/Slice/hotelSlice";
 const ListHotelByLocation = ({ navigation }) => {
-  //   const hotelList1 = [
-  //     {
-  //       hotelId: 3,
-  //       hotelName: "Adagio",
-  //       hotelLocation: "Đà Nẵng",
-  //       hotelRating: 4.5,
-  //       imageUrl:
-  //         "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1734318543/rooms/wcqbinr8jl5swxprmbdi.jpg",
-  //       sumReview: 20,
-  //       promotionName: "Ưu đãi đầu năm 2025",
-  //       price: 100,
-  //     },
-  //     {
-  //       hotelId: 1,
-  //       hotelName: "Heden Golf",
-  //       hotelLocation: "Đà Nẵng",
-  //       hotelRating: 3.9,
-  //       imageUrl:
-  //         "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1729241122/Room/nipyn0qgyoyhtgkadlyi.jpg",
-  //       sumReview: 85,
-  //       promotionName: "Ưu đãi đầu năm 2025",
-  //       price: 127,
-  //     },
-  //     {
-  //       hotelId: 2,
-  //       hotelName: "Onomo",
-  //       hotelLocation: "Đà Nẵng",
-  //       hotelRating: 4.3,
-  //       imageUrl:
-  //         "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1729241122/Room/nipyn0qgyoyhtgkadlyi.jpg",
-  //       sumReview: 150,
-  //       promotionName: null,
-  //       price: 120,
-  //     },
-  //   ];
-
   const [searchText, setSearchText] = useState("");
   const {
     hotelList,
@@ -59,12 +27,48 @@ const ListHotelByLocation = ({ navigation }) => {
     hotelDetail,
     hotelByLocation,
     loading,
+    loadingListHotel,
     error,
     inforFilter,
   } = useAppSelector((state) => state.hotel);
+
+  const modalDefault = {
+    Amenity: false,
+    FilterBy: false,
+    SortBy: false,
+  };
+
+  const [modalVisible, setModalVisible] = useState({
+    modalDefault,
+  });
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(fetchHotelByLocation(inforFilter));
+  }, [inforFilter.amenityIds, inforFilter.sortById, dispatch]);
+
+  // console.log(hotelByLocation);
+
+  if (loadingListHotel) {
+    return <SkeletonListHotelByLocation />;
+  }
+
+  //   console.log(">>> 123 ListLocationi", hotelByLocation);
+
+  const handleToHotelDetails = (item) => {
+    const id = item?.hotelId;
+    dispatch(fetchHotelById(id));
+    navigation.navigate("HotelDetails", { item });
+    console.log(item?.hotelId);
+  };
+
   const HotelItem = ({ item }) => {
     return (
-      <TouchableOpacity style={styles.hotelItem}>
+      <TouchableOpacity
+        style={styles.hotelItem}
+        onPress={() => handleToHotelDetails(item)}
+      >
         {/* Hình ảnh khách sạn */}
         <View style={styles.image}>
           <Image
@@ -112,27 +116,6 @@ const ListHotelByLocation = ({ navigation }) => {
     );
   };
 
-  // console.log(hotelByLocation);
-  const modalDefault = {
-    Amenity: false,
-    FilterBy: false,
-    SortBy: false,
-  };
-  const [modalVisible, setModalVisible] = useState({
-    modalDefault,
-  });
-
-  const handleApply = () => {
-    // console.log("Xác nhận các tiện ích");
-    console.log(inforFilter.amenityIds);
-    console.log(inforFilter.sortById);
-  };
-
-  if (loading) {
-    return <SkeletonListHotelByLocation />;
-  }
-
-  //   console.log(">>> 123 ListLocationi", hotelByLocation);
   return (
     <SafeAreaView style={styles.container}>
       {/* Tiêu đề và số lượng khách sạn */}
@@ -230,12 +213,10 @@ const ListHotelByLocation = ({ navigation }) => {
       {modalVisible.Amenity ? (
         <ModalAmenity
           onClose={() => setModalVisible({ ...modalVisible, Amenity: false })}
-          onApply={handleApply}
         />
       ) : modalVisible.SortBy ? (
         <ModalSort
           onClose={() => setModalVisible({ ...modalVisible, SortBy: false })}
-          onApply={handleApply} // Giả sử bạn có hàm này
         />
       ) : (
         <ScrollView style={styles.scrollView}>
