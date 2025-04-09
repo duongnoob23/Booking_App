@@ -6,12 +6,13 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  navigation,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // Để hiển thị icon ngôi sao (rating)
 const RateReviews = ({ navigation }) => {
-  const handleTo = () => {
-    navigation.navigate("");
+  const handleToRateDetails = () => {
+    // navigation.navigate("RateDetails");
+    navigation.navigate("SuccessPayment");
+    console.log(">>>");
   };
   const ratingsData = [
     {
@@ -44,8 +45,7 @@ const RateReviews = ({ navigation }) => {
 
   return (
     <View style={styles.ratings}>
-      {/* Header */}
-      <View style={styles.ratings__header}>
+      {/* <View style={styles.ratings__header}>
         <TouchableOpacity onPress={() => handleTo()}>
           <Ionicons
             style={styles.iconBed}
@@ -57,7 +57,6 @@ const RateReviews = ({ navigation }) => {
         <Text style={styles.ratings__headerTitle}>Đánh giá</Text>
       </View>
 
-      {/* Thanh tìm kiếm */}
       <View style={styles.ratings__search}>
         <Ionicons
           style={styles.iconBed}
@@ -80,7 +79,7 @@ const RateReviews = ({ navigation }) => {
           backgroundColor="white"
           marginRight="10"
         />
-      </View>
+      </View> */}
 
       {/* Nút viết đánh giá */}
       <TouchableOpacity style={styles.ratings__writeButton}>
@@ -167,7 +166,7 @@ const RateReviews = ({ navigation }) => {
       </View>
       {/* Danh sách đánh giá */}
       {ratingsData.map((item) => (
-        <View key={item.id} style={styles.ratings__item}>
+        <TouchableOpacity key={item.id} style={styles.ratings__item}>
           <Image
             source={{
               uri: "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
@@ -182,16 +181,17 @@ const RateReviews = ({ navigation }) => {
             <Text style={styles.ratings__itemTime}>{item.time}</Text>
             <Text style={styles.ratings__itemText}>{item.content}</Text>
           </View>
-        </View>
+        </TouchableOpacity>
       ))}
     </View>
   );
 };
-
+export default RateReviews;
 const styles = StyleSheet.create({
   ratings: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    // backgroundColor: "#F5F5F5",
+    backgroundColor: "white",
     paddingHorizontal: 20,
   },
   ratings__header: {
@@ -349,5 +349,3 @@ const styles = StyleSheet.create({
     color: "#000000",
   },
 });
-
-export default RateReviews;

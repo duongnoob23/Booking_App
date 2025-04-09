@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Text,
   View,
@@ -9,440 +9,288 @@ import {
   StyleSheet,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useAppSelector, useAppDispatch } from "../../Redux/hook";
+import Icon from "react-native-vector-icons/FontAwesome";
+import SkeletonHotelRoomList from "../../Components/Skeleton/Hotels/SkeletonHotelRoomList";
+import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 
-const rooms = [
-  {
-    roomId: 2,
-    roomName: "Phòng Deluxe Gia đình VIP",
-    area: 30,
-    bed: "2 giường đôi lớn",
-    image:
-      "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1729241122/Room/nipyn0qgyoyhtgkadlyi.jpg",
-    serviceEntityList: [
-      {
-        id: 2,
-        name: "Phòng tắm riêng",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 14,
-        name: "Ghế cao dành cho trẻ em",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 18,
-        name: "Tủ lạnh",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 9,
-        name: "Khăn tắm",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 22,
-        name: "Ấm đun nước điện",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-    ],
-    selectDay: 1,
-    price: 1080000.0,
-    promotionPrice: 1200000.0,
-    promotion: { id: 1, name: "Ưu đãi đầu năm 2025", discountValue: "10%" },
-    roomQuantity: 2,
-    policyRoomList: [
-      {
-        policyId: 4,
-        policyName: "Person an room",
-        policyDescription: "Miễn phí cho trẻ dưới 6 tuổi",
-      },
-      {
-        policyId: 2,
-        policyName: "Check out time",
-        policyDescription: "Trả phòng trước 11:30",
-      },
-      {
-        policyId: 1,
-        policyName: "Check in time",
-        policyDescription: "Nhận phòng từ 15:00",
-      },
-      {
-        policyId: 3,
-        policyName: "CANCEL ROOM",
-        policyDescription: "Hủy trước 48h được hoàn 50%",
-      },
-    ],
-  },
-  {
-    roomId: 1,
-    roomName: "Phòng tiêu chuẩn",
-    area: 20,
-    bed: "1 giường đôi",
-    image:
-      "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1729241122/Room/nipyn0qgyoyhtgkadlyi.jpg",
-    serviceEntityList: [
-      {
-        id: 1,
-        name: "Nhìn ra thành phố",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 10,
-        name: "Ra trải giường",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 21,
-        name: "Dịch vụ báo thức",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 15,
-        name: "Khu vực tiếp khách",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 27,
-        name: "Giấy vệ sinh",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-    ],
-    selectDay: 1,
-    price: 855000.0,
-    promotionPrice: 950000.0,
-    promotion: { id: 1, name: "Ưu đãi đầu năm 2025", discountValue: "10%" },
-    roomQuantity: 4,
-    policyRoomList: [
-      {
-        policyId: 4,
-        policyName: "Person an room",
-        policyDescription: "Miễn phí cho trẻ dưới 6 tuổi",
-      },
-      {
-        policyId: 2,
-        policyName: "Check out time",
-        policyDescription: "Trả phòng trước 11:30",
-      },
-      {
-        policyId: 1,
-        policyName: "Check in time",
-        policyDescription: "Nhận phòng từ 15:00",
-      },
-      {
-        policyId: 3,
-        policyName: "CANCEL ROOM",
-        policyDescription: "Hủy trước 48h được hoàn 50%",
-      },
-    ],
-  },
-  {
-    roomId: 3,
-    roomName: "Phòng tiêu chuẩn",
-    area: 20,
-    bed: "1 giường đôi",
-    image:
-      "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1729241122/Room/nipyn0qgyoyhtgkadlyi.jpg",
-    serviceEntityList: [
-      {
-        id: 1,
-        name: "Nhìn ra thành phố",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 10,
-        name: "Ra trải giường",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 21,
-        name: "Dịch vụ báo thức",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 15,
-        name: "Khu vực tiếp khách",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 27,
-        name: "Giấy vệ sinh",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-    ],
-    selectDay: 1,
-    price: 855000.0,
-    promotionPrice: 950000.0,
-    promotion: { id: 1, name: "Ưu đãi đầu năm 2025", discountValue: "10%" },
-    roomQuantity: 4,
-    policyRoomList: [
-      {
-        policyId: 4,
-        policyName: "Person an room",
-        policyDescription: "Miễn phí cho trẻ dưới 6 tuổi",
-      },
-      {
-        policyId: 2,
-        policyName: "Check out time",
-        policyDescription: "Trả phòng trước 11:30",
-      },
-      {
-        policyId: 1,
-        policyName: "Check in time",
-        policyDescription: "Nhận phòng từ 15:00",
-      },
-      {
-        policyId: 3,
-        policyName: "CANCEL ROOM",
-        policyDescription: "Hủy trước 48h được hoàn 50%",
-      },
-    ],
-  },
-  {
-    roomId: 4,
-    roomName: "Phòng tiêu chuẩn",
-    area: 20,
-    bed: "1 giường đôi",
-    image:
-      "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1729241122/Room/nipyn0qgyoyhtgkadlyi.jpg",
-    serviceEntityList: [
-      {
-        id: 1,
-        name: "Nhìn ra thành phố",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 10,
-        name: "Ra trải giường",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 21,
-        name: "Dịch vụ báo thức",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 15,
-        name: "Khu vực tiếp khách",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-      {
-        id: 27,
-        name: "Giấy vệ sinh",
-        serviceType: "AMENITY",
-        image: null,
-        description: null,
-      },
-    ],
-    selectDay: 1,
-    price: 855000.0,
-    promotionPrice: 950000.0,
-    promotion: { id: 1, name: "Ưu đãi đầu năm 2025", discountValue: "10%" },
-    roomQuantity: 4,
-    policyRoomList: [
-      {
-        policyId: 4,
-        policyName: "Person an room",
-        policyDescription: "Miễn phí cho trẻ dưới 6 tuổi",
-      },
-      {
-        policyId: 2,
-        policyName: "Check out time",
-        policyDescription: "Trả phòng trước 11:30",
-      },
-      {
-        policyId: 1,
-        policyName: "Check in time",
-        policyDescription: "Nhận phòng từ 15:00",
-      },
-      {
-        policyId: 3,
-        policyName: "CANCEL ROOM",
-        policyDescription: "Hủy trước 48h được hoàn 50%",
-      },
-    ],
-  },
-];
+// lỗi hotelRoomList ko có giá trị, 1 kiểm tra redux, kiểm tra trang gọi api cho data trang này,kiểm tra lại api room/get_list
+// console.log("-------- 22 hotelRoom hotelRoomList:", hotelRoomList);
+const HotelRoomList = ({ navigation, route }) => {
+  const item = route?.params?.item;
 
-const RoomItem = ({ room }) => {
-  return (
-    <View style={styles.card}>
-      {/* Hình ảnh phòng */}
-      <Image source={{ uri: room.image }} style={styles.roomImage} />
-      {/* Tiêu đề và số lượng phòng */}
-      <View style={styles.header}>
-        <Text style={styles.roomName}>{room.roomName}</Text>
-        <Text style={styles.roomQuantity}>Còn {room.roomQuantity} phòng</Text>
-      </View>
-      {/* Thông tin cơ bản */}
-      <View style={styles.info}>
-        <View style={styles.infoItem}>
-          <Ionicons
-            name="expand-outline"
-            size={15}
-            color="#191D39"
-            style={styles.iconItem}
-          />
-          <Text style={styles.infoText}>Diện tích {room.area} m²</Text>
+  const { hotelRoomList, hotelDetail, loadingHotelRoomList } = useAppSelector(
+    (state) => state.hotel
+  );
+
+  // console.log(">>> 27 hotelroomlist", hotelRoomList);
+  const rooms2 = {};
+  hotelRoomList.forEach((item) => {
+    rooms2[`room${item.roomId}`] = 0;
+  });
+  // console.log(roomNumber);
+
+  // const [r, setR] = useState(rooms2);
+  // console.log(r);
+
+  const [roomNumber, setRoomNumber] = useState(rooms2);
+  // console.log(rooms2);
+  console.log(roomNumber);
+  const hasSelectedRooms = Object.values(roomNumber).some((count) => count > 0);
+  console.log(roomNumber);
+
+  const updateDateRoomNumber = (name, type, quantity) => {
+    console.log(quantity);
+    setRoomNumber((prevRoomNumber) => {
+      const newRoomNumber = { ...prevRoomNumber };
+      if (type === "add" && newRoomNumber[name] < quantity) {
+        newRoomNumber[name] += 1;
+      } else if (type === "sub" && newRoomNumber[name] > 0) {
+        newRoomNumber[name] -= 1;
+      }
+      return newRoomNumber;
+    });
+  };
+
+  if (loadingHotelRoomList) {
+    return <SkeletonHotelRoomList />;
+  }
+  const RoomItem = ({ room }) => {
+    return (
+      <View style={styles.card}>
+        {/* Hình ảnh phòng */}
+        <Image source={{ uri: `${item.imageUrl}` }} style={styles.roomImage} />
+        {/* Tiêu đề và số lượng phòng */}
+        <View style={styles.header}>
+          <Text style={styles.roomName}>{room.roomName}</Text>
+          <Text style={styles.roomQuantity}>Còn {room.roomQuantity} phòng</Text>
         </View>
-        <View style={styles.infoItem}>
-          <Ionicons
-            name="bed-outline"
-            size={15}
-            color="#191D39"
-            style={styles.iconItem}
-          />
-          <Text style={styles.infoText}>Giường: {room.bed}</Text>
-        </View>
-        <View style={styles.infoItem}>
-          <Ionicons
-            name="calendar-number-outline"
-            size={15}
-            color="#191D39"
-            style={styles.iconItem}
-          />
-          <Text style={styles.infoText}>Số ngày chọn: {room.selectDay}</Text>
-        </View>
-      </View>
-      {/* Dịch vụ */}
-      <View style={styles.services}>
-        {room.serviceEntityList.map((service) => (
-          <View key={service.id} style={styles.serviceItem}>
-            <Ionicons name="checkmark-circle" size={15} color="#4DD0E1" />
-            <Text style={styles.serviceText}>{service.name}</Text>
-          </View>
-        ))}
-      </View>
-      {/* • {policy.policyName}: {policy.policyDescription} */}
-      {/* Chính sách */}
-      <View style={styles.policies}>
-        {room.policyRoomList.map((policy) => (
-          <View key={policy.policyId} style={styles.policyItem}>
+        {/* Thông tin cơ bản */}
+        <View style={styles.info}>
+          <View style={styles.infoItem}>
             <Ionicons
-              name="newspaper-outline"
+              name="expand-outline"
+              size={15}
+              color="#191D39"
+              style={styles.iconItem}
+            />
+            <Text style={styles.infoText}>Diện tích {room.area} m²</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Ionicons
+              name="bed-outline"
+              size={15}
+              color="#191D39"
+              style={styles.iconItem}
+            />
+            <Text style={styles.infoText}>Giường: {room.bed}</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Ionicons
+              name="calendar-number-outline"
+              size={15}
+              color="#191D39"
+              style={styles.iconItem}
+            />
+            <Text style={styles.infoText}>
+              Số ngày chọn: {room.roomQuantity}
+            </Text>
+          </View>
+        </View>
+        {/* Dịch vụ */}
+        <View style={styles.services}>
+          {room?.serviceEntityList?.map((service) => (
+            <View key={service.id} style={styles.serviceItem}>
+              <Ionicons name="checkmark-circle" size={15} color="#4DD0E1" />
+              <Text style={styles.serviceText}>{service.name}</Text>
+            </View>
+          ))}
+        </View>
+        {/* •  */}
+        <View style={styles.policies}>
+          {room?.policyRoomList?.map((policy) => (
+            <View key={policy.policyId} style={styles.policyItem}>
+              <Ionicons
+                name="newspaper-outline"
+                size={15}
+                color="#191D39"
+                style={styles.iconPolicy}
+              />
+              <Text style={styles.policyText}>
+                {policy.policyName}: {policy.policyDescription}
+              </Text>
+            </View>
+          ))}
+        </View>
+        {/* Khuyến mãi */}
+        <View style={styles.promotion}>
+          <View style={styles.promotionView}>
+            <Ionicons
+              name="bookmarks-outline"
               size={15}
               color="#191D39"
               style={styles.iconPolicy}
             />
-            <Text style={styles.policyText}>
-              {policy.policyName}: {policy.policyDescription}
-            </Text>
-          </View>
-        ))}
-      </View>
-      {/* Khuyến mãi */}
-      <View style={styles.promotion}>
-        <View style={styles.promotionView}>
-          <Ionicons
-            name="bookmarks-outline"
-            size={15}
-            color="#191D39"
-            style={styles.iconPolicy}
-          />
-          <Text style={styles.promotionText}>
-            {/* {room.promotion.name} - Giảm {room.promotion.discountValue} */}
-            {room.promotion.name}
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.br}></View>
-      {/* Giá */}
-      <View style={styles.priceContainer}>
-        <View style={styles.priceWrapper}>
-          <View style={styles.discountBadge}>
-            <Text style={styles.discountText}>
-              Giảm {room.promotion.discountValue}
-            </Text>
-          </View>
-          <View style={styles.discountedPriceView}>
-            <Text style={styles.discountedPrice}>
-              {room.price.toLocaleString()}đ
-            </Text>
-            <Text style={styles.originalPrice}>
-              {room.promotionPrice.toLocaleString()}đ
-            </Text>
+            <Text style={styles.promotionText}>{room.promotion.name}</Text>
           </View>
         </View>
-      </View>
-      {/* Nút Chọn và tùy chỉnh */}
-      <TouchableOpacity style={styles.selectButton}>
-        <Text style={styles.selectButtonText}>Chọn </Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
 
-const HotelRoomList = ({ navigation }) => {
+        <View style={styles.br}></View>
+        {/* Giá */}
+        <View style={styles.priceContainer}>
+          <View style={styles.priceWrapper}>
+            <View style={styles.discountBadge}>
+              <Text style={styles.discountText}>
+                Giảm {room.promotion.discountValue}
+              </Text>
+            </View>
+            <View style={styles.discountedPriceView}>
+              <Text style={styles.discountedPrice}>
+                {room.price.toLocaleString()}đ
+              </Text>
+              <Text style={styles.originalPrice}>
+                {room.promotionPrice.toLocaleString()}đ
+              </Text>
+            </View>
+          </View>
+        </View>
+        {/* Nút Chọn và tùy chỉnh */}
+        {roomNumber[`room${room.roomId}`] === 0 ? (
+          <TouchableOpacity
+            style={styles.selectButton}
+            onPress={() =>
+              updateDateRoomNumber(
+                `room${room.roomId}`,
+                "add",
+                room.roomQuantity
+              )
+            }
+          >
+            <Text style={styles.selectButtonText}>Chọn </Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.groupButton}>
+            <TouchableOpacity
+              style={styles.decreaseButton}
+              onPress={() =>
+                updateDateRoomNumber(
+                  `room${room.roomId}`,
+                  "sub",
+                  room.roomQuantity
+                )
+              }
+            >
+              <Text style={styles.decreaseButtonText}> - </Text>
+              {/* <Ionicons name="remove-circle-outline" size={24} color="#fff" /> */}
+            </TouchableOpacity>
+            <View style={styles.valueButton}>
+              <Text style={styles.valueButtonText}>
+                {roomNumber[`room${room.roomId}`]}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.increaseButton}
+              onPress={() =>
+                updateDateRoomNumber(
+                  `room${room.roomId}`,
+                  "add",
+                  room.roomQuantity
+                )
+              }
+            >
+              <Text style={styles.increaseButtonText}> + </Text>
+              {/* <Ionicons name="add-circle-outline" size={24} color="#fff" /> */}
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    );
+  };
+  // khi mình bấm vào nút chọn thì dữ liệu sẽ nhảy thành 3 nút, - giá trị +
+  // mỗi một item đều có một nút chọn riêng
+  // chỉ cần 1 phòng có nút chọn khác 1 thì sẽ hiện nút đặt ngay lênlên
   return (
-    <ScrollView contentContainerStyle={styles.listContainer}>
-      <View style={styles.header}>
-        <ImageBackground
-          source={{
-            // uri: `${item.imageUrl}`,
-            uri: `https://images.pexels.com/photos/271618/pexels-photo-271618.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1`,
+    <>
+      <ScrollView
+        contentContainerStyle={[
+          styles.listContainer,
+          hasSelectedRooms && styles.listContainerPlus,
+        ]}
+      >
+        <View style={styles.header}>
+          <ImageBackground
+            source={{
+              uri: `${item.imageUrl}`,
+            }}
+            style={styles.header__image}
+          >
+            <View style={styles.header__overlay}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Ionicons name="arrow-back" size={24} color="#fff" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Text style={styles.header__title}>{item.hotelName}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.header__icon__start}>
+                <Ionicons name="share-outline" size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.header__info}>
+              <View style={styles.header__rating}>
+                <View style={styles.header__rating__group}>
+                  <View>
+                    <Icon
+                      style={styles.iconStart}
+                      name="star"
+                      size={24}
+                      color="#EBA731"
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.header__rating__score}>
+                      {hotelDetail && hotelDetail?.review.rating}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={styles.header__rating__text}>
+                  {hotelDetail && hotelDetail.review.sumReview} Người đã thích
+                </Text>
+              </View>
+              <View style={styles.header__location}>
+                <View>
+                  <Icon name="map-marker" size={16} color="white" />
+                </View>
+                <View style={styles.header__location__text}>
+                  <Text style={{ color: "white" }}>
+                    {hotelDetail && hotelDetail.review.location}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </ImageBackground>
+        </View>
+        {/* <SkeletonHotelRoomList /> */}
+        {hotelRoomList?.map((room) => (
+          <RoomItem key={room.roomId} room={room} />
+        ))}
+      </ScrollView>
+      {/* {hasSelectedRooms && <View style={styles.marginForBookNowButton}></View>} */}
+      {hasSelectedRooms && (
+        <View
+          style={styles.bookNowButton}
+          onPress={() => {
+            // Xử lý đặt phòng ở đây, ví dụ: navigation.navigate("BookingScreen", { roomNumber });
+            console.log("Đặt phòng:", roomNumber);
           }}
-          style={styles.header__image}
         >
-          <View style={styles.header__overlay}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Ionicons
-                name="chevron-back"
-                size={30}
-                color="#fff"
-                style={styles.iconBack}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Text style={styles.header__title}>name</Text>
-            </TouchableOpacity>
-            {/* <TouchableOpacity style={styles.header__icon__start}>
-              <Ionicons name="share-outline" size={24} color="#fff" />
-            </TouchableOpacity> */}
-          </View>
-        </ImageBackground>
-      </View>
-      {rooms.map((room) => (
-        <RoomItem key={room.roomId} room={room} />
-      ))}
-    </ScrollView>
+          <TouchableOpacity style={styles.bookNowButtonTextWapper}>
+            <Text style={styles.bookNowButtonText}>Đặt phòng ngay</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </>
   );
 };
 
@@ -450,6 +298,10 @@ const styles = StyleSheet.create({
   listContainer: {
     padding: 0,
     backgroundColor: "#E0E0E0", // Nền xanh lam nhạt
+    // marginBottom: 50,
+  },
+  listContainerPlus: {
+    paddingBottom: 70,
   },
   card: {
     backgroundColor: "#FFFFFF", // Thẻ trắng
@@ -614,8 +466,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: "center",
-    width: "80%", // Full width
+    width: "60%", // Full width
     alignSelf: "center",
+    marginTop: 5,
   },
   selectButtonText: {
     color: "#FFFFFF",
@@ -654,6 +507,128 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0, 0, 0, 0.75)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 5,
+  },
+  header__info: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 15,
+    alignItems: "flex-end",
+  },
+  header__rating: {
+    flexDirection: "column",
+    alignItems: "flex-star",
+  },
+  header__rating__group: {
+    flexDirection: "row",
+    width: 200,
+    alignItems: "center",
+    // justifyContent: "space-between",
+  },
+  header__rating__score: {
+    fontSize: 16,
+    fontWeight: "400",
+    color: "white",
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    borderRadius: 5,
+    marginLeft: 5,
+  },
+  iconStart: {
+    fontSize: 16,
+  },
+  header__rating__text: {
+    fontSize: 14,
+    color: "white",
+  },
+  header__location: {
+    fontSize: 14,
+    color: "white",
+    width: 100,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    color: "white",
+  },
+  header__location__text: {
+    marginLeft: 5,
+  },
+  groupButton: {
+    marginTop: 5,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "60%",
+    alignSelf: "center",
+  },
+  decreaseButton: {
+    backgroundColor: "#00F598", // Xanh dương
+    borderRadius: 8,
+    padding: 12,
+    // width: "10%",
+  },
+  decreaseButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  valueButton: {
+    backgroundColor: "#00F598", // Xanh dương
+    borderRadius: 8,
+    padding: 12,
+    marginHorizontal: 5,
+    flex: 1,
+  },
+  valueButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  increaseButton: {
+    backgroundColor: "#00F598", // Xanh dương
+    borderRadius: 8,
+    padding: 12,
+  },
+  increaseButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+    // width: "10%",
+  },
+  marginForBookNowButton: {
+    marginBottom: 80,
+  },
+  bookNowButton: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    left: 10,
+    backgroundColor: "white", // Màu nổi bật, bạn có thể thay đổi
+    borderRadius: 12,
+    paddingVertical: 6,
+    elevation: 5, // Đổ bóng cho Android
+    shadowColor: "#000", // Đổ bóng cho iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  bookNowButtonTextWapper: {
+    width: "60%",
+    backgroundColor: "#00F598",
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+  },
+  bookNowButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  backR: {
+    backgroundColor: "red",
   },
 });
 

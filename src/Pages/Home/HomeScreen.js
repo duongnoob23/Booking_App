@@ -255,9 +255,10 @@ const HomeScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
+      {/* <Map /> */}
       <View style={styles.header}>
         <Text style={styles.title}>Tìm Phòng</Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("InfoConfirm")}>
           <Icon name="filter" size={24} color="#007AFF" />
         </TouchableOpacity>
       </View>
@@ -401,6 +402,7 @@ const HomeScreen = ({ navigation }) => {
               })}
           </ScrollView>
         </View>
+        <View style={styles.lastSection}></View>
         {open.Modal_1 && (
           <ModalLocationList
             position={modalPosition}
@@ -411,6 +413,9 @@ const HomeScreen = ({ navigation }) => {
             }
           />
         )}
+        <View>
+          <Text>{"\n\n"}</Text>
+        </View>
         {/* <View></View> */}
       </ScrollView>
     </SafeAreaView>
@@ -754,6 +759,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#333",
+  },
+  lastSection: {
+    // marginBottom: 20,
+    // paddingBottom: 50,
   },
 });
 

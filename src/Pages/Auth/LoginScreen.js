@@ -74,7 +74,7 @@ const LoginScreen = ({ navigation }) => {
       const idToken = await userCredential.user.getIdToken(); // Lấy ID Token từ Firebase
       console.log("idToken->", idToken);
       sendTokenToBackend(idToken);
-      navigation.navigate("Login");
+      // navigation.navigate("Login");
     } catch (error) {
       Alert.alert("Lỗi đăng nhập", error.message);
     }

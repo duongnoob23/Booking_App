@@ -48,7 +48,7 @@ const ListHotelByLocation = ({ navigation }) => {
     dispatch(fetchHotelByLocation(inforFilter));
   }, [inforFilter.amenityIds, inforFilter.sortById, dispatch]);
 
-  // console.log(hotelByLocation);
+  console.log(">>> 51 listByHotel", hotelByLocation);
 
   if (loadingListHotel) {
     return <SkeletonListHotelByLocation />;
@@ -63,59 +63,142 @@ const ListHotelByLocation = ({ navigation }) => {
     console.log(item?.hotelId);
   };
 
-  const HotelItem = ({ item }) => {
+  const HotelItem1 = ({ item }) => {
     return (
       <TouchableOpacity
-        style={styles.hotelItem}
+        style={styles.hotelItem1}
         onPress={() => handleToHotelDetails(item)}
       >
         {/* Hình ảnh khách sạn */}
-        <View style={styles.image}>
+        <View style={styles.image1}>
           <Image
             source={{ uri: item.imageUrl }}
-            style={styles.hotelImage}
+            style={styles.hotelImage1}
             resizeMode="cover"
           />
         </View>
 
         {/* Thông tin khách sạn */}
-        <View style={styles.hotelDetails}>
+        <View style={styles.hotelDetails1}>
           {/* Tên khách sạn và đánh giá */}
-          <View style={styles.hotelHeader}>
-            <Text style={styles.hotelName}>{item.hotelName}</Text>
-            <View style={styles.ratingContainer}>
+          <View style={styles.hotelHeader1}>
+            <Text style={styles.hotelName1}>{item.hotelName}</Text>
+            <View style={styles.ratingContainer1}>
               <Icon
                 name="star"
                 size={16}
                 color="#EBA731"
-                style={styles.starIcon}
+                style={styles.starIcon1}
               />
-              <Text style={styles.ratingText}>{item.hotelRating}</Text>
-              <Text style={styles.reviewText}>Đánh giá ({item.sumReview})</Text>
+              <Text style={styles.ratingText1}>{item.hotelRating}</Text>
+              <Text style={styles.reviewText1}>
+                Đánh giá ({item.sumReview})
+              </Text>
             </View>
           </View>
 
           {/* Mô tả */}
-          <Text style={styles.description}>
+          <Text style={styles.description1}>
             Nằm trong khu vực khách quan...
           </Text>
           {item.promotionName && (
-            <View style={styles.promotion}>
-              <Text style={styles.promotionText}>{item.promotionName}</Text>
+            <View style={styles.promotion1}>
+              <Text style={styles.promotionText1}>{item.promotionName}</Text>
             </View>
           )}
           {/* Khuyến mãi và giá */}
-          <View style={styles.footer}>
-            <Text style={styles.price}>${item.price}</Text>
-            <TouchableOpacity style={styles.bookButton}>
-              <Text style={styles.bookButtonText}>Đặt ngay</Text>
+          <View style={styles.footer1}>
+            <Text style={styles.price1}>${item.price}</Text>
+            <TouchableOpacity style={styles.bookButton1}>
+              <Text style={styles.bookButtonText1}>Đặt ngay</Text>
             </TouchableOpacity>
           </View>
         </View>
       </TouchableOpacity>
     );
   };
+  const HotelItem = ({ item }) => {
+    return (
+      <TouchableOpacity
+        style={styles.hotelItem}
+        onPress={() => handleToHotelDetails(item)}
+      >
+        {/* Container chính với flexDirection: row */}
+        <View style={styles.hotelContainer}>
+          {/* Phần ảnh bên trái */}
+          <View style={styles.imageContainer}>
+            <Image
+              source={{ uri: item.imageUrl }}
+              style={styles.hotelImageMain}
+              resizeMode="cover"
+            />
+            <View style={styles.imageRow}>
+              <Image
+                source={{ uri: item.imageUrl }}
+                style={styles.hotelImageSmall1}
+                resizeMode="cover"
+              />
+              <Image
+                source={{ uri: item.imageUrl }}
+                style={styles.hotelImageSmall}
+                resizeMode="cover"
+              />
+            </View>
+          </View>
 
+          {/* Phần thông tin bên phải */}
+          <View style={styles.hotelDetails}>
+            {/* Tên khách sạn */}
+            <Text style={styles.hotelName}>{item.hotelName}</Text>
+
+            {/* Mô tả */}
+            <Text style={styles.description}>
+              Nằm trong khu vực khách quan...
+            </Text>
+
+            {/* Đánh giá và số nhận xét */}
+            <View style={styles.ratingContainer}>
+              <View style={styles.ratingBox}>
+                <Text style={styles.ratingText}>{item.hotelRating}</Text>
+              </View>
+              <View style={styles.ratingBox2}>
+                <Text style={styles.reviewText}>Ngoại hạng</Text>
+                <Text style={styles.reviewCount}>55 nhận xét</Text>
+              </View>
+            </View>
+
+            {/* Khuyến mãi */}
+            {item.promotionName && (
+              <View style={styles.promotion}>
+                <Text style={styles.promotionText}>{item.promotionName}</Text>
+              </View>
+            )}
+
+            {/* Giá và nút đặt ngay */}
+            <View style={styles.footer}>
+              <View style={styles.priceContainer}>
+                <View>
+                  <Text style={styles.oldPrice}>
+                    {Math.round(item.price * 2).toLocaleString()} đ
+                  </Text>
+                </View>
+                <View>
+                  <Text style={styles.price}>
+                    {item.price.toLocaleString()} đ
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <View style={styles.bookView}>
+              <TouchableOpacity style={styles.bookButton}>
+                <Text style={styles.bookButtonText}>Đặt ngay</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
   return (
     <SafeAreaView style={styles.container}>
       {/* Tiêu đề và số lượng khách sạn */}
@@ -222,6 +305,10 @@ const ListHotelByLocation = ({ navigation }) => {
         <ScrollView style={styles.scrollView}>
           {hotelByLocation &&
             hotelByLocation?.map((item, index) => (
+              <HotelItem1 key={index} item={item} />
+            ))}
+          {hotelByLocation &&
+            hotelByLocation?.map((item, index) => (
               <HotelItem key={index} item={item} />
             ))}
         </ScrollView>
@@ -305,6 +392,161 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 15,
     marginHorizontal: 15,
+    marginBottom: 10,
+    elevation: 3, // Bóng cho Android
+    shadowColor: "#000", // Bóng cho iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    height: 280,
+    padding: 5,
+  },
+  hotelContainer: {
+    flexDirection: "row", // Ảnh bên trái, thông tin bên phải
+    // padding: 10,
+  },
+  imageContainer: {
+    width: "35%", // Ảnh chiếm 40% chiều rộng
+    marginRight: 10,
+    flexDirection: "column",
+    justifyContent: "space-between",
+  },
+  hotelImageMain: {
+    width: "100%",
+    height: "65%", // Chiều cao ảnh lớn
+    // borderRadius: 5,
+    borderTopLeftRadius: 12,
+    marginBottom: 5,
+  },
+  imageRow: {
+    height: "33%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  hotelImageSmall1: {
+    width: "48%", // Chiếm 48% để có khoảng cách giữa 2 ảnh
+    borderBottomLeftRadius: 12,
+    // borderRadius: 12,
+  },
+  hotelImageSmall: {
+    width: "48%", // Chiếm 48% để có khoảng cách giữa 2 ảnh
+  },
+  hotelDetails: {
+    flex: 1, // Thông tin chiếm phần còn lại
+    justifyContent: "flex-start",
+    padding: 10,
+    paddingLeft: 0,
+    flexDirection: "column",
+  },
+  hotelName: {
+    fontSize: 18,
+    fontWeight: "500",
+    color: "#191E38",
+    marginBottom: 5,
+  },
+  description: {
+    fontSize: 14,
+    color: "#2B2F38",
+    marginBottom: 10,
+  },
+  ratingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  ratingBox: {
+    backgroundColor: "#24784E", // Màu xanh giống trong hình
+    borderRadius: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    marginRight: 5,
+  },
+  ratingBox2: {
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  ratingText: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#FFFFFF", // Chữ trắng trong ô xanh
+  },
+  reviewText: {
+    fontSize: 14,
+    color: "#191E38", // Màu xanh giống "Ngoại hạng"
+    marginRight: 5,
+    fontWeight: "bold",
+  },
+  reviewCount: {
+    fontSize: 14,
+    color: "#2B2F38",
+  },
+  promotion: {
+    backgroundColor: "#FEDB39", // Màu cam giống trong hình
+    borderRadius: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    alignSelf: "flex-end",
+    marginBottom: 10,
+    marignRight: 10,
+  },
+  promotionText: {
+    fontSize: 14,
+    color: "white",
+    fontWeight: "600",
+  },
+  footer: {
+    // flexDirection: "row",
+    // alignItems: "flex-end",
+    // justifyContent: "space-between",
+  },
+  priceContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+  oldPrice: {
+    fontSize: 12,
+    color: "#666666",
+    textDecorationLine: "line-through", // Gạch ngang giá cũ
+    marginBottom: 2,
+  },
+  price: {
+    fontSize: 24,
+    fontWeight: "900",
+    color: "#2A2317", // Màu cam giống trong hình
+    marginBottom: 10,
+  },
+  totalPrice: {
+    fontSize: 10,
+    color: "#666666",
+  },
+  bookView: {
+    marginTop: "auto",
+    width: "80%",
+    marginHorizontal: "auto",
+    textAlign: "center",
+  },
+  bookButton: {
+    backgroundColor: "#24784E", // Màu xanh của nút "Đặt ngay"
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 15,
+    textAlign: "center",
+  },
+  bookButtonText: {
+    fontSize: 14,
+    color: "#FFFFFF",
+    fontWeight: "500",
+    textAlign: "center",
+  },
+
+  //-------------------------------------------
+  hotelItem1: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 15,
+    marginHorizontal: 15,
     marginVertical: 10,
     elevation: 3, // Bóng cho Android
     shadowColor: "#000", // Bóng cho iOS
@@ -312,84 +554,84 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
   },
-  image: {
+  image1: {
     width: "100%",
     height: "200",
     justifyContent: "center",
     alignItems: "center",
   },
-  hotelImage: {
+  hotelImage1: {
     width: "95%",
     height: "90%",
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
     borderRadius: 10,
   },
-  hotelDetails: {
+  hotelDetails1: {
     padding: 10,
   },
-  hotelHeader: {
+  hotelHeader1: {
     marginBottom: 5,
   },
-  hotelName: {
+  hotelName1: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#000000",
   },
-  ratingContainer: {
+  ratingContainer1: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 5,
   },
-  starIcon: {
+  starIcon1: {
     marginRight: 5,
   },
-  ratingText: {
+  ratingText1: {
     fontSize: 14,
     fontWeight: "bold",
     color: "#000000",
     marginRight: 5,
   },
-  reviewText: {
+  reviewText1: {
     fontSize: 14,
     color: "#666666",
     marginLeft: 40,
   },
-  description: {
+  description1: {
     fontSize: 14,
     color: "#666666",
     marginBottom: 10,
   },
-  footer: {
+  footer1: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  promotion: {
+  promotion1: {
     backgroundColor: "#F8D146",
     borderRadius: 8,
     paddingVertical: 5,
     paddingHorizontal: 10,
     alignSelf: "flex-start",
   },
-  promotionText: {
+  promotionText1: {
     fontSize: 14,
     color: "#FFFFFF",
     fontWeight: "400",
   },
-  price: {
+  price1: {
     fontSize: 14,
     fontWeight: "bold",
     color: "#000000",
     marginLeft: 20,
   },
-  bookButton: {
+  bookButton1: {
     backgroundColor: "#00F598", // Màu xanh theo yêu cầu
     borderRadius: 10,
     paddingVertical: 5,
     paddingHorizontal: 30,
   },
-  bookButtonText: {
+  bookButtonText1: {
     fontSize: 14,
     color: "#FFFFFF",
     fontWeight: "400",

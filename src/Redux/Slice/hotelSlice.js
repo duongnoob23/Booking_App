@@ -48,6 +48,7 @@ export const fetchHotelById = createAsyncThunk(
         }
       );
       const data = await response.json();
+      // console.log(data.data);
       return data.data;
     } catch (error) {
       console.error("Error in fetchHoteById:", error);
@@ -74,6 +75,20 @@ export const fetchLocationList = createAsyncThunk(
   }
 );
 
+export const fetchAmenityList = createAsyncThunk(
+  "hotel/fetchAmenityList",
+  async () => {
+    const response = await fetch(`${API_BASE_URL}/api/amenity/get_list`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
+    console.log(data);
+    return data?.data;
+  }
+);
+// ?locationId=&checkin=2025-04-04&checkout=2025-04-04&adults=0&children=0&roomNumber=0&amenityIds=[]&serviceIds=[]
+
 export const fetchHotelByLocation = createAsyncThunk(
   "hotel/fetchHotelByLocation",
   async (value) => {
@@ -95,19 +110,26 @@ export const fetchHotelByLocation = createAsyncThunk(
   }
 );
 
-export const fetchAmenityList = createAsyncThunk(
-  "hotel/fetchAmenityList",
-  async () => {
-    const response = await fetch(`${API_BASE_URL}/api/amenity/get_list`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-    const data = await response.json();
-    console.log(data);
-    return data?.data;
+export const fetchHotelRoomList = createAsyncThunk(
+  "hotel/fetchHotelRoomList",
+  async (value) => {
+    try {
+      // console.log("---------------", value);
+      const response = await fetch(`${API_BASE_URL}/api/room/select_room`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(value),
+      });
+
+      const data = await response.json();
+      // console.log("-------------- 125 hotelSlice data:", data.data);
+      return data.data;
+    } catch (error) {
+      console.log("error in fetchHotelRoomList:", error);
+      throw error;
+    }
   }
 );
-// ?locationId=&checkin=2025-04-04&checkout=2025-04-04&adults=0&children=0&roomNumber=0&amenityIds=[]&serviceIds=[]
 
 const hotelSlice = createSlice({
   name: "hotel",
@@ -124,8 +146,10 @@ const hotelSlice = createSlice({
     locationList: [], // Danh sach Dia Diem
     hotelDetail: null, // Chi tiết khách
     hotelByLocation: [], // Danh sach Khach san theo dia diem
+    hotelRoomList: [],
     loading: false, // Đang tải hay không
     loadingListHotel: false,
+    loadingHotelRoomList: false,
     error: null, // Lỗi nếu có
     inforFilter: {
       locationId: "0",
@@ -138,6 +162,7 @@ const hotelSlice = createSlice({
       serviceIds: [],
       sortById: 1,
     },
+    map: false,
   },
   reducers: {
     clearHotelDetail(state) {
@@ -148,6 +173,9 @@ const hotelSlice = createSlice({
     },
     updateFilter(state, action) {
       state.inforFilter = { ...state.inforFilter, ...action.payload };
+    },
+    mapOpenClose(state, action) {
+      state.map = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -213,10 +241,23 @@ const hotelSlice = createSlice({
       })
       .addCase(fetchAmenityList.rejected, (state, action) => {
         state.error = action.error.message;
+      })
+      // Xử lý fetchHotelRoomList
+      .addCase(fetchHotelRoomList.pending, (state) => {
+        state.loadingHotelRoomList = true;
+        state.error = null;
+      })
+      .addCase(fetchHotelRoomList.fulfilled, (state, action) => {
+        state.loadingHotelRoomList = false;
+        state.hotelRoomList = action.payload;
+      })
+      .addCase(fetchHotelRoomList.rejected, (state, action) => {
+        state.loadingHotelRoomList = false;
+        state.error = action.error.message;
       });
   },
 });
 
-export const { clearHotelDetail, skeletonLoading, updateFilter } =
+export const { clearHotelDetail, skeletonLoading, updateFilter, mapOpenClose } =
   hotelSlice.actions;
 export default hotelSlice.reducer;

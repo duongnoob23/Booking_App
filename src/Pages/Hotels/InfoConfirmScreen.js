@@ -29,6 +29,14 @@ const InfoConfirmScreen = (props) => {
   };
   return (
     <View style={styles.container}>
+      {/* <View style={styles.header__overlay}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.header__title}>THÔNG TIN CÁ NHÂN</Text>
+        </TouchableOpacity>
+      </View> */}
       <Text style={styles.title}>THÔNG TIN CÁ NHÂN</Text>
 
       <View style={styles.inputContainer}>
@@ -127,18 +135,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 30,
   },
+  header__overlay: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    //     padding: 20,
+    paddingHorizontal: 5,
+    paddingVertical: 30,
+  },
+  header__icon__start: {
+    marginLeft: "auto",
+  },
+  header__title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
+    marginLeft: 0,
+    textShadowColor: "rgba(0, 0, 0, 0.75)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 5,
+  },
   title: {
     fontSize: 20,
     fontWeight: "400",
     color: "#000",
-    marginVertical: 30,
+    // marginVertical: 50,
+    marginTop: 30,
+    marginBottom: 50,
+    textAlign: "center",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: "#E0E0E0",
-    marginBottom: 20,
+    marginBottom: 30,
     alignItems: "center",
     // justifyContent: "center",
   },
@@ -166,7 +197,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 14,
     alignItems: "center",
-    marginTop: 30,
+    marginTop: 50,
   },
   buttonText: {
     fontSize: 16,

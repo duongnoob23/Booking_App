@@ -21,55 +21,28 @@ import OrderConfirmScreen from "./OrderConfirmScreen";
 import SkeletonPlaceholder from "react-native-skeleton-placeholder";
 import { API_BASE_URL } from "../../Constant/Constant";
 import { useAppDispatch, useAppSelector } from "../../Redux/hook";
-import { fetchHotelById } from "../../Redux/Slice/hotelSlice";
+import {
+  fetchHotelById,
+  fetchHotelRoomList,
+  mapOpenClose,
+} from "../../Redux/Slice/hotelSlice";
 import SkeletonHotelDetails from "../../Components/Skeleton/Hotels/SkeletonHotelDetails";
+import _ from "lodash";
 
 const HotelDetails = ({ navigation, route }) => {
   const hotelId = route?.params?.item?.hotelId;
   const item = route?.params?.item;
 
-  // console.log(item);
-  // console.log(">>> hotelId", hotelId);
-
   const [css, setCss] = useState(1);
   const Tab = createMaterialTopTabNavigator();
-  const [showInfoConfirm, setShowInfoConfirm] = useState(false);
-  const [showOrderConfirm, setShowOrderConfirm] = useState(false);
+
   const [data, setData] = useState();
-
+  const [openMap, setOpenMap] = useState(true);
   const dispatch = useAppDispatch();
-  const { hotelList, hotelDetail, loading, error } = useAppSelector(
-    (state) => state.hotel
-  );
+  const { hotelList, hotelDetail, loading, error, inforFilter } =
+    useAppSelector((state) => state.hotel);
 
-  // useEffect(() => {
-  // console.log(">>> 45 dispatch by hotel ID");
-  // dispatch(fetchHotelById(hotelId));
-  // }, [dispatch]);
-
-  // console.log(">>> 50 hotelDetail", hotelDetail);
-  useEffect(() => {
-    const backAction = () => {
-      if (showOrderConfirm && !showInfoConfirm) {
-        setShowOrderConfirm(false);
-        setShowInfoConfirm(true);
-        return true;
-      }
-      if (showInfoConfirm && !showOrderConfirm) {
-        setShowInfoConfirm(false);
-        return true;
-      }
-      return false;
-    };
-    // thằng lồn này sẽ được gọi khi mà ấn nút quay lạilại
-
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      backAction
-    ); // đăng ký nút quay lại thôi còn lại chả làm cái đéo gì cả
-
-    return () => backHandler.remove(); // thằng cu này sẽ được gọi khi mà chuyển sang trang mới hoặc back về, mục đích là xóa cái thằng nãy đăng ký đi
-  }, [showInfoConfirm]);
+  // console.log(">>> 42 hotelDetails inforFilter", hotelDetail);
 
   useLayoutEffect(() => {
     navigation.getParent().setOptions({ tabBarStyle: { display: "none" } });
@@ -86,9 +59,17 @@ const HotelDetails = ({ navigation, route }) => {
   }, [navigation]);
 
   const handleInfoConfirm = () => {
-    // setShowInfoConfirm(true);
-    navigation.navigate("HotelRoomList");
-    // Khi navigation thay đổi, cập nhật css
+    const inforFilter_ = {
+      hotelId: hotelId,
+      checkInDate: inforFilter.checkin,
+      checkOutDate: inforFilter.checkout,
+      roomNumber: inforFilter.roomNumber,
+      adults: inforFilter.adults,
+      children: inforFilter.children,
+    };
+    console.log(inforFilter_);
+    dispatch(fetchHotelRoomList(inforFilter_));
+    navigation.navigate("HotelRoomList", { item });
   };
 
   const handleOrderConfirm = () => {
@@ -168,6 +149,10 @@ const HotelDetails = ({ navigation, route }) => {
     );
   };
 
+  const handleMapLocation = () => {
+    dispatch(mapOpenClose(true));
+  };
+
   if (loading) {
     return <SkeletonHotelDetails />;
   }
@@ -214,7 +199,10 @@ const HotelDetails = ({ navigation, route }) => {
                   {hotelDetail && hotelDetail.review.sumReview} Người đã thích
                 </Text>
               </View>
-              <View style={styles.header__location}>
+              <TouchableOpacity
+                style={styles.header__location}
+                onPress={() => handleMapLocation()}
+              >
                 <View>
                   <Icon name="map-marker" size={16} color="white" />
                 </View>
@@ -223,53 +211,46 @@ const HotelDetails = ({ navigation, route }) => {
                     {hotelDetail && hotelDetail.review.location}
                   </Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             </View>
           </ImageBackground>
         </View>
 
         {/* Tab Navigator với tabBar tùy chỉnh */}
-        {!showInfoConfirm && !showOrderConfirm && (
-          <>
-            <Tab.Navigator
-              tabBar={(props) => <CustomTabBar {...props} />}
-              initialRouteName="Price"
-            >
-              <Tab.Screen
-                name="Price"
-                component={PriceScreen}
-                options={{ tabBarLabel: "Bảng giá (106)" }}
-              />
-              <Tab.Screen
-                name="Photo"
-                component={PhotoScreen}
-                options={{ tabBarLabel: "Ảnh (10)" }}
-              />
-              <Tab.Screen
-                name="Check"
-                component={CheckScreen}
-                options={{ tabBarLabel: "Lần check (24)" }}
-              />
-            </Tab.Navigator>
 
-            <View style={styles.footer__action}>
-              <Text style={styles.footer__price}>
-                <Text>{hotelDetail && hotelDetail.priceMin}</Text>
-                <Text style={styles.footer__price__text}>TB/ĐÊM</Text>
-              </Text>
-              <TouchableOpacity
-                style={styles.footer__button}
-                onPress={() => handleInfoConfirm()}
-              >
-                <Text style={styles.footer__button__text}>ĐẶT NGAY</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        )}
-        {showInfoConfirm && (
-          <InfoConfirmScreen handleOrderConfirm={handleOrderConfirm} />
-        )}
-        {showOrderConfirm && <OrderConfirmScreen />}
+        <Tab.Navigator
+          tabBar={(props) => <CustomTabBar {...props} />}
+          initialRouteName="Price"
+        >
+          <Tab.Screen
+            name="Price"
+            component={PriceScreen}
+            options={{ tabBarLabel: "Bảng giá (106)" }}
+          />
+          <Tab.Screen
+            name="Photo"
+            component={PhotoScreen}
+            options={{ tabBarLabel: "Ảnh (10)" }}
+          />
+          <Tab.Screen
+            name="Check"
+            component={CheckScreen}
+            options={{ tabBarLabel: "Lần check (24)" }}
+          />
+        </Tab.Navigator>
+
+        <View style={styles.footer__action}>
+          <Text style={styles.footer__price}>
+            <Text>{hotelDetail && hotelDetail.priceMin}</Text>
+            <Text style={styles.footer__price__text}>TB/ĐÊM</Text>
+          </Text>
+          <TouchableOpacity
+            style={styles.footer__button}
+            onPress={() => handleInfoConfirm()}
+          >
+            <Text style={styles.footer__button__text}>ĐẶT NGAY</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </>
   );

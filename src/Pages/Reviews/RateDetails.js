@@ -11,14 +11,14 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 
 const RateDetails = ({ navigation }) => {
-  const handleTo = () => {
-    navigation.navigate("");
-  };
+  // const handleTo = () => {
+  //   navigation.navigate("");
+  // };
   return (
     <View style={styles.rateDetail}>
       {/* Header */}
       <View style={styles.rateDetail__header}>
-        <TouchableOpacity onPress={() => handleTo()}>
+        <TouchableOpacity>
           <Ionicons
             style={styles.iconBed}
             name="chevron-back-outline"
