@@ -14,39 +14,40 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import SkeletonHotelRoomList from "../../Components/Skeleton/Hotels/SkeletonHotelRoomList";
 import _ from "lodash";
 import cloneDeep from "lodash/cloneDeep";
+import {
+  fetchBookingRoom,
+  update,
+  uppdateListUniqueIdBookingRoom,
+} from "../../Redux/Slice/hotelSlice";
 
 // lỗi hotelRoomList ko có giá trị, 1 kiểm tra redux, kiểm tra trang gọi api cho data trang này,kiểm tra lại api room/get_list
 // console.log("-------- 22 hotelRoom hotelRoomList:", hotelRoomList);
 const HotelRoomList = ({ navigation, route }) => {
   const item = route?.params?.item;
 
-  const { hotelRoomList, hotelDetail, loadingHotelRoomList, inforFilter } =
-    useAppSelector((state) => state.hotel);
+  const {
+    hotelRoomList,
+    hotelDetail,
+    loadingHotelRoomList,
+    inforFilter,
+    bookingData,
+  } = useAppSelector((state) => state.hotel);
 
-  // console.log(">>> 27 hotelroomlist", hotelRoomList);
+  const { token } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
   const [roomNumber, setRoomNumber] = useState({});
 
   useEffect(() => {
     if (hotelRoomList && hotelRoomList.length > 0) {
       const newRooms = {};
       hotelRoomList.forEach((room) => {
-        newRooms[`room${room.roomId}`] = 0; // Khởi tạo số lượng phòng bằng 0
+        newRooms[`room${room.roomId}`] = 0;
       });
       setRoomNumber(newRooms);
     } else {
-      setRoomNumber({}); // Reset roomNumber nếu hotelRoomList rỗng
+      setRoomNumber({});
     }
   }, [hotelRoomList]);
-  // console.log(roomNumber);
-
-  // const [r, setR] = useState(rooms2);
-  // console.log(r);
-
-  // console.log(">>> 38 HotelRoomList rooms2:", rooms2);
-  // console.log(">>> 39 HotelRoomList roomNumber:", roomNumber);
-
-  const hasSelectedRooms = Object.values(roomNumber).some((count) => count > 0);
-  console.log(roomNumber);
 
   const updateDateRoomNumber = (name, type, quantity) => {
     console.log(quantity);
@@ -60,37 +61,15 @@ const HotelRoomList = ({ navigation, route }) => {
       return newRoomNumber;
     });
   };
+  const hasSelectedRooms = Object.values(roomNumber).some((count) => count > 0);
 
-  const test = [
-    {
-      adults: 0,
-      children: 0,
-      price: 900000,
-      roomId: 1,
-    },
-    {
-      adults: 0,
-      children: 0,
-      price: 720000,
-      roomId: 3,
-    },
-    {
-      adults: 0,
-      children: 0,
-      price: 720000,
-      roomId: 3,
-    },
-    {
-      adults: 0,
-      children: 0,
-      price: 720000,
-      roomId: 3,
-    },
-  ];
+  useEffect(() => {
+    console.log("BOKINGDAT 50 hotelRoom", bookingData);
+  }, [bookingData]);
 
   const handleToInfoConfirm = () => {
     const roomRequestList = Object.keys(roomNumber)
-      .filter((key) => roomNumber[key] > 0)
+      .filter((key) => +roomNumber[key] > 0)
       .flatMap((key) => {
         const roomId = parseInt(key.replace("room", ""), 10);
         const room = hotelRoomList.find((r) => r.roomId === roomId);
@@ -106,19 +85,26 @@ const HotelRoomList = ({ navigation, route }) => {
           }));
       });
 
-    // console.log(roomRequestList);
+    // dispatch(update(roomRequestList));
+    dispatch(uppdateListUniqueIdBookingRoom(roomRequestList));
+
+    const roomRequestListForApi = roomRequestList.map(
+      ({ uniqueId, ...rest }) => rest
+    );
+
+    console.log(">>> 94 HRL roomRequestListForApi", roomRequestList);
+    console.log(">>> 94 HRL roomRequestListForApi", roomRequestListForApi);
+
     const bookingPayload = {
       hotelId: item.hotelId,
       checkInDate: inforFilter.checkin,
       checkOutDate: inforFilter.checkout,
-      roomRequestList: roomRequestList,
+      roomRequestList: roomRequestListForApi,
     };
-    console.log("Booking Payload:", bookingPayload);
 
-    // Dispatch action nếu cần
-    // dispatch(createBooking(bookingPayload));
+    dispatch(fetchBookingRoom({ bookingPayload, token }));
 
-    navigation.navigate("InfoConfirm", { bookingPayload });
+    navigation.navigate("InfoConfirm");
   };
 
   if (loadingHotelRoomList) {

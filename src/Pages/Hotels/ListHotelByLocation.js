@@ -48,7 +48,7 @@ const ListHotelByLocation = ({ navigation }) => {
     dispatch(fetchHotelByLocation(inforFilter));
   }, [inforFilter.amenityIds, inforFilter.sortById, dispatch]);
 
-  console.log(">>> 51 listByHotel", hotelByLocation);
+  // console.log(">>> 51 listByHotel", hotelByLocation);
 
   if (loadingListHotel) {
     return <SkeletonListHotelByLocation />;
@@ -60,7 +60,7 @@ const ListHotelByLocation = ({ navigation }) => {
     const id = item?.hotelId;
     dispatch(fetchHotelById(id));
     navigation.navigate("HotelDetails", { item });
-    console.log(item?.hotelId);
+    // console.log(item?.hotelId);
   };
 
   const HotelItem1 = ({ item }) => {

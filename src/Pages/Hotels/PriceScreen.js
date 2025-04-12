@@ -19,7 +19,7 @@ import SkeletonPriceScreen from "../../Components/Skeleton/Hotels/SkeletonPriceS
 import RateReviews from "../Reviews/RateReviews";
 import MapPriceScreen from "../../Components/Map/MapPriceScreen";
 const PriceScreen = ({ navigation, route }) => {
-  console.log(">>> route PriceScreen", route);
+  // console.log(">>> route PriceScreen", route);
   // const [dataPrice, setDataPrice] = useState(route.params.data);
   // console.log(">>> dataPrice", dataPrice);
 

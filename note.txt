@@ -452,3 +452,48 @@ CONFIG APP.JSON CŨ
   }
 }
 
+
+
+------------------LOGIC BẮT SỰ KIÊN NÚT BACK ĐỂ HIỂN THỊ MỘT PHẦN GIAO DIỆN----------------------------
+// const [showInfoConfirm, setShowInfoConfirm] = useState(false);
+  // const [showOrderConfirm, setShowOrderConfirm] = useState(false);
+
+   // useEffect(() => {
+  //   const backAction = () => {
+  //     if (showOrderConfirm && !showInfoConfirm) {
+  //       setShowOrderConfirm(false);
+  //       setShowInfoConfirm(true);
+  //       return true;
+  //     }
+  //     if (showInfoConfirm && !showOrderConfirm) {
+  //       setShowInfoConfirm(false);
+  //       return true;
+  //     }
+  //     return false;
+  //   };
+  // thằng lồn này sẽ được gọi khi mà ấn nút quay lạilại
+
+  //   const backHandler = BackHandler.addEventListener(
+  //     "hardwareBackPress",
+  //     backAction
+  //   ); // đăng ký nút quay lại thôi còn lại chả làm cái đéo gì cả
+
+  //   return () => backHandler.remove(); // thằng cu này sẽ được gọi khi mà chuyển sang trang mới hoặc back về, mục đích là xóa cái thằng nãy đăng ký đi
+  // }, [showInfoConfirm]);
+
+
+  {/* {!showInfoConfirm && !showOrderConfirm && (
+          <> */}
+          {/* </>
+        )} */}
+
+        {/* {showInfoConfirm && (
+          <InfoConfirmScreen handleOrderConfirm={handleOrderConfirm} />
+        )}
+        {showOrderConfirm && <OrderConfirmScreen />} */}
+
+
+
+---------------------------------Warning: TypeError: "isServiceAdded" is read-only-----------
+lỗi này là khi ta cố tình thay đổi giá trị của một biến khi khai báo nó bằng const 
+=> đổi nó sang let

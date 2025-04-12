@@ -1,69 +1,33 @@
-{
-    "statusCode": 200,
-    "message": "Hotel detail successfully 2",
-    "data": {
-        "review": {
-            "rating": 4.3,
-            "sumReview": 150,
-            "description": "Tọa lạc trong khu vườn được chăm chút kỹ lưỡng với tầm nhìn ra đầm phá Ébrié, khách sạn cao cấp này mang phong cách nghệ thuật địa phương đương đại và các nét chấm phá kiến trúc tinh tế. Nơi đây cách Nhà thờ Hồi giáo Riviéra 3 km và Công viên Quốc gia Banco 17 km.",
-            "amenities": [
-                {
-                    "id": 3,
-                    "name": "Bữa sáng miễn phí"
-                },
-                {
-                    "id": 2,
-                    "name": "Phòng gym"
-                }
-            ],
-            "location": "Đà Nẵng",
-            "phoneNumber": "123456789"
-        },
-        "images": [
-            "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1729241122/Room/nipyn0qgyoyhtgkadlyi.jpg",
-            "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1735036009/rooms/x5afmfm9tw4xe35txy6b.jpg"
-        ],
-        "nearBy": {
-            "descriptionLocation": "Đà Nẵng rất đẹp",
-            "ratingLocation": "4.5",
-            "activityList": [
-                {
-                    "name": "Da Nang Beach (Danang Beach)",
-                    "description": "No description",
-                    "rating": 4.8,
-                    "distance": "3729 m",
-                    "image": null
-                },
-                {
-                    "name": "Phạm Văn Đồng Beach",
-                    "description": "No description",
-                    "rating": 4.5,
-                    "distance": "3654 m",
-                    "image": null
-                },
-                {
-                    "name": "Bãi Biển Phước Mỹ",
-                    "description": "No description",
-                    "rating": 4.4,
-                    "distance": "3630 m",
-                    "image": null
-                },
-                {
-                    "name": "The Village",
-                    "description": "No description",
-                    "rating": 4.4,
-                    "distance": "4650 m",
-                    "image": null
-                },
-                {
-                    "name": "Asia Park",
-                    "description": "No description",
-                    "rating": 4.4,
-                    "distance": "3678 m",
-                    "image": null
-                }
-            ]
-        },
-        "priceMin": 2850000.0
-    }
-}
+const let1 = {
+    checkIn: "12-04-2025 14:00:00",
+    checkOut: "13-04-2025 12:00:00",
+    couponCode: null,
+    finalPrice: "1620000.0",
+    hotelAddress: "Đà Nẵng",
+    hotelId: 1,
+    hotelName: "Heden Golf",
+    priceCoupon: "0.0",
+    roomBookedList: [
+      {
+        adults: 0,
+        policyBooked: [Array],
+        priceRoom: 900000,
+        priceService: 0,
+        roomId: 1,
+        roomName: "Phòng Deluxe Gia đình",
+        serviceSelect: [Array],
+      },
+      {
+        adults: 0,
+        policyBooked: [Array],
+        priceRoom: 720000,
+        priceService: 0,
+        roomId: 3,
+        roomName: "Phòng Deluxe nhỏ",
+        serviceSelect: [Array],
+      },
+    ],
+    totalAdults: 0,
+    totalPriceRoom: "1620000.0",
+    totalPriceService: "0.0",
+  };

@@ -15,6 +15,8 @@ const initValue = {
     phoneNumber: "0982474802",
     country: "+84",
   },
+  token:
+    "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQ0NDQ4OTE3LCJleHAiOjE3NDQ1MzUzMTd9.z546CIb87MWSmS_nGd62XjsJlz0BINJtoI7b3ib7FRw",
 };
 
 const authSlice = createSlice({

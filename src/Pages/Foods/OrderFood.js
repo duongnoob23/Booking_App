@@ -9,9 +9,11 @@ import {
   TouchableOpacity,
   SafeAreaView,
   BackHandler,
+  Modal,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { useAppSelector } from "../../Redux/hook";
+import { useAppSelector, useAppDispatch } from "../../Redux/hook";
+import { addServiceToRoom } from "../../Redux/Slice/hotelSlice";
 
 const OrderFood = ({ navigation }) => {
   // State để quản lý loại đồ ăn được focus
@@ -19,68 +21,150 @@ const OrderFood = ({ navigation }) => {
     id: 1,
     type: "AMENITY",
   });
+  const dispatch = useAppDispatch();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+
+  const [addService, setAddService] = useState([]);
+  console.log(selectedService);
   console.log(selectedCategory);
 
   const { serviceList } = useAppSelector((state) => state.service);
+  const { bookingData } = useAppSelector((state) => state.hotel);
+
+  const listRoom = bookingData?.roomBookedList;
   const categories = Object.keys(serviceList).map((key, index) => ({
     id: index + 1,
     name: key,
   }));
-  // console.log("_____26 OrderFoods serviceList:____", serviceList[`AMENITY`]);
-  // console.log("______27 OrderFoods categories:", categories);
-  console.log(selectedCategory);
-  // Danh sách loại đồ ăn (giả lập)
-  const categories2 = [
-    {
-      id: 1,
-      name: "Bữa sáng",
-      nameIcon: "fast-food-outline",
-    },
-    {
-      id: 2,
-      name: "Bữa sáng",
-      nameIcon: "pizza-outline",
-    },
-    {
-      id: 3,
-      name: "Bữa sáng",
-      nameIcon: "pizza-outline",
-    },
-    {
-      id: 4,
-      name: "Bữa sáng",
-      nameIcon: "fast-food-outline",
-    },
-    {
-      id: 5,
-      name: "Bữa sáng",
-      nameIcon: "fast-food-outline",
-    },
-    {
-      id: 6,
-      name: "Bữa sáng",
-      nameIcon: "fast-food-outline",
-    },
-  ];
-  // Danh sách món ăn (giả lập)
+
+  console.log(categories);
+  const check = bookingData?.roomBookedList?.map((item, index) => {
+    console.log(item.serviceSelect);
+  });
+  console.log(check);
+
   const foodItems = serviceList[`${selectedCategory?.type}`];
 
   const handleToFoodDetails = () => {
     navigation.navigate("FoodDetails");
   };
 
-  const handleToHotelDetails = () => {
-    navigation.navigate("HotelDetails");
+  const handleBack = () => {
+    navigation.goBack();
   };
 
-  const handleToFoodCart = () => {
-    navigation.navigate("FoodCart");
+  const handleOrder = (item) => {
+    openModal(item);
   };
 
   console.log(categories[0]);
+
+  const handleUpdateSelectCategory = (item) => {
+    const selectedCategory_ = {
+      id: item.id,
+      type: item.name,
+    };
+    setSelectedCategory(selectedCategory_);
+  };
+
+  const openModal = (service) => {
+    setSelectedService(service);
+    setAddService([]); // Reset addService khi mở modal
+    setModalVisible(true);
+  };
+
+  const handleAddServiceToRoom = (uniqueId, serviceId) => {
+    setAddService((pre) => {
+      const exitRoom = pre.find((item) => item.uniqueId === uniqueId);
+      if (exitRoom) {
+        return pre.map((item, index) => {
+          item.uniqueId === uniqueId
+            ? { ...item, serviceIds: [...item.serviceIds, serviceId] }
+            : item;
+        });
+      }
+      return [...pre, { uniqueId, serviceIds: [serviceId] }];
+    });
+  };
+
+  const handleConfirmOrder = () => {
+    if (addService.length > 0) {
+      dispatch(addServiceToRoom(addService));
+    }
+    setAddService([]);
+    setModalVisible(false);
+  };
+
   const imageTest =
     "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop";
   // Hàm render mỗi món ăn
+
+  console.log("----------------");
+  bookingData?.roomBookedList?.forEach((item) => {
+    console.log(`item ${item.uniqueId}`, item.serviceSelect);
+  });
+
+  const renderRoomItem = ({ item }) => {
+    const roomService = bookingData?.roomBookedList?.find(
+      (room) => room.uniqueId === item.uniqueId
+    );
+    const roomService2 = addService?.find(
+      (room) => room.uniqueId === item.uniqueId
+    );
+
+    const isServiceAdded = roomService?.serviceSelect?.includes(
+      selectedService?.id
+    );
+    const isServiceAdded2 = roomService2?.serviceIds.includes(
+      selectedService?.id
+    );
+
+    const check = isServiceAdded || isServiceAdded2;
+
+    return (
+      <View style={styles.roomWrapper}>
+        <View style={styles.roomInfo}>
+          <Text style={styles.roomLabel}>Tên Phòng</Text>
+          <Text style={styles.roomValue}>{item.roomName}</Text>
+        </View>
+        <View style={styles.roomInfo}>
+          <Text style={styles.roomLabel}>Loại phòng</Text>
+          <Text style={styles.roomValue}>
+            {item.roomType || "Không xác định"}
+          </Text>
+        </View>
+        <View style={styles.roomInfo}>
+          <Text style={styles.roomLabel}>Số khách</Text>
+          <Text style={styles.roomValue}>{item.adults} người</Text>
+        </View>
+        <View style={styles.roomInfo}>
+          <Text style={styles.roomLabel}>Giá</Text>
+          <Text style={styles.roomValue}>{item.priceRoom} VNĐ</Text>
+        </View>
+        <View style={styles.roomInfo}>
+          <Text style={styles.roomLabel}>Dịch vụ</Text>
+          {/* <Text style={styles.roomValue}>
+            {item.serviceSelect.length > 0
+              ? item.serviceSelect.join(", ")
+              : "Chưa có"}
+          </Text> */}
+          <TouchableOpacity
+            style={[styles.addServiceButton, check && styles.disabledButton]}
+            onPress={() =>
+              handleAddServiceToRoom(item.uniqueId, selectedService.id)
+            }
+            disabled={check}
+          >
+            <Text style={styles.addServiceButtonText}>
+              {check ? "Đã thêm" : "Thêm"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
   const renderFoodItem = ({ item }) => (
     <TouchableOpacity
       style={styles.foodItem}
@@ -100,26 +184,18 @@ const OrderFood = ({ navigation }) => {
       </View>
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => handleToFoodCart()}
+        onPress={() => handleOrder(item)}
       >
         <Text style={styles.addButtonText}>Thêm</Text>
       </TouchableOpacity>
     </TouchableOpacity>
   );
 
-  const handleUpdateSelectCategory = (item) => {
-    const selectedCategory_ = {
-      id: item.id,
-      type: item.name,
-    };
-
-    setSelectedCategory(selectedCategory_);
-  };
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => handleToHotelDetails()}>
+        <TouchableOpacity onPress={() => handleBack()}>
           <Ionicons name="chevron-back-outline" size={28} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Đồ ăn</Text>
@@ -179,6 +255,36 @@ const OrderFood = ({ navigation }) => {
           <Ionicons name="cart-outline" size={30} color="white" />
         </TouchableOpacity>
       </View>
+
+      <Modal
+        animationType="none"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Chọn phòng để thêm dịch vụ</Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Ionicons name="close-outline" size={28} color="#000" />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={listRoom}
+              renderItem={renderRoomItem}
+              keyExtractor={(item) => item.uniqueId}
+              style={styles.roomList}
+            />
+            <TouchableOpacity
+              style={styles.addButtonConfirm}
+              onPress={() => handleConfirmOrder()}
+            >
+              <Text style={styles.addButtonConfirmText}>Xác nhận</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -374,6 +480,80 @@ const styles = StyleSheet.create({
   footer__item__text: {
     textAlign: "center",
     fontWeight: "300",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 16,
+    maxHeight: "80%",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  roomList: {
+    flexGrow: 0,
+  },
+  roomWrapper: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5E5",
+    marginBottom: 8,
+  },
+  roomInfo: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  roomLabel: {
+    fontSize: 14,
+    color: "#666",
+    width: 100,
+  },
+  roomValue: {
+    fontSize: 14,
+    color: "#000",
+    flex: 1,
+    textAlign: "right",
+  },
+  addServiceButton: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  disabledButton: {
+    backgroundColor: "#B7C9D4",
+  },
+  addServiceButtonText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  addButtonConfirm: {
+    backgroundColor: "#00F598",
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  addButtonConfirmText: {
+    fontSize: 15,
+    color: "white",
+    fontWeight: "400",
+    textAlign: "center",
   },
 });
 

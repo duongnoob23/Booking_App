@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import { useAppSelector } from "../../Redux/hook";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import getServiceIcon from "../../Components/Icon/getServiceIcon";
+
 const OrderConfirmScreen = ({ navigation }) => {
   useLayoutEffect(() => {
     navigation.getParent().setOptions({ tabBarStyle: { display: "none" } });
@@ -27,68 +29,68 @@ const OrderConfirmScreen = ({ navigation }) => {
   };
   const { userInfor } = useAppSelector((state) => state.auth);
   const { serviceList } = useAppSelector((state) => state.service);
-
+  const { bookingData } = useAppSelector((state) => state.hotel);
+  console.log(">>> 31 OCS listUniqueIdBookingRoom", bookingData);
+  console.log(
+    ">>> 33 OCS listUniqueIdBookingRoom",
+    bookingData?.roomBookedList
+  );
   // console.log("______ serviceList:", Object.keys(serviceList));
-  const listRoom = [
-    {
-      id: 1,
-      nameRoom: "Dexua luxury",
-      roomType: "Vip",
-      numberPeople: "2",
-      price: "127,000",
-      service: [],
-      condition: "",
-    },
-    {
-      id: 2,
-      nameRoom: "Dexua luxury",
-      roomType: "Vip",
-      numberPeople: "2",
-      price: "127,000",
-      service: [],
-      condition: "",
-    },
-    {
-      id: 3,
-      nameRoom: "Dexua luxury",
-      roomType: "Vip",
-      numberPeople: "2",
-      price: "127,000",
-      service: [],
-      condition: "",
-    },
-  ];
+  // useEffect(() => {
 
+  // }, [bookingData]);
+  const listRoom = bookingData?.roomBookedList;
+
+  useEffect(() => {
+    console.log("bookingData updated:", bookingData);
+  }, [bookingData]);
+
+  const getUniqueServiceTypes = (serviceSelect) => {
+    const serviceTypes = new Set();
+    serviceSelect.forEach((serviceId) => {
+      // Tìm loại dịch vụ chứa serviceId
+      Object.entries(serviceList).forEach(([type, services]) => {
+        if (services.some((service) => service.id === serviceId)) {
+          serviceTypes.add(type);
+        }
+      });
+    });
+    return Array.from(serviceTypes);
+  };
   // Sửa renderListRoom để dùng với ScrollView
   const renderListRoom = (item) => (
     <View style={styles.roomWrapper}>
       <View style={styles.roomInfo}>
         <Text style={styles.roomLabel}>Tên Phòng </Text>
-        <Text style={styles.roomValue}>{item.nameRoom}</Text>
+        <Text style={styles.roomValue}>{item?.roomName}</Text>
       </View>
       <View style={styles.roomInfo}>
         <Text style={styles.roomLabel}>Loại phòng</Text>
-        <Text style={styles.roomValue}>{item.roomType}</Text>
+        <Text style={styles.roomValue}>{item?.roomType}</Text>
       </View>
       <View style={styles.roomInfo}>
         <Text style={styles.roomLabel}>Số khách </Text>
-        <Text style={styles.roomValue}>{item.numberPeople} người </Text>
+        <Text style={styles.roomValue}>{item?.adults} người </Text>
       </View>
       <View style={styles.roomInfo}>
         <Text style={styles.roomLabel}>Giá</Text>
-        <Text style={styles.roomValue}>{item.price}</Text>
+        <Text style={styles.roomValue}>{item?.priceRoom}</Text>
       </View>
       <View style={styles.roomInfo}>
         <Text style={styles.roomLabel}>Dịch vụ</Text>
-        <Text style={styles.roomValue}></Text>
-        <TouchableOpacity onPress={() => navigation.navigate("OrderFood")}>
-          <Ionicons
-            name="add-outline"
-            size={20}
-            color="#007AFF"
-            style={styles.icon}
-          />
-        </TouchableOpacity>
+        <View style={styles.serviceIcons}>
+          {item?.serviceSelect?.length > 0 ? (
+            getUniqueServiceTypes(item.serviceSelect).map((type) => (
+              <View key={type} style={styles.iconWrapper}>
+                {getServiceIcon(type)}
+              </View>
+            ))
+          ) : (
+            <TouchableOpacity onPress={() => navigation.navigate("OrderFood")}>
+              <Ionicons name="add-outline" size={20} color="#007AFF" />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
       <View style={styles.roomInfo}>
         <Text style={styles.roomLabel}>Điều kiện</Text>
@@ -129,8 +131,8 @@ const OrderConfirmScreen = ({ navigation }) => {
         <View style={styles.roomsSection}>
           <Text style={styles.subTitle}>Phòng đặt</Text>
           <ScrollView showsVerticalScrollIndicator={false}>
-            {listRoom.map((item, index) => (
-              <View key={item.id.toString()}>{renderListRoom(item)}</View>
+            {listRoom?.map((item, index) => (
+              <View key={item?.uniqueId}>{renderListRoom(item)}</View>
             ))}
           </ScrollView>
           <View style={styles.br}></View>
@@ -296,6 +298,15 @@ const styles = StyleSheet.create({
     borderBottomColor: "#E5E5E5",
     borderBottomWidth: 1,
     paddingVertical: 20,
+  },
+  serviceIcons: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  iconWrapper: {
+    marginLeft: 8,
   },
 });
 

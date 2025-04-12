@@ -1,6 +1,7 @@
 // src/Slice/hotelSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { API_BASE_URL } from "../../Constant/Constant";
+import { useAppSelector } from "../hook";
 
 const formatToYYYYMMDD = (date) => {
   const year = date.getFullYear();
@@ -133,17 +134,40 @@ export const fetchHotelRoomList = createAsyncThunk(
 
 export const fetchBookingRoom = createAsyncThunk(
   "hotel/fetchBookingRoom",
-  async (value) => {
+  async ({ bookingPayload, token }, { getState, rejectWithValue }) => {
     try {
-      console.log("--------- 138 HotelSL", value);
       const response = await fetch(`${API_BASE_URL}/api/booking/get_booking`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(value),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(bookingPayload),
       });
+
       const data = await response.json();
-      console.log("-------- 144 hotelSL", data.data);
-      console.log("-------- 144 hotelSL", data.roomBookedList);
+      // console.log("-------- 144 hotelSL", data?.data);
+
+      const { listUniqueIdBookingRoom } = getState().hotel;
+      // console.log(listUniqueIdBookingRoom);
+      const updatedRoomBookedList = data?.data?.roomBookedList?.map(
+        (room, index) => {
+          const originalRoom = listUniqueIdBookingRoom[index];
+          return {
+            ...room,
+            uniqueId: originalRoom?.uniqueId,
+          };
+        }
+      );
+
+      console.log(">>> 163 HS", updatedRoomBookedList);
+      console.log(">>> 164 HS", data.data);
+
+      // data?.data?.roomBookedList = updatedRoomBookedList;
+      return {
+        ...data.data,
+        roomBookedList: updatedRoomBookedList,
+      };
     } catch (error) {
       console.log("error in fetchBookingRoom:", error);
       throw error;
@@ -169,7 +193,8 @@ const hotelSlice = createSlice({
     hotelByLocation: [], // Danh sach Khach san theo dia diem
     hotelRoomList: [],
     bookingData: [],
-
+    listUniqueIdBookingRoom: [],
+    listBookingRoom: [],
     loading: false, // Đang tải hay không
     loadingListHotel: false,
     loadingHotelRoomList: false,
@@ -197,6 +222,7 @@ const hotelSlice = createSlice({
       state.loading = true;
     },
     updateFilter(state, action) {
+      // console.log(">>> 224 HS run");
       state.inforFilter = { ...state.inforFilter, ...action.payload };
     },
     mapOpenClose(state, action) {
@@ -204,6 +230,55 @@ const hotelSlice = createSlice({
     },
     updateHotelDetailId(state, action) {
       state.hotelDetailId = action.payload;
+    },
+    uppdateListUniqueIdBookingRoom(state, action) {
+      // console.log("233 HS check", action.payload);
+      state.listUniqueIdBookingRoom = [...action.payload];
+    },
+    addServiceToRoom(state, action) {
+      const serviceData = action.payload; // Mảng [ { uniqueId, serviceIds }, ... ]
+
+      // Cập nhật listUniqueIdBookingRoom
+      console.log(serviceData);
+      state.listUniqueIdBookingRoom = state.listUniqueIdBookingRoom.map(
+        (item) => {
+          const matchingRoom = serviceData.find(
+            (data) => data.uniqueId === item.uniqueId
+          );
+          if (matchingRoom) {
+            return {
+              ...item,
+              serviceIdList: [
+                ...new Set([...item.serviceIdList, ...matchingRoom.serviceIds]), // Loại bỏ trùng lặp
+              ],
+            };
+          }
+          return item;
+        }
+      );
+
+      // Cập nhật bookingData.roomBookedList
+      if (state.bookingData && state.bookingData.roomBookedList) {
+        state.bookingData.roomBookedList = state.bookingData.roomBookedList.map(
+          (item) => {
+            const matchingRoom = serviceData.find(
+              (data) => data.uniqueId === item.uniqueId
+            );
+            if (matchingRoom) {
+              return {
+                ...item,
+                serviceSelect: [
+                  ...new Set([
+                    ...item.serviceSelect,
+                    ...matchingRoom.serviceIds,
+                  ]), // Loại bỏ trùng lặp
+                ],
+              };
+            }
+            return item;
+          }
+        );
+      }
     },
   },
   extraReducers: (builder) => {
@@ -289,6 +364,7 @@ const hotelSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchBookingRoom.fulfilled, (state, action) => {
+        console.log(" >>> 326 HS", action.payload);
         state.loadingBookingRoom = false;
         state.bookingData = action.payload;
       })
@@ -305,5 +381,7 @@ export const {
   updateFilter,
   mapOpenClose,
   updateHotelDetailId,
+  uppdateListUniqueIdBookingRoom,
+  addServiceToRoom,
 } = hotelSlice.actions;
 export default hotelSlice.reducer;
