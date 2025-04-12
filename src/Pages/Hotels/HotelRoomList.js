@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Text,
   View,
@@ -20,23 +20,31 @@ import cloneDeep from "lodash/cloneDeep";
 const HotelRoomList = ({ navigation, route }) => {
   const item = route?.params?.item;
 
-  const { hotelRoomList, hotelDetail, loadingHotelRoomList } = useAppSelector(
-    (state) => state.hotel
-  );
+  const { hotelRoomList, hotelDetail, loadingHotelRoomList, inforFilter } =
+    useAppSelector((state) => state.hotel);
 
   // console.log(">>> 27 hotelroomlist", hotelRoomList);
-  const rooms2 = {};
-  hotelRoomList.forEach((item) => {
-    rooms2[`room${item.roomId}`] = 0;
-  });
+  const [roomNumber, setRoomNumber] = useState({});
+
+  useEffect(() => {
+    if (hotelRoomList && hotelRoomList.length > 0) {
+      const newRooms = {};
+      hotelRoomList.forEach((room) => {
+        newRooms[`room${room.roomId}`] = 0; // Khởi tạo số lượng phòng bằng 0
+      });
+      setRoomNumber(newRooms);
+    } else {
+      setRoomNumber({}); // Reset roomNumber nếu hotelRoomList rỗng
+    }
+  }, [hotelRoomList]);
   // console.log(roomNumber);
 
   // const [r, setR] = useState(rooms2);
   // console.log(r);
 
-  const [roomNumber, setRoomNumber] = useState(rooms2);
-  // console.log(rooms2);
-  console.log(roomNumber);
+  // console.log(">>> 38 HotelRoomList rooms2:", rooms2);
+  // console.log(">>> 39 HotelRoomList roomNumber:", roomNumber);
+
   const hasSelectedRooms = Object.values(roomNumber).some((count) => count > 0);
   console.log(roomNumber);
 
@@ -51,6 +59,66 @@ const HotelRoomList = ({ navigation, route }) => {
       }
       return newRoomNumber;
     });
+  };
+
+  const test = [
+    {
+      adults: 0,
+      children: 0,
+      price: 900000,
+      roomId: 1,
+    },
+    {
+      adults: 0,
+      children: 0,
+      price: 720000,
+      roomId: 3,
+    },
+    {
+      adults: 0,
+      children: 0,
+      price: 720000,
+      roomId: 3,
+    },
+    {
+      adults: 0,
+      children: 0,
+      price: 720000,
+      roomId: 3,
+    },
+  ];
+
+  const handleToInfoConfirm = () => {
+    const roomRequestList = Object.keys(roomNumber)
+      .filter((key) => roomNumber[key] > 0)
+      .flatMap((key) => {
+        const roomId = parseInt(key.replace("room", ""), 10);
+        const room = hotelRoomList.find((r) => r.roomId === roomId);
+        return Array(roomNumber[key])
+          .fill()
+          .map((_, index) => ({
+            uniqueId: `room${roomId}_${index + 1}`, // Tạo uniqueId: room1_1, room1_2, ...
+            roomId: roomId,
+            adults: inforFilter.adults,
+            children: inforFilter.children,
+            price: room ? room.price : 0,
+            serviceIdList: [],
+          }));
+      });
+
+    // console.log(roomRequestList);
+    const bookingPayload = {
+      hotelId: item.hotelId,
+      checkInDate: inforFilter.checkin,
+      checkOutDate: inforFilter.checkout,
+      roomRequestList: roomRequestList,
+    };
+    console.log("Booking Payload:", bookingPayload);
+
+    // Dispatch action nếu cần
+    // dispatch(createBooking(bookingPayload));
+
+    navigation.navigate("InfoConfirm", { bookingPayload });
   };
 
   if (loadingHotelRoomList) {
@@ -285,7 +353,10 @@ const HotelRoomList = ({ navigation, route }) => {
             console.log("Đặt phòng:", roomNumber);
           }}
         >
-          <TouchableOpacity style={styles.bookNowButtonTextWapper}>
+          <TouchableOpacity
+            style={styles.bookNowButtonTextWapper}
+            onPress={() => handleToInfoConfirm()}
+          >
             <Text style={styles.bookNowButtonText}>Đặt phòng ngay</Text>
           </TouchableOpacity>
         </View>
@@ -293,7 +364,7 @@ const HotelRoomList = ({ navigation, route }) => {
     </>
   );
 };
-
+export default HotelRoomList;
 const styles = StyleSheet.create({
   listContainer: {
     padding: 0,
@@ -631,5 +702,3 @@ const styles = StyleSheet.create({
     backgroundColor: "red",
   },
 });
-
-export default HotelRoomList;

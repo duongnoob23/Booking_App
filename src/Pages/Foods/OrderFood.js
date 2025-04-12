@@ -11,21 +11,25 @@ import {
   BackHandler,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useAppSelector } from "../../Redux/hook";
 
 const OrderFood = ({ navigation }) => {
   // State để quản lý loại đồ ăn được focus
-  const [selectedCategory, setSelectedCategory] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState({
+    id: 1,
+    type: "AMENITY",
+  });
+  console.log(selectedCategory);
+
+  const { serviceList } = useAppSelector((state) => state.service);
+  const categories = Object.keys(serviceList).map((key, index) => ({
+    id: index + 1,
+    name: key,
+  }));
+  // console.log("_____26 OrderFoods serviceList:____", serviceList[`AMENITY`]);
+  // console.log("______27 OrderFoods categories:", categories);
   console.log(selectedCategory);
   // Danh sách loại đồ ăn (giả lập)
-  const categories = [
-    "Bữa sáng",
-    "Burgers",
-    "Pizza",
-    "Món ăn kèm",
-    "Đồ uống",
-    "Salads",
-  ];
-
   const categories2 = [
     {
       id: 1,
@@ -59,74 +63,7 @@ const OrderFood = ({ navigation }) => {
     },
   ];
   // Danh sách món ăn (giả lập)
-  const foodItems = [
-    {
-      id: "1",
-      name: "Hamburger",
-      rating: 3.9,
-      reviews: 200,
-      description: "Rất ngon",
-      price: "25.000Đ",
-      discount: "25% OFF",
-      image:
-        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop", // Thay bằng URL ảnh thực tế
-    },
-    {
-      id: "2",
-      name: "Bánh mì pate",
-      rating: 3.9,
-      reviews: 200,
-      description: "Rất ngon",
-      price: "15.000Đ",
-      discount: "25% OFF",
-      image:
-        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-    },
-    {
-      id: "3",
-      name: "Sandwich",
-      rating: 3.9,
-      reviews: 200,
-      description: "Rất ngon",
-      price: "50.000Đ",
-      discount: "25% OFF",
-      image:
-        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-    },
-    {
-      id: "4",
-      name: "Burger",
-      rating: 3.9,
-      reviews: 200,
-      description: "Rất ngon",
-      price: "8.000Đ",
-      discount: "25% OFF",
-      image:
-        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-    },
-    {
-      id: "5",
-      name: "Burger",
-      rating: 3.9,
-      reviews: 200,
-      description: "Rất ngon",
-      price: "8.000Đ",
-      discount: "25% OFF",
-      image:
-        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-    },
-    {
-      id: "6",
-      name: "Burger",
-      rating: 3.9,
-      reviews: 200,
-      description: "Rất ngon",
-      price: "8.000Đ",
-      discount: "25% OFF",
-      image:
-        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-    },
-  ];
+  const foodItems = serviceList[`${selectedCategory?.type}`];
 
   const handleToFoodDetails = () => {
     navigation.navigate("FoodDetails");
@@ -140,39 +77,25 @@ const OrderFood = ({ navigation }) => {
     navigation.navigate("FoodCart");
   };
 
-  // useEffect(() => {
-  //   const actionBack = () => {
-  //     navigation.navigate("HotelDetails");
-  //     return true;
-  //   };
-
-  //   const backHanlder = BackHandler.addEventListener(
-  //     "hardwareBackPress",
-  //     actionBack
-  //   );
-
-  //   return () => backHanlder.remove();
-  // }, []);
-
   console.log(categories[0]);
+  const imageTest =
+    "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop";
   // Hàm render mỗi món ăn
   const renderFoodItem = ({ item }) => (
     <TouchableOpacity
       style={styles.foodItem}
       onPress={() => handleToFoodDetails()}
     >
-      <Image source={{ uri: item.image }} style={styles.foodImage} />
+      {/* <Image source={{ uri: item.image }} style={styles.foodImage} /> */}
+      <Image source={{ uri: imageTest }} style={styles.foodImage} />
       <View style={styles.foodInfo}>
         <Text style={styles.foodName}>{item.name}</Text>
-        <View style={styles.ratingContainer}>
-          <Ionicons name="star" size={16} color="#FFD700" />
-          <Text style={styles.ratingText}>{item.rating}</Text>
-          <Text style={styles.reviewsText}>Đánh giá ({item.reviews})</Text>
-        </View>
         <Text style={styles.description}>{item.description}</Text>
         <View style={styles.priceContainer}>
-          <Text style={styles.discount}>{item.discount}</Text>
-          <Text style={styles.price}>{item.price}</Text>
+          {/* <Text style={styles.discount}>{item.discount}</Text> */}
+          <Ionicons name={"cash-outline"} size={20} />
+          <Text style={styles.price}>{item.price} </Text>
+          <Text>VNĐ</Text>
         </View>
       </View>
       <TouchableOpacity
@@ -184,6 +107,14 @@ const OrderFood = ({ navigation }) => {
     </TouchableOpacity>
   );
 
+  const handleUpdateSelectCategory = (item) => {
+    const selectedCategory_ = {
+      id: item.id,
+      type: item.name,
+    };
+
+    setSelectedCategory(selectedCategory_);
+  };
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -197,19 +128,25 @@ const OrderFood = ({ navigation }) => {
       <View style={styles.bodySection1}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.list}>
-            {categories2.map((item, index) => {
+            {categories?.map((item, index) => {
               return (
-                <TouchableOpacity key={item.id} style={[styles.item]}>
+                <TouchableOpacity
+                  key={item.id}
+                  style={[styles.item]}
+                  onPress={() => handleUpdateSelectCategory(item)}
+                >
                   <View
                     style={[
                       styles.itemIcon,
-                      selectedCategory === item.id ? styles.selectFood : "",
+                      selectedCategory.id === item.id ? styles.selectFood : "",
                     ]}
                   >
                     <Ionicons
-                      name={item.nameIcon}
+                      name={"add-outline"}
                       size={28}
-                      color={selectedCategory === item.id ? "white" : "#B7C9D4"}
+                      color={
+                        selectedCategory.id === item.id ? "white" : "#B7C9D4"
+                      }
                     />
                   </View>
                   <Text style={styles.itemText}>{item.name}</Text>
@@ -245,7 +182,7 @@ const OrderFood = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
+export default OrderFood;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -337,8 +274,8 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   foodImage: {
-    width: 80,
-    height: 80,
+    width: 60,
+    height: 60,
     borderRadius: 10,
     marginRight: 15,
   },
@@ -347,7 +284,7 @@ const styles = StyleSheet.create({
   },
   foodName: {
     fontSize: 16,
-    fontWeight: "400",
+    fontWeight: "500",
     color: "#000",
   },
   ratingContainer: {
@@ -382,9 +319,9 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 14,
-    color: "#000",
+    color: "#FFD700",
     fontWeight: "bold",
-    marginLeft: "20",
+    marginLeft: "5",
   },
   addButton: {
     backgroundColor: "#00F598",
@@ -440,7 +377,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OrderFood;
 {
   /* <ScrollView
         horizontal

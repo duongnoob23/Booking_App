@@ -127,7 +127,8 @@ const HomeStackNavigator = () => {
         name="OrderConfirm"
         component={OrderConfirmScreen}
         options={{
-          headerShown: false,
+          title: " Chi tiết đơn đặt ",
+          headerShown: true,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
         }}
       />

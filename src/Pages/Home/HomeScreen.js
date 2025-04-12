@@ -30,6 +30,7 @@ import ModalCheckOut from "../../Components/Modal/Home/ModalCheckOut";
 import ModalGuestsAndRooms from "../../Components/Modal/Home/ModalGuestsAndRooms";
 import { skeletonLoading } from "../../Redux/Slice/hotelSlice";
 import { updateFilter } from "../../Redux/Slice/hotelSlice";
+import { fetchListService } from "../../Redux/Slice/serviceSlice";
 const HomeScreen = ({ navigation }) => {
   const continueSearch = [
     {
@@ -112,6 +113,7 @@ const HomeScreen = ({ navigation }) => {
   // console.log("----- 105 HomeScreen selectDay", selectDay);
   const dispatch = useAppDispatch();
   useEffect(() => {
+    dispatch(fetchListService());
     dispatch(fetchAmenityList());
     dispatch(fetchHotelList());
     dispatch(fetchLocationList());

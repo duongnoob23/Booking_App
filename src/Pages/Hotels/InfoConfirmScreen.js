@@ -8,8 +8,8 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { cloneDeep } from "lodash";
-const InfoConfirmScreen = (props) => {
-  const { handleOrderConfirm } = props;
+import { useAppSelector } from "../../Redux/hook";
+const InfoConfirmScreen = ({ navigation }) => {
   const [infomation, setInfomation] = useState({
     firstName: "",
     secondName: "",
@@ -18,6 +18,9 @@ const InfoConfirmScreen = (props) => {
     phoneCountry: "+84",
   });
 
+  const { userInfor } = useAppSelector((state) => state.auth);
+  // console.log(">>> 24 userInfor", userInfor);
+
   const onChangeInfomation = (value, name) => {
     const _infomation = cloneDeep(infomation);
     _infomation[name] = value;
@@ -25,7 +28,7 @@ const InfoConfirmScreen = (props) => {
   };
 
   const handleInfoConfirm = () => {
-    handleOrderConfirm();
+    navigation.navigate("OrderConfirm");
   };
   return (
     <View style={styles.container}>
@@ -50,9 +53,8 @@ const InfoConfirmScreen = (props) => {
         </View>
         <TextInput
           style={styles.input}
-          value={infomation.firstName}
+          value={userInfor.firstName}
           placeholder="Họ"
-          onChangeText={(text) => onChangeInfomation(text, "firstName")}
         />
       </View>
 
@@ -67,9 +69,8 @@ const InfoConfirmScreen = (props) => {
         </View>
         <TextInput
           style={styles.input}
-          value={infomation.secondName}
+          value={userInfor.lastName}
           placeholder="Tên"
-          onChangeText={(text) => onChangeInfomation(text, "secondName")}
         />
       </View>
 
@@ -84,9 +85,8 @@ const InfoConfirmScreen = (props) => {
         </View>
         <TextInput
           style={styles.input}
-          value={infomation.email}
+          value={userInfor.email}
           placeholder="Email"
-          onChangeText={(text) => onChangeInfomation(text, "email")}
         />
       </View>
 
@@ -104,9 +104,8 @@ const InfoConfirmScreen = (props) => {
         </View>
         <TextInput
           style={[styles.input, { flex: 1 }]}
-          value={infomation.phoneNumber}
+          value={userInfor.phoneNumber}
           placeholder="Số điện thoại"
-          onChangeText={(text) => onChangeInfomation(text, "phoneNumber")}
         />
         <View>
           <Ionicons

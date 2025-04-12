@@ -7,6 +7,14 @@ const initValue = {
   isLoggedIn: true,
   loading: false,
   error: null,
+  userInfor: {
+    userId: "0",
+    firstName: "Lâm",
+    lastName: "Tiến Dưỡng ",
+    email: "lamtiendung11082002@gmail.com",
+    phoneNumber: "0982474802",
+    country: "+84",
+  },
 };
 
 const authSlice = createSlice({

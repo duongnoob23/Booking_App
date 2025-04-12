@@ -131,6 +131,26 @@ export const fetchHotelRoomList = createAsyncThunk(
   }
 );
 
+export const fetchBookingRoom = createAsyncThunk(
+  "hotel/fetchBookingRoom",
+  async (value) => {
+    try {
+      console.log("--------- 138 HotelSL", value);
+      const response = await fetch(`${API_BASE_URL}/api/booking/get_booking`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(value),
+      });
+      const data = await response.json();
+      console.log("-------- 144 hotelSL", data.data);
+      console.log("-------- 144 hotelSL", data.roomBookedList);
+    } catch (error) {
+      console.log("error in fetchBookingRoom:", error);
+      throw error;
+    }
+  }
+);
+
 const hotelSlice = createSlice({
   name: "hotel",
   initialState: {
@@ -145,11 +165,17 @@ const hotelSlice = createSlice({
     hotelList: [], // Danh sách khách sạn (Ưu đãi cuối tuần)
     locationList: [], // Danh sach Dia Diem
     hotelDetail: null, // Chi tiết khách
+    hotelDetailId: "",
     hotelByLocation: [], // Danh sach Khach san theo dia diem
     hotelRoomList: [],
+    bookingData: [],
+
     loading: false, // Đang tải hay không
     loadingListHotel: false,
     loadingHotelRoomList: false,
+    loadingBookingRoom: false,
+    map: false,
+
     error: null, // Lỗi nếu có
     inforFilter: {
       locationId: "0",
@@ -162,7 +188,6 @@ const hotelSlice = createSlice({
       serviceIds: [],
       sortById: 1,
     },
-    map: false,
   },
   reducers: {
     clearHotelDetail(state) {
@@ -176,6 +201,9 @@ const hotelSlice = createSlice({
     },
     mapOpenClose(state, action) {
       state.map = action.payload;
+    },
+    updateHotelDetailId(state, action) {
+      state.hotelDetailId = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -254,10 +282,28 @@ const hotelSlice = createSlice({
       .addCase(fetchHotelRoomList.rejected, (state, action) => {
         state.loadingHotelRoomList = false;
         state.error = action.error.message;
+      })
+      // Xu ly fetchBookingRoom
+      .addCase(fetchBookingRoom.pending, (state) => {
+        state.loadingBookingRoom = true;
+        state.error = null;
+      })
+      .addCase(fetchBookingRoom.fulfilled, (state, action) => {
+        state.loadingBookingRoom = false;
+        state.bookingData = action.payload;
+      })
+      .addCase(fetchBookingRoom.rejected, (state, action) => {
+        state.loadingBookingRoom = false;
+        state.error = action.error.message;
       });
   },
 });
 
-export const { clearHotelDetail, skeletonLoading, updateFilter, mapOpenClose } =
-  hotelSlice.actions;
+export const {
+  clearHotelDetail,
+  skeletonLoading,
+  updateFilter,
+  mapOpenClose,
+  updateHotelDetailId,
+} = hotelSlice.actions;
 export default hotelSlice.reducer;

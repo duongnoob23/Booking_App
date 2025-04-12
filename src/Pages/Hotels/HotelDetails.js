@@ -25,6 +25,7 @@ import {
   fetchHotelById,
   fetchHotelRoomList,
   mapOpenClose,
+  updateHotelDetailId,
 } from "../../Redux/Slice/hotelSlice";
 import SkeletonHotelDetails from "../../Components/Skeleton/Hotels/SkeletonHotelDetails";
 import _ from "lodash";
@@ -68,6 +69,7 @@ const HotelDetails = ({ navigation, route }) => {
       children: inforFilter.children,
     };
     console.log(inforFilter_);
+    dispatch(updateHotelDetailId(hotelId));
     dispatch(fetchHotelRoomList(inforFilter_));
     navigation.navigate("HotelRoomList", { item });
   };
@@ -164,7 +166,7 @@ const HotelDetails = ({ navigation, route }) => {
         <View style={styles.header}>
           <ImageBackground
             source={{
-              uri: `${item.imageUrl}`,
+              uri: `${item?.imageUrl}`,
             }}
             style={styles.header__image}
           >
@@ -172,7 +174,7 @@ const HotelDetails = ({ navigation, route }) => {
               <TouchableOpacity onPress={() => navigation.goBack()}>
                 <Ionicons name="arrow-back" size={24} color="#fff" />
               </TouchableOpacity>
-              <Text style={styles.header__title}>{item.hotelName}</Text>
+              <Text style={styles.header__title}>{item?.hotelName}</Text>
               <TouchableOpacity style={styles.header__icon__start}>
                 <Ionicons name="share-outline" size={24} color="#fff" />
               </TouchableOpacity>
