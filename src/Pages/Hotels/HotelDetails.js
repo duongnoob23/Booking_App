@@ -25,6 +25,7 @@ import {
   fetchHotelById,
   fetchHotelRoomList,
   mapOpenClose,
+  updateBookingPayload,
   updateHotelDetailId,
 } from "../../Redux/Slice/hotelSlice";
 import SkeletonHotelDetails from "../../Components/Skeleton/Hotels/SkeletonHotelDetails";
@@ -69,8 +70,19 @@ const HotelDetails = ({ navigation, route }) => {
       children: inforFilter.children,
     };
     console.log(inforFilter_);
+
+    const bookingPayload = {
+      hotelId: hotelId,
+      checkInDate: inforFilter.checkin,
+      checkOutDate: inforFilter.checkout,
+      roomRequestList: [],
+    };
+
+    dispatch(updateBookingPayload(bookingPayload));
+
     dispatch(updateHotelDetailId(hotelId));
     dispatch(fetchHotelRoomList(inforFilter_));
+
     navigation.navigate("HotelRoomList", { item });
   };
 

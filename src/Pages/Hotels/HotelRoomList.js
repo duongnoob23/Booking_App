@@ -31,23 +31,34 @@ const HotelRoomList = ({ navigation, route }) => {
     loadingHotelRoomList,
     inforFilter,
     bookingData,
+    bookingPayload,
   } = useAppSelector((state) => state.hotel);
 
   const { token } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
-  const [roomNumber, setRoomNumber] = useState({});
-
-  useEffect(() => {
+  const initialRoomNumber = () => {
+    const newRooms = {};
     if (hotelRoomList && hotelRoomList.length > 0) {
-      const newRooms = {};
       hotelRoomList.forEach((room) => {
         newRooms[`room${room.roomId}`] = 0;
       });
-      setRoomNumber(newRooms);
-    } else {
-      setRoomNumber({});
     }
-  }, [hotelRoomList]);
+    return newRooms;
+  };
+
+  const [roomNumber, setRoomNumber] = useState(initialRoomNumber);
+  console.log(">>> 40 HTL >>>", bookingPayload);
+  // useEffect(() => {
+  //   if (hotelRoomList && hotelRoomList.length > 0) {
+  //     const newRooms = {};
+  //     hotelRoomList.forEach((room) => {
+  //       newRooms[`room${room.roomId}`] = 0;
+  //     });
+  //     setRoomNumber(newRooms);
+  //   } else {
+  //     setRoomNumber({});
+  //   }
+  // }, [hotelRoomList]);
 
   const updateDateRoomNumber = (name, type, quantity) => {
     console.log(quantity);
@@ -61,13 +72,8 @@ const HotelRoomList = ({ navigation, route }) => {
       return newRoomNumber;
     });
   };
-  const hasSelectedRooms = Object.values(roomNumber).some((count) => count > 0);
 
   useEffect(() => {
-    console.log("BOKINGDAT 50 hotelRoom", bookingData);
-  }, [bookingData]);
-
-  const handleToInfoConfirm = () => {
     const roomRequestList = Object.keys(roomNumber)
       .filter((key) => +roomNumber[key] > 0)
       .flatMap((key) => {
@@ -84,32 +90,20 @@ const HotelRoomList = ({ navigation, route }) => {
             serviceIdList: [],
           }));
       });
-    // roomRequestList?.forEach((item) => {
-    //   console.log("serviceIdList", item?.serviceIdList);
-    // });
-    // const test3 = { no1: [] };
-    // console.log("test3", test3.no1);
-    // dispatch(update(roomRequestList));
-    dispatch(uppdateListUniqueIdBookingRoom(roomRequestList));
-
-    const roomRequestListForApi = roomRequestList.map(
-      ({ uniqueId, ...rest }) => rest
-    );
-
-    // console.log(">>> 94 HRL roomRequestListForApi", roomRequestList);
-    // console.log(">>> 94 HRL roomRequestListForApi", roomRequestListForApi);
-
-    const bookingPayload = {
-      hotelId: item.hotelId,
-      checkInDate: inforFilter.checkin,
-      checkOutDate: inforFilter.checkout,
+    const bookingPayload_ = {
+      ...bookingPayload,
       roomRequestList: roomRequestList,
     };
+    dispatch(updateBookingPayload(bookingPayload_));
+  }, [roomNumber]);
+  const hasSelectedRooms = Object.values(roomNumber).some((count) => count > 0);
 
-    bookingPayload?.roomRequestList?.forEach((item) => {
-      console.log("serviceIdList2", item?.serviceIdList);
-    });
-    dispatch(updateBookingPayload(bookingPayload));
+  const handleToInfoConfirm = () => {
+    // const roomRequestListForApi = roomRequestList.map(
+    //   ({ uniqueId, ...rest }) => rest
+    // );
+
+    // dispatch(updateBookingPayload(bookingPayload));
     console.log(">>> 105 HTL  >>> bookingPayload:", bookingPayload);
     // dispatch(fetchBookingRoom({ bookingPayload }));
 
@@ -350,6 +344,12 @@ const HotelRoomList = ({ navigation, route }) => {
         >
           <TouchableOpacity
             style={styles.bookNowButtonTextWapper}
+            onPress={() => navigation.navigate("OrderFood")}
+          >
+            <Text style={styles.bookNowButtonText}>Đặt dịch vụ</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.bookNowButtonTextWapper}
             onPress={() => handleToInfoConfirm()}
           >
             <Text style={styles.bookNowButtonText}>Đặt phòng ngay</Text>
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     // marginBottom: 50,
   },
   listContainerPlus: {
-    paddingBottom: 70,
+    // paddingBottom: 20,
   },
   card: {
     backgroundColor: "#FFFFFF", // Thẻ trắng
@@ -665,23 +665,25 @@ const styles = StyleSheet.create({
     marginBottom: 80,
   },
   bookNowButton: {
-    position: "absolute",
-    bottom: 10,
-    right: 10,
-    left: 10,
+    // position: "absolute",
+    // bottom: 10,
+    // right: 10,
+    // left: 10,
     backgroundColor: "white", // Màu nổi bật, bạn có thể thay đổi
     borderRadius: 12,
     paddingVertical: 6,
+    paddingHorizontal: 6,
     elevation: 5, // Đổ bóng cho Android
     shadowColor: "#000", // Đổ bóng cho iOS
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    // alignItems: "center",
   },
   bookNowButtonTextWapper: {
-    width: "60%",
+    width: "49%",
     backgroundColor: "#00F598",
     borderRadius: 12,
     paddingVertical: 12,
