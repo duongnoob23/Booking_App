@@ -17,6 +17,7 @@ import cloneDeep from "lodash/cloneDeep";
 import {
   fetchBookingRoom,
   update,
+  updateBookingPayload,
   uppdateListUniqueIdBookingRoom,
 } from "../../Redux/Slice/hotelSlice";
 
@@ -24,7 +25,6 @@ import {
 // console.log("-------- 22 hotelRoom hotelRoomList:", hotelRoomList);
 const HotelRoomList = ({ navigation, route }) => {
   const item = route?.params?.item;
-
   const {
     hotelRoomList,
     hotelDetail,
@@ -88,21 +88,22 @@ const HotelRoomList = ({ navigation, route }) => {
     // dispatch(update(roomRequestList));
     dispatch(uppdateListUniqueIdBookingRoom(roomRequestList));
 
-    const roomRequestListForApi = roomRequestList.map(
-      ({ uniqueId, ...rest }) => rest
-    );
+    // const roomRequestListForApi = roomRequestList.map(
+    //   ({ uniqueId, ...rest }) => rest
+    // );
 
     console.log(">>> 94 HRL roomRequestListForApi", roomRequestList);
-    console.log(">>> 94 HRL roomRequestListForApi", roomRequestListForApi);
+    // console.log(">>> 94 HRL roomRequestListForApi", roomRequestListForApi);
 
     const bookingPayload = {
       hotelId: item.hotelId,
       checkInDate: inforFilter.checkin,
       checkOutDate: inforFilter.checkout,
-      roomRequestList: roomRequestListForApi,
+      roomRequestList: roomRequestList,
     };
-
-    dispatch(fetchBookingRoom({ bookingPayload, token }));
+    dispatch(updateBookingPayload(bookingPayload));
+    console.log(">>> 105 HTL >>>");
+    // dispatch(fetchBookingRoom({ bookingPayload }));
 
     navigation.navigate("InfoConfirm");
   };

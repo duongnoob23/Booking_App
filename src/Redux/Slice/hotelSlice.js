@@ -134,13 +134,25 @@ export const fetchHotelRoomList = createAsyncThunk(
 
 export const fetchBookingRoom = createAsyncThunk(
   "hotel/fetchBookingRoom",
-  async ({ bookingPayload, token }, { getState, rejectWithValue }) => {
+  async ({ bookingPayload }, { getState, rejectWithValue }) => {
     try {
+      const roomRequestListForApi = bookingPayload.roomRequestList.map(
+        ({ uniqueId, ...rest }) => rest
+      );
+      console.log(">>> 142 >>> ", bookingPayload);
+      bookingPayload = {
+        ...bookingPayload,
+        roomRequestList: roomRequestListForApi,
+      };
+      console.log(">>> 147 >>> ", bookingPayload);
+
+      const { accessToken } = getState().auth;
+      console.log(accessToken);
       const response = await fetch(`${API_BASE_URL}/api/booking/get_booking`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(bookingPayload),
       });
@@ -149,7 +161,7 @@ export const fetchBookingRoom = createAsyncThunk(
       // console.log("-------- 144 hotelSL", data?.data);
 
       const { listUniqueIdBookingRoom } = getState().hotel;
-      // console.log(listUniqueIdBookingRoom);
+      console.log(listUniqueIdBookingRoom);
       const updatedRoomBookedList = data?.data?.roomBookedList?.map(
         (room, index) => {
           const originalRoom = listUniqueIdBookingRoom[index];
@@ -160,8 +172,8 @@ export const fetchBookingRoom = createAsyncThunk(
         }
       );
 
-      console.log(">>> 163 HS", updatedRoomBookedList);
-      console.log(">>> 164 HS", data.data);
+      // console.log(">>> 163 HS", updatedRoomBookedList);
+      // console.log(">>> 164 HS", data.data);
 
       // data?.data?.roomBookedList = updatedRoomBookedList;
       return {
@@ -192,8 +204,11 @@ const hotelSlice = createSlice({
     hotelDetailId: "",
     hotelByLocation: [], // Danh sach Khach san theo dia diem
     hotelRoomList: [],
-    bookingData: [],
-    listUniqueIdBookingRoom: [],
+
+    bookingData: [], // lưu data danh sách các phòng trả về sau khi gọi api booking/get_booking
+    bookingPayload: null, // lưu data ngày sau khi ấn đặt ngay ở hotelRoomList, đợi xác nhận thông tin, có accessToken sẽ gửi lênlên
+    listUniqueIdBookingRoom: [], // lưu uniqueId key
+
     listBookingRoom: [],
     loading: false, // Đang tải hay không
     loadingListHotel: false,
@@ -235,49 +250,47 @@ const hotelSlice = createSlice({
       // console.log("233 HS check", action.payload);
       state.listUniqueIdBookingRoom = [...action.payload];
     },
+    updateBookingPayload(state, action) {
+      console.log(action.payload);
+      state.bookingPayload = action.payload;
+    },
+    // phải add service vào trong bookingPayload vì đây là dữ liệu gửi lên service
+    // Cập nhật listUniqueIdBookingRoom
+    // console.log(serviceData);
+
+    // Cập nhật bookingData.roomBookedList
+    // roomBoookedList, serviceSelect => boookingData
+    // rooomRequestList,serviceList => bookingPayload
     addServiceToRoom(state, action) {
-      const serviceData = action.payload; // Mảng [ { uniqueId, serviceIds }, ... ]
-
-      // Cập nhật listUniqueIdBookingRoom
-      console.log(serviceData);
-      state.listUniqueIdBookingRoom = state.listUniqueIdBookingRoom.map(
-        (item) => {
-          const matchingRoom = serviceData.find(
-            (data) => data.uniqueId === item.uniqueId
-          );
-          if (matchingRoom) {
-            return {
-              ...item,
-              serviceIdList: [
-                ...new Set([...item.serviceIdList, ...matchingRoom.serviceIds]), // Loại bỏ trùng lặp
-              ],
-            };
-          }
-          return item;
-        }
-      );
-
-      // Cập nhật bookingData.roomBookedList
-      if (state.bookingData && state.bookingData.roomBookedList) {
-        state.bookingData.roomBookedList = state.bookingData.roomBookedList.map(
-          (item) => {
-            const matchingRoom = serviceData.find(
-              (data) => data.uniqueId === item.uniqueId
-            );
-            if (matchingRoom) {
-              return {
-                ...item,
-                serviceSelect: [
-                  ...new Set([
-                    ...item.serviceSelect,
-                    ...matchingRoom.serviceIds,
-                  ]), // Loại bỏ trùng lặp
-                ],
-              };
-            }
-            return item;
-          }
+      try {
+        const serviceData = action.payload; // Mảng [ { uniqueId, serviceIds }, ... ]
+        console.log(">>> 267 SR >>>", serviceData);
+        console.log(
+          ">>> 268 HS>>> bookingPayload",
+          state.bookingPayload.roomRequestList[0].serviceIdList
         );
+        if (state.bookingPayload && state.bookingPayload.roomRequestList) {
+          state.bookingPayload.roomRequestList =
+            state.bookingPayload.roomRequestList.map((item) => {
+              const matchingRoom = serviceData.find(
+                (data) => data.uniqueId === item.uniqueId
+              );
+              if (matchingRoom) {
+                return {
+                  ...item,
+                  serviceIdList: [
+                    ...new Set([
+                      ...item.serviceIdList,
+                      ...matchingRoom.serviceIds,
+                    ]), // Loại bỏ trùng lặp
+                  ],
+                };
+              }
+              return item;
+            });
+        }
+      } catch (error) {
+        console.log("error in addServiceToRoom", error);
       }
     },
   },
@@ -383,5 +396,23 @@ export const {
   updateHotelDetailId,
   uppdateListUniqueIdBookingRoom,
   addServiceToRoom,
+  updateBookingPayload,
 } = hotelSlice.actions;
 export default hotelSlice.reducer;
+
+// state.listUniqueIdBookingRoom = state.listUniqueIdBookingRoom.map(
+//   (item) => {
+//     const matchingRoom = serviceData.find(
+//       (data) => data.uniqueId === item.uniqueId
+//     );
+//     if (matchingRoom) {
+//       return {
+//         ...item,
+//         serviceIdList: [
+//           ...new Set([...item.serviceIdList, ...matchingRoom.serviceIds]), // Loại bỏ trùng lặp
+//         ],
+//       };
+//     }
+//     return item;
+//   }
+// );

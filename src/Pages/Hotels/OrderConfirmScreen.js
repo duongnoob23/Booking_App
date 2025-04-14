@@ -7,9 +7,10 @@ import {
   SafeAreaView,
   ScrollView,
 } from "react-native";
-import { useAppSelector } from "../../Redux/hook";
+import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import getServiceIcon from "../../Components/Icon/getServiceIcon";
+import { fetchBookingRoom } from "../../Redux/Slice/hotelSlice";
 
 const OrderConfirmScreen = ({ navigation }) => {
   useLayoutEffect(() => {
@@ -29,12 +30,18 @@ const OrderConfirmScreen = ({ navigation }) => {
   };
   const { userInfor } = useAppSelector((state) => state.auth);
   const { serviceList } = useAppSelector((state) => state.service);
-  const { bookingData } = useAppSelector((state) => state.hotel);
-  console.log(">>> 31 OCS listUniqueIdBookingRoom", bookingData);
-  console.log(
-    ">>> 33 OCS listUniqueIdBookingRoom",
-    bookingData?.roomBookedList
-  );
+  const { bookingData, bookingPayload, listUniqueIdBookingRoom } =
+    useAppSelector((state) => state.hotel);
+  // console.log(">>> 31 OCS bookingData", bookingData);
+  // console.log(
+  //   ">>> 33 OCS bookingData.roomRequestList",
+  //   bookingData?.roomBookedList
+  // );
+  // console.log(
+  //   ">>> 33 OCS bookingData.roomRequestList",
+  //   listUniqueIdBookingRoom
+  // );
+  const dispatch = useAppDispatch();
   // console.log("______ serviceList:", Object.keys(serviceList));
   // useEffect(() => {
 
@@ -42,9 +49,12 @@ const OrderConfirmScreen = ({ navigation }) => {
   const listRoom = bookingData?.roomBookedList;
 
   useEffect(() => {
-    console.log("bookingData updated:", bookingData);
+    // console.log("bookingData updated:", bookingData);
   }, [bookingData]);
 
+  useEffect(() => {
+    dispatch(fetchBookingRoom(bookingPayload));
+  }, [bookingPayload, dispatch]);
   const getUniqueServiceTypes = (serviceSelect) => {
     const serviceTypes = new Set();
     serviceSelect.forEach((serviceId) => {
@@ -81,9 +91,13 @@ const OrderConfirmScreen = ({ navigation }) => {
         <View style={styles.serviceIcons}>
           {item?.serviceSelect?.length > 0 ? (
             getUniqueServiceTypes(item.serviceSelect).map((type) => (
-              <View key={type} style={styles.iconWrapper}>
+              <TouchableOpacity
+                key={type}
+                style={styles.iconWrapper}
+                onPress={() => navigation.navigate("OrderFood")}
+              >
                 {getServiceIcon(type)}
-              </View>
+              </TouchableOpacity>
             ))
           ) : (
             <TouchableOpacity onPress={() => navigation.navigate("OrderFood")}>
@@ -180,6 +194,7 @@ const OrderConfirmScreen = ({ navigation }) => {
     </SafeAreaView>
   );
 };
+export default OrderConfirmScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -309,5 +324,3 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
 });
-
-export default OrderConfirmScreen;

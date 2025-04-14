@@ -303,10 +303,10 @@ const ListHotelByLocation = ({ navigation }) => {
         />
       ) : (
         <ScrollView style={styles.scrollView}>
-          {hotelByLocation &&
+          {/* {hotelByLocation &&
             hotelByLocation?.map((item, index) => (
               <HotelItem1 key={index} item={item} />
-            ))}
+            ))} */}
           {hotelByLocation &&
             hotelByLocation?.map((item, index) => (
               <HotelItem key={index} item={item} />

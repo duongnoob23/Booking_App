@@ -1,12 +1,17 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { API_BASE_URL } from "../../Constant/Constant";
+// isLoggedIn: false,
 const initValue = {
   accessToken: null,
+  accessToken:
+    "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQ0NTcyMzk2LCJleHAiOjE3NDQ2NTg3OTZ9.KyA__wlxVjiBFIeflmMwEt7BBm2GKy3ewhh-rAn30nE",
   user: null,
+  // isLoggedIn: false,
   isLoggedIn: true,
   loading: false,
   error: null,
+  loadingInfoUser: false,
   userInfor: {
     userId: "0",
     firstName: "Lâm",
@@ -15,9 +20,60 @@ const initValue = {
     phoneNumber: "0982474802",
     country: "+84",
   },
-  token:
-    "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQ0NDQ4OTE3LCJleHAiOjE3NDQ1MzUzMTd9.z546CIb87MWSmS_nGd62XjsJlz0BINJtoI7b3ib7FRw",
+  infoUser: null,
+  inforUserChange: null,
+  // token:
+  //   "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQ0NTM2MzczLCJleHAiOjE3NDQ2MjI3NzN9.Boh4hxmttEn1FOUEnZnHMgiFO55sa37J_Fu340JrUuo",
 };
+
+export const fetchUserInfo = createAsyncThunk(
+  "auth/fetchUserInfo",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { accessToken } = getState().auth;
+      if (!accessToken) {
+        throw new Error("Không có token để gọi API");
+      }
+      const response = await fetch(`${API_BASE_URL}/api/user/info`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateUserInfo = createAsyncThunk(
+  "auth/updateUserInfo",
+  async (userInfo, { getState, rejectWithValue }) => {
+    try {
+      const { accessToken } = getState().auth;
+      if (!accessToken) {
+        throw new Error("Không có token để gọi API");
+      }
+      const response = await fetch(`${API_BASE_URL}/api/user/update`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(userInfo),
+      });
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 const authSlice = createSlice({
   name: "auth",
@@ -28,11 +84,10 @@ const authSlice = createSlice({
       state.error = null;
     },
     loginSuccess(state, action) {
-      state.accessToken = action.payload.accessToken;
-      state.user = action.payload.user;
+      state.accessToken = action.payload;
       state.isLoggedIn = true;
       state.loading = false;
-      AsyncStorage.setItem("accessToken", action.payload.accessToken); // Lưu token
+      AsyncStorage.setItem("accessToken", action.payload); // Lưu token
     },
     loginFailure(state, action) {
       state.loading = false;
@@ -44,9 +99,38 @@ const authSlice = createSlice({
       state.isLoggedIn = false;
       AsyncStorage.removeItem("accessToken"); // Xóa token
     },
+    updateInforUserChange(state, action) {
+      state.inforUserChange = action.payload;
+    },
+    clearInforUserChange(state) {
+      state.inforUserChange = null;
+    },
+  },
+  extraReducers: (builder) => {
+    // Xử lý fetchUserInfo
+    builder
+      .addCase(fetchUserInfo.pending, (state) => {
+        state.loadingInfoUser = true;
+        state.error = null;
+      })
+      .addCase(fetchUserInfo.fulfilled, (state, action) => {
+        console.log(">>> 78 AS >>>", action.payload);
+        state.loadingInfoUser = false;
+        state.infoUser = action.payload;
+      })
+      .addCase(fetchUserInfo.rejected, (state, action) => {
+        state.loadingInfoUser = false;
+        state.error = action.error.message;
+      });
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout } =
-  authSlice.actions;
+export const {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+  logout,
+  updateInforUserChange,
+  clearInforUserChange,
+} = authSlice.actions;
 export default authSlice.reducer;

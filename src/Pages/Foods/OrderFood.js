@@ -23,27 +23,41 @@ const OrderFood = ({ navigation }) => {
   });
   const dispatch = useAppDispatch();
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedService, setSelectedService] = useState(null);
+  const [selectedService, setSelectedService] = useState(null); // là dịch vụ đã ấn thêm
 
-  const [addService, setAddService] = useState([]);
-  console.log(selectedService);
-  console.log(selectedCategory);
+  const [addService, setAddService] = useState([]); // là các dịch vụ ấn thêm mà chưa xác nhận
+  // nhưng nó ko phải ở dạng [1,2,3,4,5] như vậy thì ko biết là thêm dịch vụ cho room nào
+  // nó sẽ ở dạng
+  // const addService = [
+  //   { room1_1, serviceIds: [1, 2, 3] },
+  //   { room1_1, serviceIds: [4, 5, 2929] },
+  // ];
+  // console.log(selectedService);
+  // console.log(selectedCategory);
 
   const { serviceList } = useAppSelector((state) => state.service);
-  const { bookingData } = useAppSelector((state) => state.hotel);
+  const { bookingPayload } = useAppSelector((state) => state.hotel);
 
-  const listRoom = bookingData?.roomBookedList;
+  console.log(
+    ">>> 41 bookingPayload >>>",
+    bookingPayload.roomRequestList[0].serviceIdList
+  );
+  // const listRoom = bookingPayload?.roomBookedList;
+  const listRoom = bookingPayload?.roomRequestList;
+  console.log(">>> listRoom", listRoom);
   const categories = Object.keys(serviceList).map((key, index) => ({
     id: index + 1,
     name: key,
   }));
 
-  console.log(categories);
-  const check = bookingData?.roomBookedList?.map((item, index) => {
-    console.log(item.serviceSelect);
-  });
-  console.log(check);
-
+  // console.log(categories);
+  // const check = bookingPayload?.roomBookedList?.map((item, index) => {
+  //    console.log(item.serviceSelect);
+  // });
+  // console.log(check);
+  // sau khi setCategory = lunch thì foodItem sẽ lấy ra những món ăn của lunch thông qua serviceList vì serviceList nó đã tách riêng các dịch vụ ra rồi , chỉ còn đợi gọi tới
+  // ví dụ serviceList[lunch]  thôi
+  // fooodItem sẽ là mảng lunch[]
   const foodItems = serviceList[`${selectedCategory?.type}`];
 
   const handleToFoodDetails = () => {
@@ -55,10 +69,13 @@ const OrderFood = ({ navigation }) => {
   };
 
   const handleOrder = (item) => {
-    openModal(item);
+    setSelectedService(item); // đẩy món ăn ,dịch vụ vào trong setSelectService,
+    // console.log(">>> item", item);
+    setAddService([]); // Reset addService khi mở modal
+    setModalVisible(true);
   };
 
-  console.log(categories[0]);
+  // console.log(categories[0]);
 
   const handleUpdateSelectCategory = (item) => {
     const selectedCategory_ = {
@@ -68,28 +85,37 @@ const OrderFood = ({ navigation }) => {
     setSelectedCategory(selectedCategory_);
   };
 
-  const openModal = (service) => {
-    setSelectedService(service);
-    setAddService([]); // Reset addService khi mở modal
-    setModalVisible(true);
-  };
+  // const test = {
+  //   adults: 0,
+  //   priceRoom: 1080000,
+  //   priceService: 0,
+  //   roomId: 2,
+  //   roomName: "Phòng Deluxe Gia đình VIP",
+  //   serviceSelect: [],
+  //   uniqueId: "room2_1",
+  // };
 
-  const handleAddServiceToRoom = (uniqueId, serviceId) => {
+  const handleAddServiceToRoom = (uniqueId) => {
     setAddService((pre) => {
+      // kiểm tra có tồn tại uniqueId đó trong addService hay ko
+      // nếu có rồi thì thêm serviceid vào mảng serviceIds của phần tử đó
       const exitRoom = pre.find((item) => item.uniqueId === uniqueId);
       if (exitRoom) {
         return pre.map((item, index) => {
+          // { room1_1, serviceIds[1]} => {...item,serviceIds:[...item.serviceIds,selectedService.id]}
           item.uniqueId === uniqueId
-            ? { ...item, serviceIds: [...item.serviceIds, serviceId] }
+            ? { ...item, serviceIds: [...item.serviceIds, selectedService.id] }
             : item;
         });
       }
-      return [...pre, { uniqueId, serviceIds: [serviceId] }];
+      // nếu chưa có thì trả về mảng cũ và thêm {roomId, mảng dịch vụ vào}
+      return [...pre, { uniqueId, serviceIds: [selectedService.id] }];
     });
   };
 
   const handleConfirmOrder = () => {
     if (addService.length > 0) {
+      console.log("step11111111111111111111111111111111111");
       dispatch(addServiceToRoom(addService));
     }
     setAddService([]);
@@ -100,27 +126,29 @@ const OrderFood = ({ navigation }) => {
     "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop";
   // Hàm render mỗi món ăn
 
-  console.log("----------------");
-  bookingData?.roomBookedList?.forEach((item) => {
-    console.log(`item ${item.uniqueId}`, item.serviceSelect);
-  });
-
+  // console.log("----------------");
+  // bookingPayload?.roomBookedList?.forEach((item) => {
+  //   console.log(`item ${item.uniqueId}`, item.serviceSelect);
+  // });
+  // THÊM DỊCH VỤ CHO PHÒNG------------------------------------------------------------------------------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  // roomRequestList là mảng gửi lên ,roomBookedList là mảng trả về từ Server
   const renderRoomItem = ({ item }) => {
-    const roomService = bookingData?.roomBookedList?.find(
-      (room) => room.uniqueId === item.uniqueId
-    );
+    // item trong này là các phòng đã book
+
+    // console.log(">>> room item >>>", item);
     const roomService2 = addService?.find(
       (room) => room.uniqueId === item.uniqueId
     );
 
-    const isServiceAdded = roomService?.serviceSelect?.includes(
-      selectedService?.id
-    );
-    const isServiceAdded2 = roomService2?.serviceIds.includes(
-      selectedService?.id
-    );
+    console.log(item);
+    // tìm thằng room1_1 trong addService xem phần serviceIds có thằng id này ko
 
-    const check = isServiceAdded || isServiceAdded2;
+    const check1 = item?.serviceIdList?.includes(selectedService?.id);
+
+    const check2 = roomService2?.serviceIds?.includes(selectedService?.id);
+
+    const check = check1 || check2;
 
     return (
       <View style={styles.roomWrapper}>
@@ -135,7 +163,7 @@ const OrderFood = ({ navigation }) => {
           </Text>
         </View>
         <View style={styles.roomInfo}>
-          <Text style={styles.roomLabel}>Số khách</Text>
+          <Text style={styles.roomLabel}>Số hkách</Text>
           <Text style={styles.roomValue}>{item.adults} người</Text>
         </View>
         <View style={styles.roomInfo}>
@@ -151,9 +179,7 @@ const OrderFood = ({ navigation }) => {
           </Text> */}
           <TouchableOpacity
             style={[styles.addServiceButton, check && styles.disabledButton]}
-            onPress={() =>
-              handleAddServiceToRoom(item.uniqueId, selectedService.id)
-            }
+            onPress={() => handleAddServiceToRoom(item.uniqueId)}
             disabled={check}
           >
             <Text style={styles.addServiceButtonText}>
@@ -164,7 +190,8 @@ const OrderFood = ({ navigation }) => {
       </View>
     );
   };
-
+  // CHỌN DỊCH VỤ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   const renderFoodItem = ({ item }) => (
     <TouchableOpacity
       style={styles.foodItem}

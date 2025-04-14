@@ -107,7 +107,10 @@ const Profile = ({ navigation }) => {
           <Ionicons name="chevron-forward" size={20} color="#0090FF" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.logoutButton}>
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={() => navigation.navigate("LoginScreen")}
+        >
           <Text style={styles.logoutText}>Đăng xuất</Text>
         </TouchableOpacity>
       </View>

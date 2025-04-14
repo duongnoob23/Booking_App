@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -29,11 +29,19 @@ import { API_BASE_URL } from "../../Constant/Constant";
 
 // "https://api-booking-app-gbfsg5f0e4hwfzh0.japaneast-01.azurewebsites.net/api/auth/firebase",
 // "https://localhost:9090/api/auth/firebase",
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({ navigation, route }) => {
+  useLayoutEffect(() => {
+    navigation.getParent().setOptions({ tabBarStyle: { display: "none" } });
+    return () => {
+      navigation.getParent().setOptions({ tabBarStyle: { display: "flex" } });
+    };
+  }, [navigation]);
+  console.log(">>> 34 LS >>> ", route?.params);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   // const auth = getAuth();
   const dispatch = useAppDispatch();
+  const { accessToken, isLoggedIn } = useAppSelector((state) => state.auth);
   const sendTokenToBackend = async (idToken) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/firebase`, {
@@ -45,12 +53,21 @@ const LoginScreen = ({ navigation }) => {
 
       const data = await response.json();
       console.log(">>> data", data);
-      if (data.data.accessToken) {
+      if (data?.data?.accessToken) {
+        dispatch(loginSuccess(data?.data?.accessToken));
+
         // dispatch(loginSuccess(data.data)); isLoggedIn = true auto
         console.log("Đăng nhập thành công!");
         // Alert.alert("Đăng nhập thành công!", `JWT: ${data.data.accessToken}`);
         Alert.alert("Đăng nhập thành công!");
         // navigation.navigate("Login");
+        if (route?.params?.preScreen === "InfoConfirm") {
+          navigation.navigate("InfoConfirm");
+        } else if (route?.params?.preScreen === "profile") {
+          navigation.navigate("profile");
+        } else {
+          navigation.navigate("Home");
+        }
       } else {
         Alert.alert("Lỗi xác thực với backend!");
       }
@@ -60,6 +77,7 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
+  console.log(">>> 65 LS >>>", accessToken, isLoggedIn);
   const handleEmailLogin = async () => {
     console.log(">>>> run");
 
@@ -74,7 +92,6 @@ const LoginScreen = ({ navigation }) => {
       const idToken = await userCredential.user.getIdToken(); // Lấy ID Token từ Firebase
       console.log("idToken->", idToken);
       sendTokenToBackend(idToken);
-      // navigation.navigate("Login");
     } catch (error) {
       Alert.alert("Lỗi đăng nhập", error.message);
     }
@@ -97,25 +114,6 @@ const LoginScreen = ({ navigation }) => {
         <Text style={styles.title}>Đăng nhập với Email </Text>
       </View>
       <View style={styles.whiteFrame}>
-        {/* <View>
-          <Text>số hiện tại là: {count}</Text>
-          <View styles={styles.buttonController}>
-            <TouchableOpacity
-              style={styles.button}
-              // onPress={dispatch(increase())}
-            >
-              <Text style={styles.buttonText}>Tăng</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.button}
-              // onPress={dispatch(decrease())}
-            >
-              <Text style={styles.buttonText}>Giảm</Text>
-            </TouchableOpacity>
-          </View>
-        </View> */}
-        {/* Tiêu đề */}
-        {/* Ô input Email */}
         <View style={[styles.inputContainer, styles.inputContainerFirst]}>
           <Ionicons name="mail-outline" size={20} color="#0090FF" />
           <TextInput

@@ -14,6 +14,8 @@ import ListHotelByLocation from "../Pages/Hotels/ListHotelByLocation";
 import HotelRoomList from "../Pages/Hotels/HotelRoomList";
 import InfoConfirmScreen from "../Pages/Hotels/InfoConfirmScreen";
 import OrderConfirmScreen from "../Pages/Hotels/OrderConfirmScreen";
+import LoginScreen from "../Pages/Auth/LoginScreen";
+import RegisterScreen from "../Pages/Auth/RegisterScreen";
 const Stack = createNativeStackNavigator();
 
 const HomeStackNavigator = () => {
@@ -126,6 +128,24 @@ const HomeStackNavigator = () => {
       <Stack.Screen
         name="OrderConfirm"
         component={OrderConfirmScreen}
+        options={{
+          title: " Chi tiết đơn đặt ",
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="LoginScreen"
+        component={LoginScreen}
+        options={{
+          title: " Chi tiết đơn đặt ",
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="RegisterScreen"
+        component={RegisterScreen}
         options={{
           title: " Chi tiết đơn đặt ",
           headerShown: true,

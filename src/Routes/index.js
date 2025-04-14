@@ -10,7 +10,8 @@ const Stack = createNativeStackNavigator(); // Thay đổi ở đây
 
 const Navigation = () => {
   const auth = useAppSelector((state) => state.auth);
-  const checkLogin = auth.isLoggedIn;
+  // const checkLogin = auth.isLoggedIn;
+  // const checkLogin = false;
   const loading = auth.loading;
   // console.log(">>> auth", auth);
   // const count = useAppSelector((state) => state.count.count);
@@ -26,11 +27,12 @@ const Navigation = () => {
           </>
         ) : (
           <>
-            {checkLogin ? (
+            {/* {checkLogin ? (
               <Stack.Screen name="Main" component={MainTab} />
             ) : (
               <Stack.Screen name="Auth" component={AuthStack} />
-            )}
+            )} */}
+            <Stack.Screen name="Main" component={MainTab} />
           </>
         )}
       </Stack.Navigator>

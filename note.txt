@@ -497,3 +497,6 @@ CONFIG APP.JSON CŨ
 ---------------------------------Warning: TypeError: "isServiceAdded" is read-only-----------
 lỗi này là khi ta cố tình thay đổi giá trị của một biến khi khai báo nó bằng const 
 => đổi nó sang let
+
+
+--------------------------Giải thích luông chạy của quá trình booking một cách chi tiết -----

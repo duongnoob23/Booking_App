@@ -31,6 +31,7 @@ import ModalGuestsAndRooms from "../../Components/Modal/Home/ModalGuestsAndRooms
 import { skeletonLoading } from "../../Redux/Slice/hotelSlice";
 import { updateFilter } from "../../Redux/Slice/hotelSlice";
 import { fetchListService } from "../../Redux/Slice/serviceSlice";
+import { fetchUserInfo } from "../../Redux/Slice/authSlice";
 const HomeScreen = ({ navigation }) => {
   const continueSearch = [
     {
@@ -254,13 +255,17 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate("ListHotelLocation");
   };
 
+  const handleToInfoConfirm = () => {
+    dispatch(fetchUserInfo());
+    navigation.navigate("InfoConfirm");
+  };
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       {/* <Map /> */}
       <View style={styles.header}>
         <Text style={styles.title}>Tìm Phòng</Text>
-        <TouchableOpacity onPress={() => navigation.navigate("InfoConfirm")}>
+        <TouchableOpacity onPress={() => handleToInfoConfirm()}>
           <Icon name="filter" size={24} color="#007AFF" />
         </TouchableOpacity>
       </View>
