@@ -134,20 +134,26 @@ export const fetchHotelRoomList = createAsyncThunk(
 
 export const fetchBookingRoom = createAsyncThunk(
   "hotel/fetchBookingRoom",
-  async ({ bookingPayload }, { getState, rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
     try {
-      const roomRequestListForApi = bookingPayload.roomRequestList.map(
-        ({ uniqueId, ...rest }) => rest
-      );
-      console.log(">>> 142 >>> ", bookingPayload);
-      bookingPayload = {
-        ...bookingPayload,
-        roomRequestList: roomRequestListForApi,
-      };
-      console.log(">>> 147 >>> ", bookingPayload);
-
+      const { bookingPayload } = getState().hotel;
       const { accessToken } = getState().auth;
       console.log(accessToken);
+
+      bookingPayload?.roomRequestList?.forEach((item) => {
+        console.log("BPL từ redux", item?.serviceIdList);
+      });
+
+      if (!bookingPayload || !bookingPayload.roomRequestList) {
+        return rejectWithValue(
+          "bookingPayload is invalid or missing roomRequestList"
+        );
+      }
+
+      if (!accessToken) {
+        return rejectWithValue("No access token available");
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/booking/get_booking`, {
         method: "POST",
         headers: {
@@ -158,28 +164,25 @@ export const fetchBookingRoom = createAsyncThunk(
       });
 
       const data = await response.json();
-      // console.log("-------- 144 hotelSL", data?.data);
 
-      const { listUniqueIdBookingRoom } = getState().hotel;
-      console.log(listUniqueIdBookingRoom);
-      const updatedRoomBookedList = data?.data?.roomBookedList?.map(
-        (room, index) => {
-          const originalRoom = listUniqueIdBookingRoom[index];
-          return {
-            ...room,
-            uniqueId: originalRoom?.uniqueId,
-          };
-        }
-      );
+      console.log("-------- 170 hotelSL", data.data);
 
-      // console.log(">>> 163 HS", updatedRoomBookedList);
-      // console.log(">>> 164 HS", data.data);
+      const updatedData = data.data.roomBookedList?.map((room, index) => {
+        const originalRoom = bookingPayload.roomRequestList[index];
+        return {
+          ...room,
+          uniqueId: originalRoom?.uniqueId,
+        };
+      });
 
-      // data?.data?.roomBookedList = updatedRoomBookedList;
+      console.log(">>> 180 HS", updatedData);
+
+      data.data.roomBookedList = updatedData;
       return {
         ...data.data,
-        roomBookedList: updatedRoomBookedList,
+        roomBookedList: updatedData,
       };
+      // return data.data;
     } catch (error) {
       console.log("error in fetchBookingRoom:", error);
       throw error;
@@ -187,6 +190,28 @@ export const fetchBookingRoom = createAsyncThunk(
   }
 );
 
+// console.log("-------- 144 hotelSL", data?.data);
+
+// const { listUniqueIdBookingRoom } = getState().hotel;
+// console.log(listUniqueIdBookingRoom);
+// const updatedRoomBookedList = data?.data?.roomBookedList?.map(
+//   (room, index) => {
+//     const originalRoom = listUniqueIdBookingRoom[index];
+//     return {
+//       ...room,
+//       uniqueId: originalRoom?.uniqueId,
+//     };
+//   }
+// );
+
+// console.log(">>> 163 HS", updatedRoomBookedList);
+// console.log(">>> 164 HS", data.data);
+
+// data?.data?.roomBookedList = updatedRoomBookedList;
+// return {
+//   ...data.data,
+//   roomBookedList: updatedRoomBookedList,
+// };
 const hotelSlice = createSlice({
   name: "hotel",
   initialState: {
@@ -206,7 +231,7 @@ const hotelSlice = createSlice({
     hotelRoomList: [],
 
     bookingData: [], // lưu data danh sách các phòng trả về sau khi gọi api booking/get_booking
-    bookingPayload: null, // lưu data ngày sau khi ấn đặt ngay ở hotelRoomList, đợi xác nhận thông tin, có accessToken sẽ gửi lênlên
+    bookingPayload: [], // lưu data ngày sau khi ấn đặt ngay ở hotelRoomList, đợi xác nhận thông tin, có accessToken sẽ gửi lênlên
     listUniqueIdBookingRoom: [], // lưu uniqueId key
 
     listBookingRoom: [],
@@ -263,14 +288,11 @@ const hotelSlice = createSlice({
     // rooomRequestList,serviceList => bookingPayload
     addServiceToRoom(state, action) {
       try {
-        const serviceData = action.payload; // Mảng [ { uniqueId, serviceIds }, ... ]
+        const serviceData = action.payload;
         console.log(">>> 267 SR >>>", serviceData);
-        console.log(
-          ">>> 268 HS>>> bookingPayload",
-          state.bookingPayload.roomRequestList[0].serviceIdList
-        );
+
         if (state.bookingPayload && state.bookingPayload.roomRequestList) {
-          state.bookingPayload.roomRequestList =
+          const updatedRoomRequestList =
             state.bookingPayload.roomRequestList.map((item) => {
               const matchingRoom = serviceData.find(
                 (data) => data.uniqueId === item.uniqueId
@@ -282,12 +304,18 @@ const hotelSlice = createSlice({
                     ...new Set([
                       ...item.serviceIdList,
                       ...matchingRoom.serviceIds,
-                    ]), // Loại bỏ trùng lặp
+                    ]),
                   ],
                 };
               }
               return item;
             });
+
+          // Tạo object mới cho bookingPayload
+          state.bookingPayload = {
+            ...state.bookingPayload,
+            roomRequestList: updatedRoomRequestList,
+          };
         }
       } catch (error) {
         console.log("error in addServiceToRoom", error);

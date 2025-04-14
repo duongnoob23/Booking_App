@@ -28,25 +28,39 @@ const OrderConfirmScreen = ({ navigation }) => {
     phoneNumber: "0982474802",
     userId: "0",
   };
+  const test2 = {
+    checkInDate: "2025-04-14",
+    checkOutDate: "2025-04-15",
+    hotelId: 2,
+    roomRequestList: [
+      {
+        adults: 0,
+        children: 0,
+        price: 1080000,
+        roomId: 2,
+        serviceIdList: [Array],
+        uniqueId: "room2_1",
+      },
+    ],
+  };
   const { userInfor } = useAppSelector((state) => state.auth);
   const { serviceList } = useAppSelector((state) => state.service);
   const { bookingData, bookingPayload, listUniqueIdBookingRoom } =
     useAppSelector((state) => state.hotel);
-  // console.log(">>> 31 OCS bookingData", bookingData);
-  // console.log(
-  //   ">>> 33 OCS bookingData.roomRequestList",
-  //   bookingData?.roomBookedList
-  // );
-  // console.log(
-  //   ">>> 33 OCS bookingData.roomRequestList",
-  //   listUniqueIdBookingRoom
-  // );
-  const dispatch = useAppDispatch();
-  // console.log("______ serviceList:", Object.keys(serviceList));
-  // useEffect(() => {
+  // bookingPayload?.roomRequestList?.forEach((item) => {
+  //   console.log("BPL từ redux OCS", item?.serviceIdList);
+  // });
+  bookingData?.roomBookedList?.forEach((item) => {
+    console.log("BPL từ redux OCS", item?.serviceSelect);
+  });
 
-  // }, [bookingData]);
+  const dispatch = useAppDispatch();
+
   const listRoom = bookingData?.roomBookedList;
+  const listRoom1 = bookingPayload?.roomRequestList;
+
+  console.log("listROom", listRoom);
+  console.log("listRoom1", listRoom1);
 
   useEffect(() => {
     // console.log("bookingData updated:", bookingData);
@@ -54,17 +68,11 @@ const OrderConfirmScreen = ({ navigation }) => {
 
   useEffect(() => {
     dispatch(fetchBookingRoom(bookingPayload));
-  }, [bookingPayload, dispatch]);
+  }, [bookingPayload?.roomRequestList, dispatch]);
   const getUniqueServiceTypes = (serviceSelect) => {
-    const serviceTypes = new Set();
-    serviceSelect.forEach((serviceId) => {
-      // Tìm loại dịch vụ chứa serviceId
-      Object.entries(serviceList).forEach(([type, services]) => {
-        if (services.some((service) => service.id === serviceId)) {
-          serviceTypes.add(type);
-        }
-      });
-    });
+    const serviceTypes = new Set(
+      serviceSelect?.map((service) => service.serviceType) || []
+    );
     return Array.from(serviceTypes);
   };
   // Sửa renderListRoom để dùng với ScrollView
@@ -100,7 +108,11 @@ const OrderConfirmScreen = ({ navigation }) => {
               </TouchableOpacity>
             ))
           ) : (
-            <TouchableOpacity onPress={() => navigation.navigate("OrderFood")}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("OrderFood", { prePage: "OrderConfirm" })
+              }
+            >
               <Ionicons name="add-outline" size={20} color="#007AFF" />
             </TouchableOpacity>
           )}
@@ -144,9 +156,10 @@ const OrderConfirmScreen = ({ navigation }) => {
         {/* Phần giữa: Danh sách phòng (cuộn) */}
         <View style={styles.roomsSection}>
           <Text style={styles.subTitle}>Phòng đặt</Text>
+          {/* <View key={item?.uniqueId}>{renderListRoom(item)}</View> */}
           <ScrollView showsVerticalScrollIndicator={false}>
             {listRoom?.map((item, index) => (
-              <View key={item?.uniqueId}>{renderListRoom(item)}</View>
+              <View key={item.uniqueId}>{renderListRoom(item)}</View>
             ))}
           </ScrollView>
           <View style={styles.br}></View>

@@ -30,7 +30,10 @@ const InfoConfirmScreen = ({ navigation }) => {
   const { bookingPayload, listUniqueIdBookingRoom } = useAppSelector(
     (state) => state.hotel
   );
-  // console.log(">>> 30 ICS >>> ", bookingPayload);
+  console.log(">>> 30 ICS >>> ", bookingPayload);
+  bookingPayload?.roomRequestList?.forEach((item) => {
+    console.log("serviceIdList2 từ redux", item?.serviceIdList);
+  });
   // console.log(">>> 31 ICS >>> ", listUniqueIdBookingRoom);
   const [infomation, setInfomation] = useState({
     firstName: "",
@@ -146,7 +149,7 @@ const InfoConfirmScreen = ({ navigation }) => {
     //   dispatch(updateUserInfo(userInfo));
     // }
 
-    dispatch(fetchBookingRoom({ bookingPayload }));
+    dispatch(fetchBookingRoom());
     navigation.navigate("OrderConfirm");
   };
 

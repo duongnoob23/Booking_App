@@ -84,15 +84,19 @@ const HotelRoomList = ({ navigation, route }) => {
             serviceIdList: [],
           }));
       });
-
+    // roomRequestList?.forEach((item) => {
+    //   console.log("serviceIdList", item?.serviceIdList);
+    // });
+    // const test3 = { no1: [] };
+    // console.log("test3", test3.no1);
     // dispatch(update(roomRequestList));
     dispatch(uppdateListUniqueIdBookingRoom(roomRequestList));
 
-    // const roomRequestListForApi = roomRequestList.map(
-    //   ({ uniqueId, ...rest }) => rest
-    // );
+    const roomRequestListForApi = roomRequestList.map(
+      ({ uniqueId, ...rest }) => rest
+    );
 
-    console.log(">>> 94 HRL roomRequestListForApi", roomRequestList);
+    // console.log(">>> 94 HRL roomRequestListForApi", roomRequestList);
     // console.log(">>> 94 HRL roomRequestListForApi", roomRequestListForApi);
 
     const bookingPayload = {
@@ -101,8 +105,12 @@ const HotelRoomList = ({ navigation, route }) => {
       checkOutDate: inforFilter.checkout,
       roomRequestList: roomRequestList,
     };
+
+    bookingPayload?.roomRequestList?.forEach((item) => {
+      console.log("serviceIdList2", item?.serviceIdList);
+    });
     dispatch(updateBookingPayload(bookingPayload));
-    console.log(">>> 105 HTL >>>");
+    console.log(">>> 105 HTL  >>> bookingPayload:", bookingPayload);
     // dispatch(fetchBookingRoom({ bookingPayload }));
 
     navigation.navigate("InfoConfirm");

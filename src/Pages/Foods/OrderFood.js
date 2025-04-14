@@ -15,7 +15,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAppSelector, useAppDispatch } from "../../Redux/hook";
 import { addServiceToRoom } from "../../Redux/Slice/hotelSlice";
 
-const OrderFood = ({ navigation }) => {
+const OrderFood = ({ navigation, route }) => {
   // State để quản lý loại đồ ăn được focus
   const [selectedCategory, setSelectedCategory] = useState({
     id: 1,
@@ -39,8 +39,8 @@ const OrderFood = ({ navigation }) => {
   const { bookingPayload } = useAppSelector((state) => state.hotel);
 
   console.log(
-    ">>> 41 bookingPayload >>>",
-    bookingPayload.roomRequestList[0].serviceIdList
+    ">>> 41 bookingPayload >>>"
+    // bookingPayload.roomRequestList[0].serviceIdList
   );
   // const listRoom = bookingPayload?.roomBookedList;
   const listRoom = bookingPayload?.roomRequestList;
@@ -65,7 +65,13 @@ const OrderFood = ({ navigation }) => {
   };
 
   const handleBack = () => {
-    navigation.goBack();
+    console.log(route?.params?.prePage);
+    if (route?.params?.prePage === "OrderConfirm") {
+      navigation.navigate("OrderConfirm");
+    } else {
+      // } else if (route?.params.prePage === "HotelRoomList") {
+      navigation.goBack();
+    }
   };
 
   const handleOrder = (item) => {
