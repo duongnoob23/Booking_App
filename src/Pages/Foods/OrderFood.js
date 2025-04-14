@@ -273,6 +273,7 @@ const OrderFood = ({ navigation, route }) => {
         renderItem={renderFoodItem}
         keyExtractor={(item) => item.id}
         style={styles.foodList}
+        showsVerticalScrollIndicator={false}
       />
 
       {/* Footer */}

@@ -42,7 +42,7 @@ export const fetchHotelById = createAsyncThunk(
   async (hotelId) => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/hotel/hotel_detail/${hotelId}?checkInDate=2025-04-02&checkOutDate=2025-04-05`,
+        `${API_BASE_URL}/api/hotel/hotel_detail/${hotelId}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -115,7 +115,7 @@ export const fetchHotelRoomList = createAsyncThunk(
   "hotel/fetchHotelRoomList",
   async (value) => {
     try {
-      // console.log("---------------", value);
+      console.log("---------------", value);
       const response = await fetch(`${API_BASE_URL}/api/room/select_room`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -123,7 +123,7 @@ export const fetchHotelRoomList = createAsyncThunk(
       });
 
       const data = await response.json();
-      // console.log("-------------- 125 hotelSlice data:", data.data);
+      console.log("-------------- 125 hotelSlice data:", data.data);
       return data.data;
     } catch (error) {
       console.log("error in fetchHotelRoomList:", error);
@@ -239,6 +239,7 @@ const hotelSlice = createSlice({
     loadingListHotel: false,
     loadingHotelRoomList: false,
     loadingBookingRoom: false,
+
     map: false,
 
     error: null, // Lỗi nếu có

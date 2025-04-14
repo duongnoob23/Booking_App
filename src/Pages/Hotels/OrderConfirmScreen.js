@@ -11,6 +11,8 @@ import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import getServiceIcon from "../../Components/Icon/getServiceIcon";
 import { fetchBookingRoom } from "../../Redux/Slice/hotelSlice";
+import SkeletonListHotelByLocation from "../../Components/Skeleton/Home/SkeletonListHotelByLocation";
+import SkeletonOrderConfirm from "../../Components/Skeleton/Hotels/SkeletonOrderConfirm";
 
 const OrderConfirmScreen = ({ navigation }) => {
   useLayoutEffect(() => {
@@ -45,8 +47,12 @@ const OrderConfirmScreen = ({ navigation }) => {
   };
   const { userInfor } = useAppSelector((state) => state.auth);
   const { serviceList } = useAppSelector((state) => state.service);
-  const { bookingData, bookingPayload, listUniqueIdBookingRoom } =
-    useAppSelector((state) => state.hotel);
+  const {
+    bookingData,
+    bookingPayload,
+    listUniqueIdBookingRoom,
+    loadingBookingRoom,
+  } = useAppSelector((state) => state.hotel);
   // bookingPayload?.roomRequestList?.forEach((item) => {
   //   console.log("BPL từ redux OCS", item?.serviceIdList);
   // });
@@ -94,8 +100,10 @@ const OrderConfirmScreen = ({ navigation }) => {
         <Text style={styles.roomLabel}>Giá</Text>
         <Text style={styles.roomValue}>{item?.priceRoom}</Text>
       </View>
-      <View style={styles.roomInfo}>
-        <Text style={styles.roomLabel}>Dịch vụ</Text>
+      <View style={styles.roomInfoService}>
+        <View style={styles.roomInfoServiceText}>
+          <Text style={styles.roomLabel}>Dịch vụ</Text>
+        </View>
         <View style={styles.serviceIcons}>
           {item?.serviceSelect?.length > 0 ? (
             getUniqueServiceTypes(item.serviceSelect).map((type) => (
@@ -113,27 +121,49 @@ const OrderConfirmScreen = ({ navigation }) => {
                 navigation.navigate("OrderFood", { prePage: "OrderConfirm" })
               }
             >
-              <Ionicons name="add-outline" size={20} color="#007AFF" />
+              <Ionicons name="add-outline" size={24} color="#007AFF" />
             </TouchableOpacity>
           )}
         </View>
       </View>
       <View style={styles.roomInfo}>
         <Text style={styles.roomLabel}>Điều kiện</Text>
-        <Text style={[styles.roomValue, { fontWeight: "bold" }]}>
-          {/* 355,000 */}
-        </Text>
+        <TouchableOpacity
+          style={[styles.roomValue, { fontWeight: "bold", color: "#007AFF" }]}
+        >
+          <View>
+            <Text style={[{ fontWeight: "bold", color: "#007AFF" }]}>
+              Xem thêm{" "}
+            </Text>
+          </View>
+          <View>
+            <Ionicons
+              name="chevron-forward-outline"
+              size={18}
+              color="#007AFF"
+            />
+          </View>
+        </TouchableOpacity>
       </View>
       {/* <View style={styles.br}></View> */}
     </View>
   );
 
+  if (loadingBookingRoom) {
+    return <SkeletonOrderConfirm />;
+  }
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContainer}>
         {/* Phần đầu: Thông tin khách hàng (cố định) */}
+        {/* {[
+          styles.listContainer,
+          hasSelectedRooms && styles.listContainerPlus,
+        ]} */}
         <View style={styles.headerSection}>
-          <Text style={styles.title}>THÔNG TIN KHÁCH HÀNG</Text>
+          <Text style={(styles.title, styles.titleCenter)}>
+            Thông tin khách hàng{" "}
+          </Text>
           <View style={styles.infoSection}>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Tên</Text>
@@ -152,7 +182,36 @@ const OrderConfirmScreen = ({ navigation }) => {
           </View>
           <View style={styles.br}></View>
         </View>
-
+        {/* "hotelName": "Onomo", "hotelAddress": "Đà Nẵng", "totalAdults": 0,
+        "checkIn": "14-04-2025 14:20:00", "checkOut": "15-04-2025 12:20:00", */}
+        <View style={styles.headerSection}>
+          <Text style={(styles.title, styles.titleCenter)}>
+            Thông tin khách sạn
+          </Text>
+          <View style={styles.infoSection}>
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>Tên khách sạn</Text>
+              <Text style={styles.infoValue}>{bookingData?.hotelName}</Text>
+            </View>
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>Vị trí khách sạn</Text>
+              <Text style={styles.infoValue}>{bookingData.hotelAddress}</Text>
+            </View>
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>Tổng người lớn</Text>
+              <Text style={styles.infoValue}>{bookingData.totalAdults}</Text>
+            </View>
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>CheckIn</Text>
+              <Text style={styles.infoValue}>{bookingData.checkIn}</Text>
+            </View>
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>CheckOut</Text>
+              <Text style={styles.infoValue}>{bookingData.checkOut}</Text>
+            </View>
+          </View>
+          <View style={styles.br}></View>
+        </View>
         {/* Phần giữa: Danh sách phòng (cuộn) */}
         <View style={styles.roomsSection}>
           <Text style={styles.subTitle}>Phòng đặt</Text>
@@ -164,16 +223,19 @@ const OrderConfirmScreen = ({ navigation }) => {
           </ScrollView>
           <View style={styles.br}></View>
         </View>
-
         {/* Phần cuối: Mã giảm giá, Phương thức thanh toán, Nút xác nhận (cố định) */}
         <View style={styles.footerSection}>
-          <View style={styles.infoSection}>
-            <Text style={styles.subTitle}>MÃ GIẢM GIÁ</Text>
-            <Text>TEST 10</Text>
+          <View style={styles.infoSectionSale}>
+            <View>
+              <Text style={styles.subTitle}>Mã giảm giá</Text>
+            </View>
+            <View>
+              <Text>TEST 10</Text>
+            </View>
           </View>
           <View style={styles.br}></View>
 
-          <Text style={styles.subTitle}>PHƯƠNG THỨC THANH TOÁN</Text>
+          <Text style={styles.subTitle}>Phương thức thanh toán</Text>
           <View style={styles.infoSectionLast}>
             <TouchableOpacity
               style={styles.paymentOption}
@@ -217,7 +279,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingVertical: 5,
   },
   headerSection: {
     // Phần đầu cố định, không cần flex cụ thể vì sẽ chiếm không gian tự nhiên
@@ -230,10 +292,14 @@ const styles = StyleSheet.create({
     // Phần cuối cố định, không cần flex cụ thể vì sẽ chiếm không gian tự nhiên
   },
   title: {
-    fontSize: 16,
     fontWeight: "400",
     color: "#000",
-    marginBottom: 10,
+    marginBottom: 5,
+    textAligin: "center",
+  },
+  titleCenter: {
+    textAlign: "center",
+    fontSize: 17,
   },
   subTitle: {
     fontSize: 16,
@@ -247,6 +313,11 @@ const styles = StyleSheet.create({
     // flexDirection: "row",
     // justifyContent:"center"
   },
+  infoSectionSale: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   infoSectionLast: {
     flexDirection: "row",
     justifyContent: "space-evenly",
@@ -259,17 +330,26 @@ const styles = StyleSheet.create({
   infoLabel: {
     fontSize: 14,
     color: "#666",
-    marginBottom: 5,
+    marginBottom: 2,
   },
   infoValue: {
     fontSize: 16,
     color: "#000",
-    marginBottom: 5,
+    marginBottom: 2,
   },
   roomInfo: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 5,
+    marginBottom: 2,
+  },
+  roomInfoService: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 2,
+    flexWrap: "wrap",
+  },
+  roomInfoServiceText: {
+    width: "20%",
   },
   roomLabel: {
     fontSize: 14,
@@ -278,6 +358,9 @@ const styles = StyleSheet.create({
   roomValue: {
     fontSize: 14,
     color: "#000",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   paymentOption: {
     flexDirection: "row",
@@ -328,12 +411,13 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   serviceIcons: {
+    width: "76%",
     flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
+    // alignItems: "flex-start",
     justifyContent: "flex-end",
+    flexWrap: "wrap",
   },
   iconWrapper: {
-    marginLeft: 8,
+    marginLeft: 3,
   },
 });

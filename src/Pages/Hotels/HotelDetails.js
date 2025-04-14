@@ -80,6 +80,7 @@ const HotelDetails = ({ navigation, route }) => {
 
     dispatch(updateBookingPayload(bookingPayload));
 
+    console.log("id", hotelId);
     dispatch(updateHotelDetailId(hotelId));
     dispatch(fetchHotelRoomList(inforFilter_));
 

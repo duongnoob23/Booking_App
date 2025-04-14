@@ -36,6 +36,7 @@ const HotelRoomList = ({ navigation, route }) => {
 
   const { token } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
+  const [roomNumber, setRoomNumber] = useState({});
   const initialRoomNumber = () => {
     const newRooms = {};
     if (hotelRoomList && hotelRoomList.length > 0) {
@@ -43,22 +44,34 @@ const HotelRoomList = ({ navigation, route }) => {
         newRooms[`room${room.roomId}`] = 0;
       });
     }
+    console.log("done");
     return newRooms;
   };
 
-  const [roomNumber, setRoomNumber] = useState(initialRoomNumber);
-  console.log(">>> 40 HTL >>>", bookingPayload);
-  // useEffect(() => {
-  //   if (hotelRoomList && hotelRoomList.length > 0) {
-  //     const newRooms = {};
-  //     hotelRoomList.forEach((room) => {
-  //       newRooms[`room${room.roomId}`] = 0;
-  //     });
-  //     setRoomNumber(newRooms);
-  //   } else {
-  //     setRoomNumber({});
-  //   }
-  // }, [hotelRoomList]);
+  useEffect(() => {
+    if (hotelRoomList && hotelRoomList.length > 0) {
+      // Chỉ cập nhật roomNumber nếu nó chưa được khởi tạo (tránh reset giá trị người dùng đã chọn)
+      setRoomNumber((prevRoomNumber) => {
+        if (Object.keys(prevRoomNumber).length === 0) {
+          // Nếu roomNumber còn rỗng, khởi tạo nó
+          return initialRoomNumber(hotelRoomList);
+        }
+        // Nếu roomNumber đã có dữ liệu, chỉ thêm các room mới (nếu có) mà không reset giá trị cũ
+        const updatedRoomNumber = { ...prevRoomNumber };
+        hotelRoomList.forEach((room) => {
+          const roomKey = `room${room.roomId}`;
+          if (!(roomKey in updatedRoomNumber)) {
+            updatedRoomNumber[roomKey] = 0;
+          }
+        });
+        return updatedRoomNumber;
+      });
+    }
+  }, [hotelRoomList]);
+
+  console.log(">>> 51 HTL >>>", hotelRoomList);
+  console.log(">>> 52 HTL >>>", roomNumber);
+  // console.log(">>> 40 HTL >>>", bookingPayload);
 
   const updateDateRoomNumber = (name, type, quantity) => {
     console.log(quantity);
@@ -99,13 +112,7 @@ const HotelRoomList = ({ navigation, route }) => {
   const hasSelectedRooms = Object.values(roomNumber).some((count) => count > 0);
 
   const handleToInfoConfirm = () => {
-    // const roomRequestListForApi = roomRequestList.map(
-    //   ({ uniqueId, ...rest }) => rest
-    // );
-
-    // dispatch(updateBookingPayload(bookingPayload));
     console.log(">>> 105 HTL  >>> bookingPayload:", bookingPayload);
-    // dispatch(fetchBookingRoom({ bookingPayload }));
 
     navigation.navigate("InfoConfirm");
   };
@@ -333,6 +340,7 @@ const HotelRoomList = ({ navigation, route }) => {
           <RoomItem key={room.roomId} room={room} />
         ))}
       </ScrollView>
+
       {/* {hasSelectedRooms && <View style={styles.marginForBookNowButton}></View>} */}
       {hasSelectedRooms && (
         <View
@@ -669,6 +677,8 @@ const styles = StyleSheet.create({
     // bottom: 10,
     // right: 10,
     // left: 10,
+    marginHorizontal: 5,
+    marginVertical: 5,
     backgroundColor: "white", // Màu nổi bật, bạn có thể thay đổi
     borderRadius: 12,
     paddingVertical: 6,
