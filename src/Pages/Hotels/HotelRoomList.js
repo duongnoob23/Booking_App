@@ -20,6 +20,7 @@ import {
   updateBookingPayload,
   uppdateListUniqueIdBookingRoom,
 } from "../../Redux/Slice/hotelSlice";
+import { fetchServicesByCategory } from "../../Redux/Slice/serviceSlice";
 
 // lỗi hotelRoomList ko có giá trị, 1 kiểm tra redux, kiểm tra trang gọi api cho data trang này,kiểm tra lại api room/get_list
 // console.log("-------- 22 hotelRoom hotelRoomList:", hotelRoomList);
@@ -33,7 +34,7 @@ const HotelRoomList = ({ navigation, route }) => {
     bookingData,
     bookingPayload,
   } = useAppSelector((state) => state.hotel);
-
+  const { serviceList, categories } = useAppSelector((state) => state.service);
   const { token } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const [roomNumber, setRoomNumber] = useState({});
@@ -121,8 +122,38 @@ const HotelRoomList = ({ navigation, route }) => {
 
   const handleToInfoConfirm = () => {
     console.log(">>> 105 HTL  >>> bookingPayload:", bookingPayload);
-
+    const roomQuantities = Object.keys(roomNumber).reduce((acc, key) => {
+      const roomId = parseInt(key.replace("room", ""));
+      acc.push({
+        roomId: roomId,
+        quantity: roomNumber[key],
+      });
+      return acc;
+    }, []);
+    dispatch(fetchServicesByCategory(roomQuantities));
     navigation.navigate("InfoConfirm");
+  };
+
+  const handleToOrderFood = () => {
+    // const roomQuantities =
+    console.log(
+      "-------------------------------------------------------------"
+    );
+    const roomQuantities = Object.keys(roomNumber).reduce((acc, key) => {
+      const roomId = parseInt(key.replace("room", ""));
+      acc.push({
+        roomId: roomId,
+        quantity: roomNumber[key],
+      });
+      return acc;
+    }, []);
+    console.log(roomQuantities);
+    console.log(
+      "-------------------------------------------------------------"
+    );
+
+    dispatch(fetchServicesByCategory(roomQuantities));
+    navigation.navigate("OrderFood");
   };
 
   if (loadingHotelRoomList) {
@@ -360,7 +391,7 @@ const HotelRoomList = ({ navigation, route }) => {
         >
           <TouchableOpacity
             style={styles.bookNowButtonTextWapper}
-            onPress={() => navigation.navigate("OrderFood")}
+            onPress={() => handleToOrderFood()}
           >
             <Text style={styles.bookNowButtonText}>Đặt dịch vụ</Text>
           </TouchableOpacity>

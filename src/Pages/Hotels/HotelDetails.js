@@ -44,8 +44,8 @@ const HotelDetails = ({ navigation, route }) => {
   const { hotelList, hotelDetail, loading, error, inforFilter } =
     useAppSelector((state) => state.hotel);
 
-  console.log(">>> 47 HD >>>", hotelDetail);
-  console.log(">>> 48 HD >>>", hotelDetail?.review?.feedback?.comments);
+  // console.log(">>> 47 HD >>>", hotelDetail);
+  // console.log(">>> 48 HD >>>", hotelDetail?.review?.feedback?.comments);
   useLayoutEffect(() => {
     navigation.getParent().setOptions({ tabBarStyle: { display: "none" } });
     return () => {

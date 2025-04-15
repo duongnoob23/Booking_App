@@ -16,24 +16,35 @@ import { addServiceToRoom } from "../../Redux/Slice/hotelSlice";
 
 const OrderFood = ({ navigation, route }) => {
   const [selectedCategory, setSelectedCategory] = useState({
-    id: 1,
-    type: "AMENITY",
+    id: 0,
+    type: "",
   });
+
+  useEffect(() => {
+    if (categories?.length > 0 && !selectedCategory.type) {
+      setSelectedCategory({
+        id: categories[0].id,
+        type: categories[0].name,
+      });
+    }
+  }, [categories]);
   const dispatch = useAppDispatch();
 
   const [expandedServices, setExpandedServices] = useState({});
   const [serviceQuantities, setServiceQuantities] = useState([]);
   // Dạng: [{ uniqueId: "room1_1", serviceIds: [{ id: 1, quantity: 2, time: "", note: "" }, ...] }, ...]
 
-  const { serviceList } = useAppSelector((state) => state.service);
+  const { serviceList, loadingService, categories } = useAppSelector(
+    (state) => state.service
+  );
   const { bookingPayload } = useAppSelector((state) => state.hotel);
   const listRoom = bookingPayload?.roomRequestList;
 
-  const categories = Object.keys(serviceList).map((key, index) => ({
-    id: index + 1,
-    name: key,
-  }));
-  const foodItems = serviceList[`${selectedCategory?.type}`];
+  // const categories = Object.keys(serviceList).map((key, index) => ({
+  //   id: index + 1,
+  //   name: key,
+  // }));
+  const foodItems = serviceList[`${selectedCategory?.type}`] || [];
 
   // Khởi tạo serviceQuantities từ bookingPayload khi vào màn hình
   useEffect(() => {
@@ -261,6 +272,10 @@ const OrderFood = ({ navigation, route }) => {
     setExpandedServices({});
   };
 
+  const handleShopCart = () => {
+    navigation.navigate("FoodCart");
+  };
+
   const imageTest =
     "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop";
 
@@ -284,23 +299,6 @@ const OrderFood = ({ navigation, route }) => {
     let quantity = service?.quantity || 0;
     let time = service?.time || "";
     let note = service?.note || "";
-
-    // Kiểm tra bookingPayload nếu không có trong serviceQuantities
-    // if (!service && bookingPayload?.roomRequestList) {
-    //   const bookingRoom = bookingPayload.roomRequestList.find(
-    //     (r) => r.uniqueId === item.uniqueId
-    //   );
-    //   if (bookingRoom?.serviceList) {
-    //     const bookingService = bookingRoom.serviceList.find(
-    //       (s) => s.id === serviceId
-    //     );
-    //     if (bookingService) {
-    //       quantity = bookingService.quantity;
-    //       time = bookingService.time || "";
-    //       note = bookingService.note || "";
-    //     }
-    //   }
-    // }
 
     return (
       <View style={styles.roomWrapper}>
@@ -362,44 +360,106 @@ const OrderFood = ({ navigation, route }) => {
     );
   };
 
-  // Render món ăn/dịch vụ
-  const renderFoodItem = ({ item }) => (
-    <View style={styles.foodItemContainer}>
-      <TouchableOpacity
-        style={styles.foodItem}
-        onPress={() => handleToFoodDetails()}
-      >
-        <Image source={{ uri: imageTest }} style={styles.foodImage} />
-        <View style={styles.foodInfo}>
-          <Text style={styles.foodName}>{item.name}</Text>
-          <Text style={styles.description}>{item.description}</Text>
-          <View style={styles.priceContainer}>
-            <Ionicons name={"cash-outline"} size={20} />
-            <Text style={styles.price}>{item.price} </Text>
-            <Text>VNĐ</Text>
-          </View>
-        </View>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => handleToggleRoomList(item.id)}
-        >
-          <Text style={styles.addButtonText}>
-            {expandedServices[item.id] ? "Thu gọn" : "Thêm"}
-          </Text>
-        </TouchableOpacity>
-      </TouchableOpacity>
-      {expandedServices[item.id] && (
-        <FlatList
-          data={listRoom}
-          renderItem={(props) => renderRoomItem(props, item.id)}
-          keyExtractor={(item) => item.uniqueId}
-          style={styles.roomList}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
-    </View>
-  );
+  // const allowedRooms =
+  //   listRoom?.filter((room) =>
+  //     item.roomChoseServiceList?.some(
+  //       (serviceRoom) =>
+  //         serviceRoom.roomId === parseInt(room.uniqueId.split("_")[1])
+  //     )
+  //   ) || [];
 
+  // Render món ăn/dịch vụ
+  // const renderFoodItem = ({ item }) => (
+
+  //   <View style={styles.foodItemContainer}>
+  //     <TouchableOpacity
+  //       style={styles.foodItem}
+  //       onPress={() => handleToFoodDetails()}
+  //     >
+  //       <Image source={{ uri: imageTest }} style={styles.foodImage} />
+  //       <View style={styles.foodInfo}>
+  //         <Text style={styles.foodName}>{item.name}</Text>
+  //         <Text style={styles.description}>{item.description}</Text>
+  //         <View style={styles.priceContainer}>
+  //           <Ionicons name={"cash-outline"} size={20} />
+  //           <Text style={styles.price}>{item.price} </Text>
+  //           <Text>VNĐ</Text>
+  //         </View>
+  //       </View>
+  //       <TouchableOpacity
+  //         style={styles.addButton}
+  //         onPress={() => handleToggleRoomList(item.id)}
+  //       >
+  //         <Text style={styles.addButtonText}>
+  //           {expandedServices[item.id] ? "Thu gọn" : "Thêm"}
+  //         </Text>
+  //       </TouchableOpacity>
+  //     </TouchableOpacity>
+  //     {expandedServices[item.id] && (
+  //       <FlatList
+  //         data={listRoom}
+  //         renderItem={(props) => renderRoomItem(props, item.id)}
+  //         keyExtractor={(item) => item.uniqueId}
+  //         style={styles.roomList}
+  //         showsVerticalScrollIndicator={false}
+  //       />
+  //     )}
+  //   </View>
+  // );
+
+  const renderFoodItem = ({ item }) => {
+    // Lọc listRoom dựa trên roomChoseServiceList
+    const allowedRooms =
+      listRoom?.filter((room) =>
+        item.roomChoseServiceList?.some(
+          (serviceRoom) => serviceRoom.roomId === parseInt(room.roomId)
+        )
+      ) || [];
+
+    return (
+      <View style={styles.foodItemContainer}>
+        <TouchableOpacity
+          style={styles.foodItem}
+          onPress={() => handleToFoodDetails()}
+        >
+          <Image source={{ uri: imageTest }} style={styles.foodImage} />
+          <View style={styles.foodInfo}>
+            <Text style={styles.foodName}>{item.name}</Text>
+            <Text style={styles.description}>{item.description}</Text>
+            <View style={styles.priceContainer}>
+              <Ionicons name={"cash-outline"} size={20} />
+              <Text style={styles.price}>{item.price} </Text>
+              <Text>VNĐ</Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => handleToggleRoomList(item.id)}
+          >
+            <Text style={styles.addButtonText}>
+              {expandedServices[item.id] ? "Thu gọn" : "Thêm"}
+            </Text>
+          </TouchableOpacity>
+        </TouchableOpacity>
+        {expandedServices[item.id] && (
+          <FlatList
+            data={allowedRooms}
+            renderItem={(props) => renderRoomItem(props, item.id)}
+            keyExtractor={(item) => item.uniqueId}
+            style={styles.roomList}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+      </View>
+    );
+  };
+  if (loadingService) {
+    return (
+      <View>
+        <Text>loading....</Text>
+      </View>
+    );
+  }
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -450,7 +510,7 @@ const OrderFood = ({ navigation, route }) => {
       />
 
       <View style={styles.footer}>
-        <View>
+        {/* <View>
           <Text style={styles.footerCount}>
             Tổng số:{" "}
             {serviceQuantities.reduce(
@@ -478,11 +538,14 @@ const OrderFood = ({ navigation, route }) => {
             )}
             VNĐ
           </Text>
-        </View>
+        </View> */}
         <TouchableOpacity
-          style={styles.cartButton}
+          style={styles.confirmButton}
           onPress={handleConfirmOrder}
         >
+          <Ionicons name="checkbox-outline" size={30} color="white" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.cartButton} onPress={handleShopCart}>
           <Ionicons name="cart-outline" size={30} color="white" />
         </TouchableOpacity>
       </View>
@@ -590,7 +653,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems: "center",
     padding: 15,
     borderTopWidth: 1,
@@ -608,7 +671,19 @@ const styles = StyleSheet.create({
   cartButton: {
     backgroundColor: "#00F598",
     padding: 10,
+    width: "50%",
     borderRadius: 10,
+    marginLeft: "5",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  confirmButton: {
+    backgroundColor: "#00F598",
+    padding: 10,
+    borderRadius: 10,
+    width: "50%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   roomList: {
     // maxHeight: 200,

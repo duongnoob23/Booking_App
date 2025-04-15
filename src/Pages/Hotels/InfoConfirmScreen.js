@@ -35,24 +35,24 @@ const InfoConfirmScreen = ({ navigation }) => {
   // console.log(">>> 135 >>> bookingPayload", bookingPayload);
   console.log("--------------------------------------------------------");
 
-  // const printServiceLists = (data) => {
-  //   data.roomRequestList.forEach((room, index) => {
-  //     console.log(`Phòng ${index + 1} (uniqueId: ${room.uniqueId}):`);
-  //     if (room.serviceList && room.serviceList.length > 0) {
-  //       room.serviceList.forEach((service, serviceIndex) => {
-  //         console.log(
-  //           `  Dịch vụ ${serviceIndex + 1}: ID = ${service.id}, Số lượng = ${
-  //             service.quantity
-  //           }, Thời gian = "${service.time || ""}", Ghi chú = "${
-  //             service.note || ""
-  //           }"`
-  //         );
-  //       });
-  //     } else {
-  //       console.log("  Không có dịch vụ nào.");
-  //     }
-  //   });
-  // };
+  const printServiceLists = (data) => {
+    data.roomRequestList.forEach((room, index) => {
+      console.log(`Phòng ${index + 1} (uniqueId: ${room.uniqueId}):`);
+      if (room.serviceList && room.serviceList.length > 0) {
+        room.serviceList.forEach((service, serviceIndex) => {
+          console.log(
+            `  Dịch vụ ${serviceIndex + 1}: ID = ${service.id}, Số lượng = ${
+              service.quantity
+            }, Thời gian = "${service.time || ""}", Ghi chú = "${
+              service.note || ""
+            }"`
+          );
+        });
+      } else {
+        console.log("  Không có dịch vụ nào.");
+      }
+    });
+  };
   const printRoomRequestList = (bookingPayload) => {
     if (
       !bookingPayload ||
@@ -73,8 +73,8 @@ const InfoConfirmScreen = ({ navigation }) => {
     });
   };
 
-  printRoomRequestList(bookingPayload);
-  // printServiceLists(bookingPayload);
+  // printRoomRequestList(bookingPayload);
+  printServiceLists(bookingPayload);
   console.log("--------------------------------------------------------");
 
   // Gọi hàm với biến test
