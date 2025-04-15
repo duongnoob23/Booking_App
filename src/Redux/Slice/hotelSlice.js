@@ -140,19 +140,42 @@ export const fetchBookingRoom = createAsyncThunk(
       const { accessToken } = getState().auth;
       console.log(accessToken);
 
-      bookingPayload?.roomRequestList?.forEach((item) => {
-        console.log("BPL từ redux", item?.serviceIdList);
-      });
+      // bookingPayload?.roomRequestList?.forEach((item) => {
+      //   console.log("BPL từ redux", item?.serviceList);
+      // });
 
-      if (!bookingPayload || !bookingPayload.roomRequestList) {
-        return rejectWithValue(
-          "bookingPayload is invalid or missing roomRequestList"
-        );
-      }
+      // if (!bookingPayload || !bookingPayload.roomRequestList) {
+      //   return rejectWithValue(
+      //     "bookingPayload is invalid or missing roomRequestList"
+      //   );
+      // }
 
-      if (!accessToken) {
-        return rejectWithValue("No access token available");
-      }
+      // if (!accessToken) {
+      //   return rejectWithValue("No access token available");
+      // }
+      console.log("-------------------bookingPayload-------------------------");
+      const printServiceLists = (data) => {
+        data.roomRequestList.forEach((room, index) => {
+          console.log(`Phòng ${index + 1} (uniqueId: ${room.uniqueId}):`);
+          if (room.serviceList && room.serviceList.length > 0) {
+            room.serviceList.forEach((service, serviceIndex) => {
+              console.log(
+                `  Dịch vụ ${serviceIndex + 1}: ID = ${
+                  service.id
+                }, Số lượng = ${service.quantity}, Thời gian = "${
+                  service.time || ""
+                }", Ghi chú = "${service.note || ""}"`
+              );
+            });
+          } else {
+            console.log("  Không có dịch vụ nào.");
+          }
+        });
+      };
+
+      // Gọi hàm với biến test
+      printServiceLists(bookingPayload);
+      console.log("---------------bookingPayload---------------------------");
 
       const response = await fetch(`${API_BASE_URL}/api/booking/get_booking`, {
         method: "POST",
@@ -247,7 +270,7 @@ const hotelSlice = createSlice({
       locationId: "0",
       checkin: checkinDate,
       checkout: checkoutDate,
-      adults: 0,
+      adults: 1,
       children: 0,
       roomNumber: 1,
       amenityIds: [],
@@ -280,17 +303,76 @@ const hotelSlice = createSlice({
       console.log(action.payload);
       state.bookingPayload = action.payload;
     },
-    // phải add service vào trong bookingPayload vì đây là dữ liệu gửi lên service
-    // Cập nhật listUniqueIdBookingRoom
-    // console.log(serviceData);
 
-    // Cập nhật bookingData.roomBookedList
-    // roomBoookedList, serviceSelect => boookingData
-    // rooomRequestList,serviceList => bookingPayload
+    // addServiceToRoom(state, action) {
+    //   try {
+    //     const serviceData = action.payload;
+    //     console.log(">>> addServiceToRoom serviceData >>>", serviceData);
+
+    //     if (state.bookingPayload && state.bookingPayload.roomRequestList) {
+    //       const updatedRoomRequestList =
+    //         state.bookingPayload.roomRequestList.map((item) => {
+    //           const matchingRoom = serviceData.find(
+    //             (data) => data.uniqueId === item.uniqueId
+    //           );
+    //           if (matchingRoom) {
+    //             // Tạo danh sách dịch vụ mới, gộp serviceIds từ matchingRoom
+    //             const updatedServiceIdList = [...(item.serviceList || [])];
+
+    //             matchingRoom.serviceIds.forEach((newService) => {
+    //               const existingServiceIndex = updatedServiceIdList.findIndex(
+    //                 (s) => s.id === newService.id
+    //               );
+    //               if (existingServiceIndex >= 0) {
+    //                 // Nếu dịch vụ đã tồn tại, cập nhật quantity, giữ nguyên time và note nếu có
+    //                 updatedServiceIdList[existingServiceIndex] = {
+    //                   id: newService.id,
+    //                   quantity:
+    //                     updatedServiceIdList[existingServiceIndex].quantity +
+    //                     newService.quantity,
+    //                   time:
+    //                     newService.time ||
+    //                     updatedServiceIdList[existingServiceIndex].time ||
+    //                     "",
+    //                   note:
+    //                     newService.note ||
+    //                     updatedServiceIdList[existingServiceIndex].note ||
+    //                     "",
+    //                 };
+    //               } else {
+    //                 // Nếu dịch vụ chưa có, thêm mới với time và note
+    //                 updatedServiceIdList.push({
+    //                   id: newService.id,
+    //                   quantity: newService.quantity,
+    //                   time: newService.time || "",
+    //                   note: newService.note || "",
+    //                 });
+    //               }
+    //             });
+
+    //             return {
+    //               ...item,
+    //               serviceList: updatedServiceIdList,
+    //             };
+    //           }
+    //           return item;
+    //         });
+
+    //       // Cập nhật bookingPayload
+    //       state.bookingPayload = {
+    //         ...state.bookingPayload,
+    //         roomRequestList: updatedRoomRequestList,
+    //       };
+    //     }
+    //   } catch (error) {
+    //     console.log("error in addServiceToRoom", error);
+    //   }
+    // },
+
     addServiceToRoom(state, action) {
       try {
         const serviceData = action.payload;
-        console.log(">>> 267 SR >>>", serviceData);
+        console.log(">>> addServiceToRoom serviceData >>>", serviceData);
 
         if (state.bookingPayload && state.bookingPayload.roomRequestList) {
           const updatedRoomRequestList =
@@ -299,20 +381,30 @@ const hotelSlice = createSlice({
                 (data) => data.uniqueId === item.uniqueId
               );
               if (matchingRoom) {
+                // Nếu matchingRoom tồn tại, thay thế serviceList bằng serviceIds
+                const updatedServiceIdList =
+                  matchingRoom.serviceIds.length > 0
+                    ? matchingRoom.serviceIds.map((service) => ({
+                        id: service.id,
+                        quantity: service.quantity,
+                        time: service.time || "",
+                        note: service.note || "",
+                      }))
+                    : []; // Nếu serviceIds rỗng, đặt serviceList thành mảng rỗng
+
                 return {
                   ...item,
-                  serviceIdList: [
-                    ...new Set([
-                      ...item.serviceIdList,
-                      ...matchingRoom.serviceIds,
-                    ]),
-                  ],
+                  serviceList: updatedServiceIdList,
                 };
               }
-              return item;
+              // Nếu không có matchingRoom, đặt serviceList thành mảng rỗng
+              return {
+                ...item,
+                serviceList: [],
+              };
             });
 
-          // Tạo object mới cho bookingPayload
+          // Cập nhật bookingPayload
           state.bookingPayload = {
             ...state.bookingPayload,
             roomRequestList: updatedRoomRequestList,

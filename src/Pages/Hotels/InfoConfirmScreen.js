@@ -32,9 +32,55 @@ const InfoConfirmScreen = ({ navigation }) => {
   const { bookingPayload, listUniqueIdBookingRoom } = useAppSelector(
     (state) => state.hotel
   );
+  // console.log(">>> 135 >>> bookingPayload", bookingPayload);
+  console.log("--------------------------------------------------------");
+
+  // const printServiceLists = (data) => {
+  //   data.roomRequestList.forEach((room, index) => {
+  //     console.log(`Phòng ${index + 1} (uniqueId: ${room.uniqueId}):`);
+  //     if (room.serviceList && room.serviceList.length > 0) {
+  //       room.serviceList.forEach((service, serviceIndex) => {
+  //         console.log(
+  //           `  Dịch vụ ${serviceIndex + 1}: ID = ${service.id}, Số lượng = ${
+  //             service.quantity
+  //           }, Thời gian = "${service.time || ""}", Ghi chú = "${
+  //             service.note || ""
+  //           }"`
+  //         );
+  //       });
+  //     } else {
+  //       console.log("  Không có dịch vụ nào.");
+  //     }
+  //   });
+  // };
+  const printRoomRequestList = (bookingPayload) => {
+    if (
+      !bookingPayload ||
+      !bookingPayload.roomRequestList ||
+      bookingPayload.roomRequestList.length === 0
+    ) {
+      console.log("roomRequestList is empty or undefined");
+      return;
+    }
+
+    console.log("=== roomRequestList ===");
+    bookingPayload.roomRequestList.forEach((room, index) => {
+      const roomProps = Object.keys(room)
+        .filter((key) => key !== "serviceList")
+        .map((key) => `${key}=${JSON.stringify(room[key])}`)
+        .join(", ");
+      console.log(`Room ${index + 1}: ${roomProps || "No properties"}`);
+    });
+  };
+
+  printRoomRequestList(bookingPayload);
+  // printServiceLists(bookingPayload);
+  console.log("--------------------------------------------------------");
+
+  // Gọi hàm với biến test
 
   const [infomation, setInfomation] = useState({
-    firstName: "",
+    firstName: " ",
     lastName: "",
     email: "",
     phoneNumber: "",
@@ -145,6 +191,7 @@ const InfoConfirmScreen = ({ navigation }) => {
         <TextInput
           style={styles.input}
           value={infomation.firstName}
+          // value={"TIEN DUONG"}
           onChangeText={(value) => onChangeInfomation(value, "firstName")}
           placeholder="Họ *"
           placeholderTextColor="#999"
@@ -167,6 +214,7 @@ const InfoConfirmScreen = ({ navigation }) => {
         <TextInput
           style={styles.input}
           value={infomation.lastName}
+          // value={"LAM"}
           onChangeText={(value) => onChangeInfomation(value, "lastName")}
           placeholder="Tên *"
           placeholderTextColor="#999"
@@ -187,6 +235,7 @@ const InfoConfirmScreen = ({ navigation }) => {
         <TextInput
           style={styles.input}
           value={infomation.email}
+          // value={"admin@gmail.com"}
           onChangeText={(value) => onChangeInfomation(value, "email")}
           placeholder="Email *"
           placeholderTextColor="#999"
@@ -211,6 +260,7 @@ const InfoConfirmScreen = ({ navigation }) => {
         <TextInput
           style={[styles.input, { flex: 1 }]}
           value={infomation.phoneNumber}
+          // value={"0982474802"}
           onChangeText={(value) => onChangeInfomation(value, "phoneNumber")}
           placeholder="Số điện thoại *"
           placeholderTextColor="#999"

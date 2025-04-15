@@ -56,17 +56,17 @@ const OrderConfirmScreen = ({ navigation }) => {
   // bookingPayload?.roomRequestList?.forEach((item) => {
   //   console.log("BPL từ redux OCS", item?.serviceIdList);
   // });
-  bookingData?.roomBookedList?.forEach((item) => {
-    console.log("BPL từ redux OCS", item?.serviceSelect);
-  });
+  // bookingData?.roomBookedList?.forEach((item) => {
+  //   console.log("BPL từ redux OCS", item?.serviceSelect);
+  // });
 
   const dispatch = useAppDispatch();
 
   const listRoom = bookingData?.roomBookedList;
   const listRoom1 = bookingPayload?.roomRequestList;
 
-  console.log("listROom", listRoom);
-  console.log("listRoom1", listRoom1);
+  // console.log("listROom", listRoom);
+  // console.log("listRoom1", listRoom1);
 
   useEffect(() => {
     // console.log("bookingData updated:", bookingData);

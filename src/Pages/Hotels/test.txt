@@ -1,242 +1,88 @@
-const let1 = {
-    checkIn: "12-04-2025 14:00:00",
-    checkOut: "13-04-2025 12:00:00",
-    couponCode: null,
-    finalPrice: "1620000.0",
-    hotelAddress: "Đà Nẵng",
-    hotelId: 1,
-    hotelName: "Heden Golf",
-    priceCoupon: "0.0",
-    roomBookedList: [
-      {
-        adults: 0,
-        policyBooked: [Array],
-        priceRoom: 900000,
-        priceService: 0,
-        roomId: 1,
-        roomName: "Phòng Deluxe Gia đình",
-        serviceSelect: [Array],
-      },
-      {
-        adults: 0,
-        policyBooked: [Array],
-        priceRoom: 720000,
-        priceService: 0,
-        roomId: 3,
-        roomName: "Phòng Deluxe nhỏ",
-        serviceSelect: [Array],
-      },
-    ],
-    totalAdults: 0,
-    totalPriceRoom: "1620000.0",
-    totalPriceService: "0.0",
-  };
-
-
-  import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import { cloneDeep } from "lodash";
-import { useAppSelector } from "../../Redux/hook";
-const InfoConfirmScreen = ({ navigation }) => {
-  const [infomation, setInfomation] = useState({
-    firstName: "",
-    secondName: "",
-    email: "",
-    phoneNumber: "",
-    phoneCountry: "+84",
-  });
-
-  
-  useEffect(() => {}, [infoUser]);
-
-  const onChangeInfomation = (value, name) => {
-    const _infomation = cloneDeep(infomation);
-    _infomation[name] = value;
-    setInfomation(_infomation);
-  };
-
-  const handleInfoConfirm = () => {
-    navigation.navigate("OrderConfirm");
-  };
-  return (
-    <View style={styles.container}>
-      {/* <View style={styles.header__overlay}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.header__title}>THÔNG TIN CÁ NHÂN</Text>
-        </TouchableOpacity>
-      </View> */}
-      <Text style={styles.title}>THÔNG TIN CÁ NHÂN</Text>
-
-      <View style={styles.inputContainer}>
-        <View>
-          <Ionicons
-            name="person-outline"
-            size={20}
-            color="#007AFF"
-            style={styles.icon}
-          />
-        </View>
-        <TextInput
-          style={styles.input}
-          value={userInfor.firstName}
-          placeholder="Họ"
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <View>
-          <Ionicons
-            name="person-outline"
-            size={20}
-            color="#007AFF"
-            style={styles.icon}
-          />
-        </View>
-        <TextInput
-          style={styles.input}
-          value={userInfor.lastName}
-          placeholder="Tên"
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <View>
-          <Ionicons
-            name="mail-outline"
-            size={20}
-            color="#007AFF"
-            style={styles.icon}
-          />
-        </View>
-        <TextInput
-          style={styles.input}
-          value={userInfor.email}
-          placeholder="Email"
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <View>
-          <Ionicons
-            name="call-outline"
-            size={20}
-            color="#007AFF"
-            style={styles.icon}
-          />
-        </View>
-        <View>
-          <Text style={styles.phoneCode}>{infomation.phoneCountry}</Text>
-        </View>
-        <TextInput
-          style={[styles.input, { flex: 1 }]}
-          value={userInfor.phoneNumber}
-          placeholder="Số điện thoại"
-        />
-        <View>
-          <Ionicons
-            name="checkmark-circle"
-            size={20}
-            color="#00C853"
-            style={styles.checkIcon}
-          />
-        </View>
-      </View>
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => handleInfoConfirm()}
-      >
-        <Text style={styles.buttonText}>Xác nhận thông tin</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
-export default InfoConfirmScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingHorizontal: 20,
-    paddingVertical: 30,
-  },
-  header__overlay: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    //     padding: 20,
-    paddingHorizontal: 5,
-    paddingVertical: 30,
-  },
-  header__icon__start: {
-    marginLeft: "auto",
-  },
-  header__title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
-    marginLeft: 0,
-    textShadowColor: "rgba(0, 0, 0, 0.75)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 5,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "400",
-    color: "#000",
-    // marginVertical: 50,
-    marginTop: 30,
-    marginBottom: 50,
-    textAlign: "center",
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
-    marginBottom: 30,
-    alignItems: "center",
-    // justifyContent: "center",
-  },
-  icon: {
-    marginRight: 10,
-    marginBottom: 10,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: "#000",
-    paddingVertical: 10,
-    marginBottom: 10,
-  },
-  phoneCode: {
-    fontSize: 16,
-    color: "#000",
-    marginRight: 10,
-  },
-  checkIcon: {
-    marginLeft: 10,
-  },
-  button: {
-    backgroundColor: "#00F598", // Màu xanh dương thay vì gradient
-    paddingVertical: 12,
-    borderRadius: 14,
-    alignItems: "center",
-    marginTop: 50,
-  },
-  buttonText: {
-    fontSize: 16,
-    color: "white",
-    fontWeight: "400",
-  },
-});
+{
+    "statusCode": 200,
+    "message": "Hotel detail successfully 1",
+    "data": {
+        "review": {
+            "rating": 3.9,
+            "sumReview": 85,
+            "description": "Tọa lạc trong khu vườn được chăm chút kỹ lưỡng với tầm nhìn ra đầm phá Ébrié, khách sạn cao cấp này mang phong cách nghệ thuật địa phương đương đại và các nét chấm phá kiến trúc tinh tế. Nơi đây cách Nhà thờ Hồi giáo Riviéra 3 km và Công viên Quốc gia Banco 17 km.",
+            "amenities": [
+                {
+                    "id": 4,
+                    "name": "Thích hợp trẻ em"
+                },
+                {
+                    "id": 1,
+                    "name": "Wi-fi miễn phí"
+                }
+            ],
+            "location": "Đà Nẵng",
+            "phoneNumber": "123456789",
+            "feedback": {
+                "fiveStar": 25.0,
+                "fourStar": 50.0,
+                "threeStar": 25.0,
+                "twoStar": 0.0,
+                "oneStar": 0.0,
+                "ratingHotel": 5.0,
+                "ratingRoom": 4.0,
+                "ratingLocation": 3.0,
+                "ratingService": 4.0,
+                "comments": [
+                    {
+                        "username": "admin@gmail.com",
+                        "urlAvatar": "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1729235498/Room/samsipzu3uyuhyr7vdbl.jpg",
+                        "comment": "rất tốt",
+                        "rating": 5
+                    }
+                ]
+            }
+        },
+        "images": [
+            "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1729242714/Room/luanwjwaiavziqz94mqu.jpg",
+            "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1729241122/Room/nipyn0qgyoyhtgkadlyi.jpg"
+        ],
+        "nearBy": {
+            "descriptionLocation": "Đà Nẵng rất đẹp",
+            "ratingLocation": "4.5",
+            "activityList": [
+                {
+                    "name": "Da Nang Beach (Danang Beach)",
+                    "description": "No description",
+                    "rating": 4.5,
+                    "distance": "3729 m",
+                    "image": null
+                },
+                {
+                    "name": "Phạm Văn Đồng Beach",
+                    "description": "No description",
+                    "rating": 4.8,
+                    "distance": "3654 m",
+                    "image": null
+                },
+                {
+                    "name": "Bãi Biển Phước Mỹ",
+                    "description": "No description",
+                    "rating": 4.2,
+                    "distance": "3630 m",
+                    "image": null
+                },
+                {
+                    "name": "The Village",
+                    "description": "No description",
+                    "rating": 4.6,
+                    "distance": "4650 m",
+                    "image": null
+                },
+                {
+                    "name": "Da Nang Museum of Cham Sculpture (Bảo Tàng Điêu Khắc Chăm Đà Nẵng)",
+                    "description": "No description",
+                    "rating": 4.6,
+                    "distance": "1473 m",
+                    "image": null
+                }
+            ]
+        },
+        "priceMin": 800000.0
+    }
+}

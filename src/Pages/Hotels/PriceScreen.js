@@ -12,22 +12,36 @@ import {
   navigation,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import Icon from "react-native-vector-icons/FontAwesome"; // Sử dụng FontAwesome cho icons
+import Icon from "react-native-vector-icons/FontAwesome"; // Sử dụng FontAwesome cho
+import cloneDeep from "lodash/cloneDeep";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { useAppSelector } from "../../Redux/hook";
+import { useAppSelector, useAppDispatch } from "../../Redux/hook";
 import SkeletonPriceScreen from "../../Components/Skeleton/Hotels/SkeletonPriceScreen";
 import RateReviews from "../Reviews/RateReviews";
 import MapPriceScreen from "../../Components/Map/MapPriceScreen";
-const PriceScreen = ({ navigation, route }) => {
-  // console.log(">>> route PriceScreen", route);
-  // const [dataPrice, setDataPrice] = useState(route.params.data);
-  // console.log(">>> dataPrice", dataPrice);
+import * as Progress from "react-native-progress";
+import ModalCheckIn from "../../Components/Modal/Home/ModalCheckIn";
+import ModalCheckOut from "../../Components/Modal/Home/ModalCheckOut";
+import ModalGuestsAndRooms from "../../Components/Modal/Home/ModalGuestsAndRooms";
 
-  const { hotelList, hotelDetail, loading, error } = useAppSelector(
-    (state) => state.hotel
-  );
-  // console.log("------------------------------");
-  // console.log(">>> 53 PriceScreen", hotelDetail);
+const PriceScreen = ({ navigation, route }) => {
+  const {
+    hotelList,
+    hotelDetail,
+    loading,
+    error,
+    locationList,
+    hotelByLocation,
+    inforFilter,
+  } = useAppSelector((state) => state.hotel);
+
+  const [open, setOpen] = useState({
+    Modal_1: true,
+    Modal_CheckIn: false,
+    Modal_CheckOut: false,
+    Modal_GuestsAndRooms: false,
+  });
+
   const handleOrderFood = () => {
     navigation.navigate("OrderFood");
   };
@@ -36,45 +50,161 @@ const PriceScreen = ({ navigation, route }) => {
     navigation.navigate("FoodDetails");
   };
 
-  // if (loading) {
-  //   return <SkeletonPriceScreen />;
-  // }
-
-  const ratingsData = [
+  const ratingPercentages = [
     {
-      id: "1",
-      name: "Duy",
-      time: "20 mins ago",
-      content: "Khách sạn đẹp, đồ ăn tuyệt vời",
-      score: 4.5,
-      image:
-        "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=40&h=40&q=80",
-    },
+      star: 5,
+      percentage: (hotelDetail && hotelDetail?.review?.feedback?.fiveStar) || 0,
+      color: "#007AFF",
+    }, // Xanh dương
     {
-      id: "2",
-      name: "Hương",
-      time: "2 days ago",
-      content: "Không thể quên được. Rất thích nơi này!",
-      score: 5,
-      image:
-        "https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2940&auto=format&fit=crop",
-    },
+      star: 4,
+      percentage: (hotelDetail && hotelDetail?.review?.feedback?.fourStar) || 0,
+      color: "#00C853",
+    }, // Xanh lá
     {
-      id: "3",
-      name: "Quân",
-      time: "2 days ago",
-      content: "Đẹp, thích vui",
-      score: 4.5,
-      image: "",
-    },
+      star: 3,
+      percentage:
+        (hotelDetail && hotelDetail?.review?.feedback?.threeStar) || 0,
+      color: "#FFD700",
+    }, // Vàng
+    {
+      star: 2,
+      percentage: (hotelDetail && hotelDetail?.review?.feedback?.twoStar) || 0,
+      color: "#FF8C00",
+    }, // Cam
+    {
+      star: 1,
+      percentage: (hotelDetail && hotelDetail?.review?.feedback?.oneStar) || 0,
+      color: "#FF0000",
+    }, // Đỏ
   ];
+
+  const renderStars = (rating) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    const stars = [];
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(
+        <Ionicons
+          key={`full-${i}`}
+          style={styles.iconBed}
+          name="star"
+          size={15}
+          color="orange"
+        />
+      );
+    }
+    if (hasHalfStar) {
+      stars.push(
+        <Ionicons
+          key="half"
+          style={styles.iconBed}
+          name="star-half"
+          size={15}
+          color="orange"
+        />
+      );
+    }
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(
+        <Ionicons
+          key={`empty-${i}`}
+          style={styles.iconBed}
+          name="star-outline"
+          size={15}
+          color="orange"
+        />
+      );
+    }
+    return stars;
+  };
+
+  const [selectDay, setSelectDay] = useState({
+    day: 4,
+    month: 4,
+    year: 2025,
+  });
+  const formatToYYYYMMDD = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleOpenModal = (name) => {
+    const open_ = cloneDeep(open);
+    open_[name] = true;
+    setOpen(open_);
+  };
+
+  const handleCloseModal = (name) => {
+    const open_ = cloneDeep(open);
+    open_[name] = false;
+    setOpen(open_);
+  };
+
+  const handleModalCheck = (name, value) => {
+    const open_ = cloneDeep(open);
+    open_[name] = value;
+
+    if (name === "Modal_CheckIn" || name === "Modal_CheckOut") {
+      const day =
+        inforFilter[name === "Modal_CheckIn" ? "checkin" : "checkout"];
+      setSelectDay({
+        day: +day.split("-")[2],
+        month: +day.split("-")[1],
+        year: +day.split("-")[0],
+      });
+    }
+
+    setOpen(open_);
+  };
+
+  const handleConfirmDate = (name) => {
+    const formattedDate = `${selectDay.year}-${String(selectDay.month).padStart(
+      2,
+      "0"
+    )}-${String(selectDay.day).padStart(2, "0")}`;
+
+    console.log(selectDay);
+    if (name === "checkin") {
+      const today = new Date();
+
+      const dateToday = formatToYYYYMMDD(today);
+      const date1 = new Date(dateToday);
+      const date2 = new Date(formattedDate);
+      if (date2 < date1) {
+        Alert.alert("Ngày CheckIn phải lớn hơn ngày hiện tại");
+        return;
+      }
+    } else {
+      const date1 = new Date(inforFilter.checkin);
+      const date2 = new Date(formattedDate);
+      // console.log(date1, date2);
+      if (date2 <= date1) {
+        Alert.alert("Ngày CheckOut phải lớn hơn ngày CheckIn");
+        return;
+      }
+    }
+    // setInforFilter({
+    //   ...inforFilter,
+    //   [name]: formattedDate,
+    // });
+    dispatch(updateFilter({ ...inforFilter, [name]: formattedDate }));
+    const nameModal = name === "checkin" ? "Modal_CheckIn" : "Modal_CheckOut";
+    handleModalCheck(nameModal, false);
+  };
+
+  const ratingsData =
+    (hotelDetail && hotelDetail?.review?.feedback?.comments) || [];
   return (
     <ScrollView style={styles.body}>
       {/* Title and description */}
       <View style={styles.body__section}>
         <Text style={styles.body__title}>MÔ TẢ KHÁCH SẠN</Text>
         <Text style={styles.body__description}>
-          {hotelDetail && hotelDetail.review.description}
+          {hotelDetail && hotelDetail?.review?.description}
           {/* {hotelDetail && hotelDetail.review.} */}
         </Text>
       </View>
@@ -105,13 +235,13 @@ const PriceScreen = ({ navigation, route }) => {
         <View style={styles.body__info}>
           <Ionicons name="location-outline" size={25} color="#007AFF" />
           <Text style={styles.body__info__text}>
-            {hotelDetail && hotelDetail.review.location}
+            {hotelDetail && hotelDetail?.review?.location}
           </Text>
         </View>
         <View style={styles.body__info}>
           <Ionicons name="call-outline" size={25} color="#007AFF" />
           <Text style={styles.body__info__text}>
-            {hotelDetail && hotelDetail.review.phoneNumber}
+            {hotelDetail && hotelDetail?.review?.phoneNumber}
           </Text>
         </View>
         <View style={styles.body__info__view}>
@@ -151,49 +281,67 @@ const PriceScreen = ({ navigation, route }) => {
           <Text style={styles.body__service__text}>Dịch vụ cao cấp</Text>
         </View>
       </View>
-
       {/* Room info */}
-      <View style={styles.body__section3}>
-        <Text style={styles.body__subtitle3}>PHÒNG CÒN TRỐNG</Text>
-        <TouchableOpacity style={styles.body__dropdown}>
-          <Ionicons name="calendar-outline" size={25} color="#007AFF" />
-          <Text style={styles.body__dropdown__text}>
-            Ngày và giờ nhận phòng
-          </Text>
-          <Ionicons
-            name="chevron-down"
-            size={20}
-            color="black"
-            style={styles.icon__chevron_down}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.body__dropdown}>
-          <Ionicons name="calendar-outline" size={25} color="#007AFF" />
-          <Text style={styles.body__dropdown__text}>Ngày và giờ trả phòng</Text>
-          <Ionicons
-            name="chevron-down"
-            size={20}
-            color="black"
-            style={styles.icon__chevron_down}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.body__dropdown}>
-          <Ionicons name="business-outline" size={25} color="#007AFF" />
-          <Text style={styles.body__dropdown__text}>
-            0 Người lớn. 0 Trẻ em. 0 Phòng
-          </Text>
-          <Ionicons
-            name="chevron-down"
-            size={20}
-            color="black"
-            style={styles.icon__chevron_down}
-          />
-        </TouchableOpacity>
-      </View>
-
-      {/* <View style={styles.footer}>
-        <View style={styles.footer__food}></View>
-      </View> */}
+      <TouchableOpacity
+        style={styles.inputContainer}
+        onPress={() => handleModalCheck("Modal_CheckIn", true)}
+      >
+        <Ionicons name="calendar-outline" size={25} color="#007AFF" />
+        <Text style={styles.inputText}>{inforFilter.checkin}</Text>
+        <Icon
+          name="angle-down"
+          size={20}
+          color="#0090FF"
+          style={styles.arrowIcon}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.inputContainer}
+        onPress={() => handleModalCheck("Modal_CheckOut", true)}
+      >
+        <Ionicons name="calendar-outline" size={25} color="#007AFF" />
+        <Text style={styles.inputText}>{inforFilter.checkout}</Text>
+        <Icon
+          name="angle-down"
+          size={20}
+          color="#0090FF"
+          style={styles.arrowIcon}
+        />
+      </TouchableOpacity>
+      <ModalCheckIn
+        visible={open.Modal_CheckIn}
+        onClose={handleModalCheck}
+        selectDay={selectDay}
+        setSelectDay={setSelectDay}
+        confirm={handleConfirmDate}
+      />
+      <ModalCheckOut
+        visible={open.Modal_CheckOut}
+        onClose={handleModalCheck}
+        selectDay={selectDay}
+        setSelectDay={setSelectDay}
+        confirm={handleConfirmDate}
+      />
+      <TouchableOpacity
+        style={styles.inputContainer}
+        onPress={() => handleModalCheck("Modal_GuestsAndRooms", true)}
+      >
+        <Ionicons name="business-outline" size={25} color="#007AFF" />
+        <Text style={styles.inputText}>
+          {inforFilter.adults} Người lớn, {inforFilter.children} Trẻ em,{" "}
+          {inforFilter.roomNumber} Phòng
+        </Text>
+        <Icon
+          name="angle-down"
+          size={20}
+          color="#0090FF"
+          style={styles.arrowIcon}
+        />
+      </TouchableOpacity>
+      <ModalGuestsAndRooms
+        visible={open.Modal_GuestsAndRooms}
+        onClose={handleModalCheck}
+      />
 
       <View style={styles.map}>
         <View style={styles.mapView}>
@@ -201,7 +349,6 @@ const PriceScreen = ({ navigation, route }) => {
         </View>
         <MapPriceScreen />
       </View>
-
       {/* <RateReviews /> */}
       <View style={styles.ratings}>
         <View style={styles.ratingsTitle}>
@@ -215,98 +362,116 @@ const PriceScreen = ({ navigation, route }) => {
         </View>
 
         <View style={styles.ratings__stats}>
-          <View style={styles.ratings__statsBars}>
-            <View style={styles.ratings__statsBar}>
-              <View style={[styles.ratings__statsBarFill, { width: "30%" }]} />
+          {ratingPercentages.map((item) => (
+            <View key={item.star} style={styles.ratings__stats1}>
+              {/* Vòng tròn tiến độ */}
+              <Progress.Circle
+                size={65}
+                progress={+(parseInt(item?.percentage) / 100)}
+                thickness={6}
+                color={`${item.color}`}
+                unfilledColor={"#e0e0e0"}
+                borderWidth={0}
+                showsText={false} // Tắt văn bản mặc định
+              />
+              {/* Văn bản và icon tùy chỉnh chồng lên */}
+              <View style={styles.overlay}>
+                <View style={styles.topRow}>
+                  <Text style={styles.scoreText}>{item.star}</Text>
+                  <Ionicons
+                    style={styles.iconBed}
+                    name="star"
+                    size={15}
+                    color="orange"
+                  />
+                </View>
+                <Text style={styles.percentText}>{item?.percentage}%</Text>
+              </View>
             </View>
-            <View style={styles.ratings__statsBar}>
-              <View style={[styles.ratings__statsBarFill, { width: "40%" }]} />
-            </View>
-            <View style={styles.ratings__statsBar}>
-              <View style={[styles.ratings__statsBarFill, { width: "20%" }]} />
-            </View>
-            <View style={styles.ratings__statsBar}>
-              <View style={[styles.ratings__statsBarFill, { width: "7%" }]} />
-            </View>
-            <View style={styles.ratings__statsBar}>
-              <View style={[styles.ratings__statsBarFill, { width: "1%" }]} />
-            </View>
-          </View>
+          ))}
         </View>
+
         <View style={styles.ratings__option}>
           <View style={styles.ratings__optionList}>
             <View style={styles.ratings__optionItem}>
               <Text style={styles.ratings__label}>Phòng </Text>
-              <Text style={styles.ratings__text}>4.5</Text>
+
+              <View style={styles.ratings__text}>
+                <Text>
+                  {hotelDetail && hotelDetail?.review?.feedback?.ratingRoom}
+                </Text>
+                <Ionicons
+                  style={styles.iconBed}
+                  name="star"
+                  size={15}
+                  color="orange"
+                />
+              </View>
             </View>
             <View style={styles.ratings__optionItem}>
               <Text style={styles.ratings__label}>Địa điểm </Text>
-              <Text style={styles.ratings__text}>4.8</Text>
+              <View style={styles.ratings__text}>
+                <Text>
+                  {hotelDetail && hotelDetail?.review?.feedback?.ratingLocation}
+                </Text>
+                <Ionicons
+                  style={styles.iconBed}
+                  name="star"
+                  size={15}
+                  color="orange"
+                />
+              </View>
             </View>
             <View style={styles.ratings__optionItem}>
               <Text style={styles.ratings__label}>Dịch vụ</Text>
-              <Text style={styles.ratings__text}>4.4</Text>
+              <View style={styles.ratings__text}>
+                <Text>
+                  {hotelDetail && hotelDetail?.review?.feedback?.ratingService}
+                </Text>
+                <Ionicons
+                  style={styles.iconBed}
+                  name="star"
+                  size={15}
+                  color="orange"
+                />
+              </View>
             </View>
           </View>
         </View>
 
         <View style={styles.ratings__statsScore}>
-          <Text style={styles.ratings__statsScoreValue}>4.4</Text>
+          <Text style={styles.ratings__statsScoreValue}>
+            {hotelDetail && hotelDetail?.review?.feedback?.ratingHotel}
+          </Text>
           <View style={styles.ratings__statsScoreLabel}>
             <Text>Rất tốt</Text>
             <View style={styles.start}>
-              <Ionicons
-                style={styles.iconBed}
-                name="star"
-                size={15}
-                color="orange"
-              />
-              <Ionicons
-                style={styles.iconBed}
-                name="star"
-                size={15}
-                color="orange"
-              />
-              <Ionicons
-                style={styles.iconBed}
-                name="star"
-                size={15}
-                color="orange"
-              />
-              <Ionicons
-                style={styles.iconBed}
-                name="star"
-                size={15}
-                color="orange"
-              />
-              <Ionicons
-                style={styles.iconBed}
-                name="star-half"
-                size={15}
-                color="orange"
-              />
+              {renderStars(
+                (hotelDetail && hotelDetail?.review?.feedback?.ratingHotel) || 0
+              )}
             </View>
           </View>
         </View>
-        {ratingsData.map((item) => (
+        {ratingsData?.map((item, index) => (
           <TouchableOpacity
-            key={item.id}
+            key={index}
             style={styles.ratings__item}
             onPress={() => navigation.navigate("RateDetails")}
           >
             <Image
               source={{
-                uri: "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
+                // uri: `${item.urlAvatar}`,
+                uri: `${item.urlAvatar}`,
               }}
               style={styles.ratings__itemAvatar}
             />
             <View style={styles.ratings__itemContent}>
               <View style={styles.ratings__itemHeader}>
-                <Text style={styles.ratings__itemName}>{item.name}</Text>
-                <Text style={styles.ratings__itemScore}>{item.score}</Text>
+                <Text style={styles.ratings__itemName}>{item.username}</Text>
+                <Text style={styles.ratings__itemScore}>{item.rating}/5</Text>
               </View>
-              <Text style={styles.ratings__itemTime}>{item.time}</Text>
-              <Text style={styles.ratings__itemText}>{item.content}</Text>
+              {/* <Text style={styles.ratings__itemTime}>{item.time}</Text> */}
+              <Text style={styles.ratings__itemText}>{item.comment}</Text>
             </View>
           </TouchableOpacity>
         ))}
@@ -425,11 +590,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   body__service__text: {
-    marginLeft: 10, // Khoảng cách giữa icon và text
-    fontSize: 14, // Kích thước chữ (tùy chỉnh nếu cần)
-    color: "#000", // Màu chữ (tùy chỉnh nếu cần)
+    marginLeft: 10,
+    fontSize: 14,
+    color: "#000",
   },
-  // Block: footer
+
   footer: {
     padding: 15,
     backgroundColor: "#f8f8f8",
@@ -560,7 +725,6 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 14,
     color: "#000000",
-    //     marginBottom: 10,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -578,7 +742,9 @@ const styles = StyleSheet.create({
   ratings__stats: {
     flexDirection: "row",
     alignItems: "center",
+    width: "100%",
     marginBottom: 20,
+    justifyContent: "space-between",
   },
   ratings__statsScore: {
     marginRight: 20,
@@ -621,7 +787,6 @@ const styles = StyleSheet.create({
   },
   ratings__optionList: {
     flexDirection: "row",
-    //     justifyContent: "space-around",
     alignItems: "center",
   },
   ratings__optionItem: {
@@ -634,7 +799,9 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
   },
   ratings__text: {
-    textAlign: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   ratings__statsLabels: {
     marginLeft: 10,
@@ -680,32 +847,78 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#000000",
   },
-});
+  progressCircleContainer: {
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  progressCircle: {
+    borderRadius: 999,
+    position: "absolute",
+  },
+  progressCircleFill: {
+    borderRightColor: "transparent",
+    borderBottomColor: "transparent",
+  },
+  progressCircleTextContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 60,
+    height: 60,
+  },
+  progressCircleText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  progressCirclePercentage: {
+    fontSize: 12,
+    color: "#666",
+  },
 
-//  const foodList = [
-//    {
-//      id: 1,
-//      name: "Hamberger",
-//      urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-//    },
-//    {
-//      id: 2,
-//      name: "Hamberger",
-//      urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-//    },
-//    {
-//      id: 3,
-//      name: "Hamberger",
-//      urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-//    },
-//    {
-//      id: 4,
-//      name: "Hamberger",
-//      urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-//    },
-//    {
-//      id: 5,
-//      name: "Hamberger",
-//      urL: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop",
-//    },
-//  ];
+  ratings__stats1: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  overlay: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  scoreText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "black",
+  },
+  icon__chevron_down: {
+    marginLeft: 2,
+  },
+  percentText: {
+    fontSize: 12,
+    color: "black",
+    marginTop: 2,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    borderBottomColor: "gray",
+    borderBottomWidth: 1,
+    position: "relative",
+    marginHorizontal: 15,
+    padding: 10,
+    marginBottom: 10,
+    marginTop: 8,
+  },
+  inputText: {
+    flex: 1,
+    marginLeft: 15,
+    color: "black",
+    fontWeight: "400",
+    fontSize: 18,
+  },
+});

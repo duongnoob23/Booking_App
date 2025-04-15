@@ -44,7 +44,7 @@ const HotelRoomList = ({ navigation, route }) => {
         newRooms[`room${room.roomId}`] = 0;
       });
     }
-    console.log("done");
+    // console.log("done");
     return newRooms;
   };
 
@@ -69,12 +69,12 @@ const HotelRoomList = ({ navigation, route }) => {
     }
   }, [hotelRoomList]);
 
-  console.log(">>> 51 HTL >>>", hotelRoomList);
-  console.log(">>> 52 HTL >>>", roomNumber);
+  // console.log(">>> 51 HTL >>>", hotelRoomList);
+  // console.log(">>> 52 HTL >>>", roomNumber);
   // console.log(">>> 40 HTL >>>", bookingPayload);
 
   const updateDateRoomNumber = (name, type, quantity) => {
-    console.log(quantity);
+    // console.log(quantity);
     setRoomNumber((prevRoomNumber) => {
       const newRoomNumber = { ...prevRoomNumber };
       if (type === "add" && newRoomNumber[name] < quantity) {
@@ -94,19 +94,27 @@ const HotelRoomList = ({ navigation, route }) => {
         const room = hotelRoomList.find((r) => r.roomId === roomId);
         return Array(roomNumber[key])
           .fill()
-          .map((_, index) => ({
-            uniqueId: `room${roomId}_${index + 1}`, // Tạo uniqueId: room1_1, room1_2, ...
-            roomId: roomId,
-            adults: inforFilter.adults,
-            children: inforFilter.children,
-            price: room ? room.price : 0,
-            serviceIdList: [],
-          }));
+          .map((_, index) => {
+            const uniqueId = `room${roomId}_${index + 1}`;
+            const existingRoom = bookingPayload.roomRequestList?.find(
+              (r) => r.uniqueId === uniqueId
+            );
+            return {
+              uniqueId: uniqueId,
+              roomId: roomId,
+              adults: inforFilter.adults,
+              children: inforFilter.children,
+              price: room ? room.price : 0,
+              serviceList: existingRoom ? existingRoom.serviceList : [],
+            };
+          });
       });
+    // serviceIdList;
     const bookingPayload_ = {
       ...bookingPayload,
       roomRequestList: roomRequestList,
     };
+
     dispatch(updateBookingPayload(bookingPayload_));
   }, [roomNumber]);
   const hasSelectedRooms = Object.values(roomNumber).some((count) => count > 0);

@@ -21,9 +21,9 @@ const ModalGuestsAndRooms = ({
 
   const dispatch = useAppDispatch();
   const [tempValues, setTempValues] = useState({
-    adults: inforFilter.adults || 0,
+    adults: inforFilter.adults || 1,
     children: inforFilter.children || 0,
-    roomNumber: inforFilter.roomNumber || 0,
+    roomNumber: inforFilter.roomNumber || 1,
   });
 
   const increaseValue = (key) => {
@@ -148,6 +148,7 @@ const ModalGuestsAndRooms = ({
     </Modal>
   );
 };
+export default ModalGuestsAndRooms;
 
 const styles = StyleSheet.create({
   modalOverlay: {
@@ -222,5 +223,3 @@ const styles = StyleSheet.create({
     color: "#333",
   },
 });
-
-export default ModalGuestsAndRooms;

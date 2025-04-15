@@ -10,7 +10,7 @@ import MapView, { Marker } from "react-native-maps";
 import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import { mapOpenClose } from "../../Redux/Slice/hotelSlice";
 
-const MapPriceScreen = () => {
+const MapCheckScreen = () => {
   const { map } = useAppSelector((state) => state.hotel);
   const dispatch = useAppDispatch();
 
@@ -115,4 +115,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MapPriceScreen;
+export default MapCheckScreen;

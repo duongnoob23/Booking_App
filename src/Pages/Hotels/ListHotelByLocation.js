@@ -190,7 +190,10 @@ const ListHotelByLocation = ({ navigation }) => {
               </View>
             </View>
             <View style={styles.bookView}>
-              <TouchableOpacity style={styles.bookButton}>
+              <TouchableOpacity
+                style={styles.bookButton}
+                onPress={() => handleToHotelDetails(item)}
+              >
                 <Text style={styles.bookButtonText}>Đặt ngay</Text>
               </TouchableOpacity>
             </View>

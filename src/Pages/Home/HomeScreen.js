@@ -256,8 +256,8 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleToInfoConfirm = () => {
-    dispatch(fetchUserInfo());
-    navigation.navigate("InfoConfirm");
+    // dispatch(fetchUserInfo());
+    navigation.navigate("LoginScreen");
   };
   return (
     <SafeAreaView style={styles.container}>

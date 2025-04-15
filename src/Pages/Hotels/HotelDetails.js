@@ -44,8 +44,8 @@ const HotelDetails = ({ navigation, route }) => {
   const { hotelList, hotelDetail, loading, error, inforFilter } =
     useAppSelector((state) => state.hotel);
 
-  // console.log(">>> 42 hotelDetails inforFilter", hotelDetail);
-
+  console.log(">>> 47 HD >>>", hotelDetail);
+  console.log(">>> 48 HD >>>", hotelDetail?.review?.feedback?.comments);
   useLayoutEffect(() => {
     navigation.getParent().setOptions({ tabBarStyle: { display: "none" } });
     return () => {
@@ -75,6 +75,7 @@ const HotelDetails = ({ navigation, route }) => {
       hotelId: hotelId,
       checkInDate: inforFilter.checkin,
       checkOutDate: inforFilter.checkout,
+      couponId: 0,
       roomRequestList: [],
     };
 
@@ -211,7 +212,7 @@ const HotelDetails = ({ navigation, route }) => {
                   </View>
                 </View>
                 <Text style={styles.header__rating__text}>
-                  {hotelDetail && hotelDetail.review.sumReview} Người đã thích
+                  {hotelDetail && hotelDetail?.review?.sumReview} Người đã thích
                 </Text>
               </View>
               <TouchableOpacity
@@ -223,7 +224,7 @@ const HotelDetails = ({ navigation, route }) => {
                 </View>
                 <View style={styles.header__location__text}>
                   <Text style={{ color: "white" }}>
-                    {hotelDetail && hotelDetail.review.location}
+                    {hotelDetail && hotelDetail?.review?.location}
                   </Text>
                 </View>
               </TouchableOpacity>

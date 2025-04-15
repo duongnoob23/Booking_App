@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAppSelector } from "../../Redux/hook";
+import MapPriceScreen from "../../Components/Map/MapPriceScreen";
+import MapCheckScreen from "../../Components/Map/MapCheckScreen";
 
 const CheckScreen = () => {
   // Dữ liệu giả cho danh sách hoạt động
@@ -121,6 +123,13 @@ const CheckScreen = () => {
           gần của khách sạn với các điểm tham quan, phương tiện giao thông và
           sân bay.
         </Text>
+      </View>
+
+      <View style={styles.map}>
+        <View style={styles.mapView}>
+          <Text style={styles.mapViewTitle}>VỊ TRÍ XUNG QUANH </Text>
+        </View>
+        <MapCheckScreen />
       </View>
 
       {/* Khối Hoạt động nên trải nghiệm */}
