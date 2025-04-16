@@ -1,338 +1,747 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   StyleSheet,
-  navigation,
-  ScrollView,
   FlatList,
+  TextInput,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // Để hiển thị icon ngôi sao (rating)
+import { Ionicons } from "@expo/vector-icons";
+import { useAppSelector, useAppDispatch } from "../../Redux/hook";
+import { addServiceToRoom } from "../../Redux/Slice/hotelSlice";
+import { fetchCart } from "../../Redux/Slice/serviceSlice";
+import { convertToCartItems } from "../../Utils/convertToCartItems";
 
-// Component chính
-const FoodCart = ({ navigation }) => {
-  const FoodList = [
-    {
-      id: 1,
-      name: "Bagels with turkey and bacon",
-      url: "https://media.istockphoto.com/id/2061716709/fr/photo/burger-de-c%C3%B4tes-grill%C3%A9es.webp?a=1&b=1&s=612x612&w=0&k=20&c=PvlYSm7Q_q7ro2i7tMJ4lnjELvPeBKnWIyzvOObmkEQ=",
-      price: "10.000",
-      quantity: "1",
-    },
-    {
-      id: 2,
-      name: "Sandwich",
-      url: "https://media.istockphoto.com/id/2061716709/fr/photo/burger-de-c%C3%B4tes-grill%C3%A9es.webp?a=1&b=1&s=612x612&w=0&k=20&c=PvlYSm7Q_q7ro2i7tMJ4lnjELvPeBKnWIyzvOObmkEQ=",
-      price: "10.000",
-      quantity: "1",
-    },
-    {
-      id: 3,
-      name: "Sandwich",
-      url: "https://media.istockphoto.com/id/2061716709/fr/photo/burger-de-c%C3%B4tes-grill%C3%A9es.webp?a=1&b=1&s=612x612&w=0&k=20&c=PvlYSm7Q_q7ro2i7tMJ4lnjELvPeBKnWIyzvOObmkEQ=",
-      price: "10.000",
-      quantity: "1",
-    },
-    {
-      id: 4,
-      name: "Sandwich",
-      url: "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg",
-      price: "10.000",
-      quantity: "1",
-    },
-  ];
+const ShopCart = ({ navigation, route }) => {
+  const dispatch = useAppDispatch();
+  const { cart, loadingService, error } = useAppSelector(
+    (state) => state.service
+  );
+  const { bookingPayload } = useAppSelector((state) => state.hotel);
+  const [serviceQuantities, setServiceQuantities] = useState([]);
+  const [expandedServices, setExpandedServices] = useState({});
+  const roomMapping = route.params?.roomMapping || {};
 
-  const handleToOrderFood = () => {
-    navigation.navigate("OrderFood");
+  // Đồng bộ serviceQuantities từ cart
+  // useEffect(() => {
+  //   if (
+  //     cart?.serviceBookingList?.length > 0 &&
+  //     serviceQuantities.length === 0
+  //   ) {
+  //     const initialQuantities = cart.serviceBookingList.reduce(
+  //       (acc, service) => {
+  //         if (!service?.bookingRoomResponseList) return acc;
+
+  //         service.bookingRoomResponseList.forEach((room) => {
+  //           if (!room?.uniqueId) {
+  //             console.warn(
+  //               `Skipping room with no uniqueId: ${JSON.stringify(room)}`
+  //             );
+  //             return;
+  //           }
+
+  //           const existRoom = acc.find((r) => r.uniqueId === room.uniqueId);
+  //           if (existRoom) {
+  //             existRoom.serviceIds.push({
+  //               id: service.serviceId,
+  //               quantity: room.quantity || 0,
+  //               time: room.time || "",
+  //               note: room.note || "",
+  //             });
+  //           } else {
+  //             acc.push({
+  //               uniqueId: room.uniqueId,
+  //               serviceIds: [
+  //                 {
+  //                   id: service.serviceId,
+  //                   quantity: room.quantity || 0,
+  //                   time: room.time || "",
+  //                   note: room.note || "",
+  //                 },
+  //               ],
+  //             });
+  //           }
+  //         });
+  //         return acc;
+  //       },
+  //       []
+  //     );
+  //     setServiceQuantities(initialQuantities);
+  //   }
+  // }, [cart]);
+  useEffect(() => {
+    if (bookingPayload?.roomRequestList) {
+      const initialQuantities = bookingPayload.roomRequestList
+        .filter((room) => room.serviceList && room.serviceList.length > 0)
+        .map((room) => ({
+          uniqueId: room.uniqueId,
+          serviceIds: room.serviceList.map((service) => ({
+            id: service.id,
+            quantity: service.quantity,
+            time: service.time || "",
+            note: service.note || "",
+          })),
+        }));
+      setServiceQuantities(initialQuantities);
+    }
+  }, [bookingPayload]);
+  // Xử lý tăng số lượng
+  const handleAdd = (serviceId, uniqueId) => {
+    if (!uniqueId) return;
+
+    setServiceQuantities((prev) => {
+      const existRoom = prev.find((r) => r.uniqueId === uniqueId);
+      if (existRoom) {
+        const existService = existRoom.serviceIds.find(
+          (s) => s.id === serviceId
+        );
+        if (existService) {
+          return prev.map((r) =>
+            r.uniqueId === uniqueId
+              ? {
+                  ...r,
+                  serviceIds: r.serviceIds.map((s) =>
+                    s.id === serviceId ? { ...s, quantity: s.quantity + 1 } : s
+                  ),
+                }
+              : r
+          );
+        }
+        return prev.map((r) =>
+          r.uniqueId === uniqueId
+            ? {
+                ...r,
+                serviceIds: [
+                  ...r.serviceIds,
+                  { id: serviceId, quantity: 1, time: "", note: "" },
+                ],
+              }
+            : r
+        );
+      }
+      return [
+        ...prev,
+        {
+          uniqueId,
+          serviceIds: [{ id: serviceId, quantity: 1, time: "", note: "" }],
+        },
+      ];
+    });
   };
 
-  const handleToOrderPayment = () => {
+  // Xử lý giảm số lượng
+  const handleDecreaseQuantity = (serviceId, uniqueId) => {
+    if (!uniqueId) return;
+
+    setServiceQuantities((prev) => {
+      return prev
+        .map((r) =>
+          r.uniqueId === uniqueId
+            ? {
+                ...r,
+                serviceIds: r.serviceIds
+                  .map((s) =>
+                    s.id === serviceId && s.quantity > 0
+                      ? { ...s, quantity: s.quantity - 1 }
+                      : s
+                  )
+                  .filter((s) => s.quantity > 0),
+              }
+            : r
+        )
+        .filter((r) => r.serviceIds.length > 0);
+    });
+  };
+
+  const handleUpdateNote = (serviceId, uniqueId, newNote) => {
+    if (!uniqueId) return;
+
+    setServiceQuantities((prev) => {
+      const existRoom = prev.find((r) => r.uniqueId === uniqueId);
+      if (existRoom) {
+        const existService = existRoom.serviceIds.find(
+          (s) => s.id === serviceId
+        );
+        if (existService) {
+          return prev.map((r) =>
+            r.uniqueId === uniqueId
+              ? {
+                  ...r,
+                  serviceIds: r.serviceIds.map((s) =>
+                    s.id === serviceId ? { ...s, note: newNote } : s
+                  ),
+                }
+              : r
+          );
+        }
+        return prev.map((r) =>
+          r.uniqueId === uniqueId
+            ? {
+                ...r,
+                serviceIds: [
+                  ...r.serviceIds,
+                  { id: serviceId, quantity: 0, time: "", note: newNote },
+                ],
+              }
+            : r
+        );
+      }
+      return [
+        ...prev,
+        {
+          uniqueId,
+          serviceIds: [{ id: serviceId, quantity: 0, time: "", note: newNote }],
+        },
+      ];
+    });
+  };
+
+  // Xử lý xác nhận cho dịch vụ
+  const handleConfirmService = () => {
+    dispatch(addServiceToRoom(serviceQuantities));
+
+    setExpandedServices([]);
+  };
+
+  // Xử lý xác nhận toàn bộ (thanh toán)
+
+  console.log(">>>>>>> 150 ", serviceQuantities);
+
+  const handleConfirmOrder = () => {
+    dispatch(addServiceToRoom(serviceQuantities));
+    const roomRequestList = bookingPayload?.roomRequestList || [];
+    const { cartItems } = convertToCartItems(roomRequestList);
+    dispatch(fetchCart({ cartItems, roomMapping }));
+    setExpandedServices({});
     navigation.navigate("OrderPayment");
   };
-  const handleToSuccessPayment = () => {
-    navigation.navigate("SuccessPayment");
+
+  // Toggle mở rộng/thu gọn dịch vụ
+  const toggleExpandService = (serviceId) => {
+    setExpandedServices((prev) => ({
+      ...prev,
+      [serviceId]: !prev[serviceId],
+    }));
   };
-  const renderListFood = ({ item }) => {
+
+  // Tính giá tạm thời
+  const calculateTempPrices = () => {
+    const tempPriceServiceList = serviceQuantities.reduce((acc, room) => {
+      room.serviceIds.forEach((service) => {
+        const cartService = cart?.serviceBookingList?.find(
+          (s) => s.serviceId === service.id
+        );
+        const priceService = cart?.priceServiceList?.find(
+          (p) => p.serviceName === cartService?.serviceName
+        );
+        if (priceService) {
+          const existing = acc.find(
+            (p) => p.serviceName === priceService.serviceName
+          );
+          if (existing) {
+            existing.totalQuantity += service.quantity;
+            existing.totalPrice = existing.price * existing.totalQuantity;
+          } else {
+            acc.push({
+              serviceName: priceService.serviceName,
+              price: priceService.price,
+              totalQuantity: service.quantity,
+              totalPrice: priceService.price * service.quantity,
+            });
+          }
+        }
+      });
+      return acc;
+    }, []);
+
+    const tempTotalPrice = tempPriceServiceList.reduce(
+      (sum, item) => sum + item.totalPrice,
+      0
+    );
+
+    return { tempPriceServiceList, tempTotalPrice };
+  };
+
+  const { tempPriceServiceList, tempTotalPrice } = calculateTempPrices();
+
+  // Render phòng
+  // const renderRoomItem = ({ item: room }, serviceId) => {
+  //   if (!room.uniqueId) {
+  //     console.warn(
+  //       `Skipping render room with no uniqueId: ${JSON.stringify(room)}`
+  //     );
+  //     return null;
+  //   }
+
+  //   const uniqueId = room.uniqueId;
+  //   const roomQuantities = serviceQuantities.find(
+  //     (q) => q.uniqueId === uniqueId
+  //   );
+  //   const service = roomQuantities?.serviceIds.find((s) => s.id === serviceId);
+  //   const quantity = service?.quantity || 0;
+
+  //   return (
+  //     <View style={styles.roomWrapper}>
+  //       <View style={styles.roomInfo}>
+  //         <Text style={styles.roomLabel}>Phòng</Text>
+  //         <Text style={styles.roomValue}>{uniqueId}</Text>
+  //       </View>
+  //       <View style={styles.roomInfo}>
+  //         <Text style={styles.roomLabel}>Số lượng</Text>
+  //         <View style={styles.quantityContainer}>
+  //           <TouchableOpacity
+  //             style={styles.quantityButton}
+  //             onPress={() => handleDecreaseQuantity(serviceId, uniqueId)}
+  //             disabled={quantity === 0}
+  //           >
+  //             <Text style={styles.quantityButtonText}>−</Text>
+  //           </TouchableOpacity>
+  //           <Text style={styles.quantityText}>{quantity}</Text>
+  //           <TouchableOpacity
+  //             style={styles.quantityButton}
+  //             onPress={() => handleAdd(serviceId, uniqueId)}
+  //           >
+  //             <Text style={styles.quantityButtonText}>+</Text>
+  //           </TouchableOpacity>
+  //         </View>
+  //       </View>
+  //     </View>
+  //   );
+  // };
+
+  const renderRoomItem = ({ item: room }, serviceId) => {
+    if (!room.uniqueId) {
+      console.warn(
+        `Skipping render room with no uniqueId: ${JSON.stringify(room)}`
+      );
+      return null;
+    }
+
+    const uniqueId = room.uniqueId;
+    const roomQuantities = serviceQuantities.find(
+      (q) => q.uniqueId === uniqueId
+    );
+    const service = roomQuantities?.serviceIds.find((s) => s.id === serviceId);
+    const quantity = service?.quantity || 0;
+    const time = service?.time || "";
+    const note = service?.note || "";
+
     return (
-      <View style={styles.foodCart__item}>
-        <Image
-          source={{
-            uri: `${item.url}`,
-          }} // Thay bằng URL hình ảnh thực tế
-          style={styles.foodCart__itemImage}
-        />
-        <View style={styles.foodCart__itemDetails}>
-          <Text style={styles.foodCart__itemName}>{item.name}</Text>
-          <Text style={styles.foodCart__itemPrice}>{item.price}</Text>
+      <View style={styles.roomWrapper}>
+        {/* Phòng */}
+        <View style={styles.roomInfo}>
+          <Text style={styles.roomLabel}>Phòng</Text>
+          <Text style={styles.roomValue}>{uniqueId}</Text>
         </View>
-        <View style={styles.foodCart__itemQuantity}>
-          <TouchableOpacity style={styles.foodCart__itemButton}>
-            <Text style={styles.foodCart__itemButtonText}>−</Text>
-          </TouchableOpacity>
-          <Text style={styles.foodCart__itemQuantityText}>{item.quantity}</Text>
-          <TouchableOpacity style={styles.foodCart__itemButton}>
-            <Text style={styles.foodCart__itemButtonText}>+</Text>
-          </TouchableOpacity>
+        {/* Số lượng */}
+        <View style={styles.roomInfo}>
+          <Text style={styles.roomLabel}>Số lượng</Text>
+          <View style={styles.quantityContainer}>
+            <TouchableOpacity
+              style={[
+                styles.quantityButton,
+                quantity === 0 && styles.quantityButtonDisabled,
+              ]}
+              onPress={() => handleDecreaseQuantity(serviceId, uniqueId)}
+              disabled={quantity === 0}
+            >
+              <Text style={styles.quantityButtonText}>−</Text>
+            </TouchableOpacity>
+            <Text style={styles.quantityText}>{quantity}</Text>
+            <TouchableOpacity
+              style={styles.quantityButton}
+              onPress={() => handleAdd(serviceId, uniqueId)}
+            >
+              <Text style={styles.quantityButtonText}>+</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        {/* Time */}
+        {/* <View style={styles.roomInfo}>
+          <Text style={styles.roomLabel}>Thời gian</Text>
+          <TextInput
+            style={styles.input}
+            value={time}
+            onChangeText={(newTime) => {
+              // Sẽ thêm hàm handleUpdateTime sau
+            }}
+            placeholder="VD: 14:00"
+            placeholderTextColor="#999"
+          />
+        </View> */}
+        {/* Note */}
+        <View style={styles.roomInfo}>
+          <Text style={styles.roomLabel}>Ghi chú</Text>
+          <TextInput
+            style={styles.input}
+            value={note}
+            onChangeText={(newNote) =>
+              handleUpdateNote(serviceId, uniqueId, newNote)
+            }
+            placeholder="VD: Thêm đá"
+            placeholderTextColor="#999"
+          />
         </View>
       </View>
     );
   };
-  return (
-    <View style={styles.foodCart}>
-      {/* Header */}
-      <View style={styles.foodCart__header}>
-        <TouchableOpacity>
-          <Text style={styles.foodCart__headerBack}>
-            <Ionicons
-              style={styles.iconChevron}
-              name="chevron-back-outline"
-              size={36}
-              color="black"
-              onPress={() => handleToOrderFood()}
-            />
+
+  // Render dịch vụ
+  const renderServiceItem = ({ item }) => {
+    if (!item?.serviceId) return null;
+
+    return (
+      <View style={styles.serviceItemContainer}>
+        <View style={styles.serviceItem}>
+          <Text style={styles.serviceName}>
+            {item.serviceName || "Dịch vụ không xác định"}
           </Text>
+          <TouchableOpacity
+            style={styles.toggleButton}
+            onPress={() => toggleExpandService(item.serviceId)}
+          >
+            <Text style={styles.toggleButtonText}>
+              {expandedServices[item.serviceId] ? "Thu gọn" : "Thêm"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        {expandedServices[item.serviceId] && (
+          <View>
+            <FlatList
+              data={item.bookingRoomResponseList || []}
+              renderItem={(props) => renderRoomItem(props, item.serviceId)}
+              keyExtractor={(room) =>
+                `room_${room.uniqueId || room.roomId}_${item.serviceId}`
+              }
+              style={styles.roomList}
+              showsVerticalScrollIndicator={false}
+            />
+            {/* <TouchableOpacity
+              style={styles.confirmServiceButton}
+              onPress={() => handleConfirmService(item.serviceId)}
+            >
+              <Text style={styles.confirmServiceButtonText}>Xác nhận</Text>
+            </TouchableOpacity> */}
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  // Render giá
+  const renderPriceItem = ({ item }) => (
+    <View style={styles.priceItem}>
+      <Text style={styles.priceServiceName}>{item.serviceName}</Text>
+      <Text style={styles.priceText}>
+        {item.price.toLocaleString()} VNĐ x {item.totalQuantity} ={" "}
+        {item.totalPrice.toLocaleString()} VNĐ
+      </Text>
+    </View>
+  );
+
+  // Xử lý loading và lỗi
+  if (loadingService) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text>Error: {error}</Text>
+        <TouchableOpacity
+          style={styles.retryButton}
+          onPress={() => {
+            const roomRequestList = bookingPayload?.roomRequestList || [];
+            const { cartItems } = convertToCartItems(roomRequestList);
+            dispatch(fetchCart({ cartItems, roomMapping }));
+          }}
+        >
+          <Text style={styles.retryButtonText}>Thử lại</Text>
         </TouchableOpacity>
-        <Text style={styles.foodCart__headerTitle}>Giỏ Hàng</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="chevron-back-outline" size={36} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Giỏ Hàng</Text>
       </View>
 
-      {/* Summary Line */}
-      <View style={styles.foodCart__summary}>
-        <Text style={styles.foodCart__summaryItems}>2 sản phẩm</Text>
-        <Text style={styles.foodCart__summaryTotal}>Tổng: 12.000</Text>
-      </View>
-
-      {/* Danh sách món ăn */}
-
+      {/* Danh sách dịch vụ */}
       <FlatList
-        data={FoodList}
-        renderItem={renderListFood}
-        keyExtractor={(item) => item.id}
-        style={styles.foodCart__items}
-        //   showsHorizontalScrollIndicator={false}
+        data={cart?.serviceBookingList || []}
+        renderItem={renderServiceItem}
+        keyExtractor={(item) => `service_${item.serviceId}`}
+        style={styles.serviceList}
         showsVerticalScrollIndicator={false}
       />
 
-      {/* Select Time */}
-      <View style={styles.foodCart__selectTime}>
-        <Text style={styles.foodCart__selectTimeLabel}>Chọn thời gian</Text>
-        <Text style={styles.foodCart__selectTimeValue}>00:00:00</Text>
-        <Text style={styles.foodCart__selectTimeArrow}>▼</Text>
-      </View>
-
-      {/* Order Summary */}
-      <View style={styles.foodCart__orderSummary}>
-        <Text style={styles.foodCart__orderSummaryTitle}>TÓM TẮT ĐƠN HÀNG</Text>
-        <View style={styles.foodCart__orderSummaryItem}>
-          <Text style={styles.foodCart__orderSummaryItemName}>
-            Bagels with turkey and bacon
+      {/* Danh sách giá */}
+      <View style={styles.priceSection}>
+        <Text style={styles.priceSectionTitle}>Chi tiết giá</Text>
+        <FlatList
+          data={tempPriceServiceList.length > 0 ? tempPriceServiceList : 0}
+          renderItem={renderPriceItem}
+          keyExtractor={(item) => `price_${item.serviceName}`}
+          style={styles.priceList}
+          showsVerticalScrollIndicator={false}
+        />
+        <View style={styles.totalPrice}>
+          <Text style={styles.totalPriceLabel}>Tổng tiền:</Text>
+          <Text style={styles.totalPriceValue}>
+            {(tempPriceServiceList.length > 0
+              ? tempTotalPrice
+              : 0
+            ).toLocaleString()}{" "}
+            VNĐ
           </Text>
-          <Text style={styles.foodCart__orderSummaryItemPrice}>10.000</Text>
-        </View>
-        <View style={styles.foodCart__orderSummaryItem}>
-          <Text style={styles.foodCart__orderSummaryItemName}>Sandwich</Text>
-          <Text style={styles.foodCart__orderSummaryItemPrice}>5.000</Text>
-        </View>
-        <View style={styles.foodCart__orderSummaryItem}>
-          <Text style={styles.foodCart__orderSummaryItemName}>Tạm tính </Text>
-          <Text style={styles.foodCart__orderSummaryItemPrice}>15.000 </Text>
-        </View>
-        <View style={styles.foodCart__orderSummaryItem}>
-          <Text style={styles.foodCart__orderSummaryItemName}>
-            Phí dịch vụ{" "}
-          </Text>
-          <Text style={styles.foodCart__orderSummaryItemPrice}>2.000 </Text>
-        </View>
-        <View style={styles.foodCart__orderSummaryItem}>
-          <Text style={styles.foodCart__orderSummaryItemName__total}>
-            TỔNG TIỀN
-          </Text>
-          <Text style={styles.foodCart__orderSummaryItemPrice__total}>$17</Text>
         </View>
       </View>
 
-      {/* Nút Proceed to Payment */}
-      <TouchableOpacity
-        style={styles.foodCart__proceedButton}
-        onPress={() => handleToOrderPayment()}
-        //   onPress={() => handleToSuccessPayment()}
-      >
-        <Text style={styles.foodCart__proceedButtonText}>THANH TOÁN</Text>
-      </TouchableOpacity>
+      {/* Nút thanh toán */}
+      <View style={styles.groupButton}>
+        <TouchableOpacity
+          style={styles.proceedButton}
+          onPress={() => handleConfirmService()}
+        >
+          <Text style={styles.proceedButtonText}>Xác nhận</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.proceedButton}
+          onPress={handleConfirmOrder}
+        >
+          <Text style={styles.proceedButtonText}>Thanh Toán</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
-
+export default ShopCart;
+// sau khi OF đặt số lượng , FC giảm số lượng về 0 rồi lại đặt , OF lại đặt thì bị lỗi hiển thị
 // Styles
 const styles = StyleSheet.create({
-  foodCart: {
+  container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
-    paddingHorizontal: 20,
+    backgroundColor: "#fff",
+    paddingHorizontal: 15,
     flexDirection: "column",
   },
-  foodCart__header: {
+  header: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 40,
-    marginBottom: 10,
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
   },
-  foodCart__headerBack: {
-    fontSize: 24,
-    color: "#00F598",
-    marginRight: 10,
-  },
-  foodCart__headerTitle: {
-    fontSize: 24,
+  headerTitle: {
+    fontSize: 18,
     fontWeight: "bold",
-    color: "#000000",
+    marginLeft: 10,
   },
-  foodCart__summary: {
+  serviceList: {
+    flexGrow: 0,
+    paddingVertical: 10,
+    // minHeight: "450",
+    // maxHeight: "450",
+  },
+  serviceItemContainer: {
+    marginBottom: 15,
+  },
+  serviceItem: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 10,
-    backgroundColor: "#EFF3F5",
-    //     paddingHorizontal: 10,
-    paddingVertical: 20,
-  },
-  foodCart__summaryItems: {
-    fontSize: 14,
-    color: "#666666",
-  },
-  foodCart__summaryTotal: {
-    fontSize: 14,
-    color: "#000000",
-  },
-  foodCart__items: {
-    marginBottom: 20,
-  },
-  foodCart__item: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    marginBottom: 15,
-    borderBottomColor: "#9EB6C5",
-    borderBottomWidth: 1,
-    justifyContent: "flex-end",
-    //     paddingHorizontal: 10,
-    paddingVertical: 20,
-  },
-  foodCart__itemImage: {
-    width: 80,
-    height: 80,
+    alignItems: "center",
+    padding: 10,
+    backgroundColor: "#F5F7FA",
     borderRadius: 10,
-    marginRight: 10,
   },
-  foodCart__itemDetails: {
-    flex: 1,
-  },
-  foodCart__itemName: {
+  serviceName: {
     fontSize: 16,
-    fontWeight: "400",
-    color: "#000000",
-    lineHeight: 24,
+    fontWeight: "bold",
+    color: "#333",
   },
-  foodCart__itemPrice: {
+  toggleButton: {
+    backgroundColor: "#00F598",
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+  },
+  toggleButtonText: {
+    color: "#fff",
     fontSize: 14,
-    color: "#000000",
-    lineHeight: 21,
     fontWeight: "bold",
   },
-  foodCart__itemQuantity: {
+  roomList: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#F5F7FA",
+    borderRadius: 10,
+  },
+  roomWrapper: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  roomInfo: {
+    flex: 1,
+    alignItems: "center",
+  },
+  roomLabel: {
+    fontSize: 12,
+    color: "#666",
+  },
+  roomValue: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginTop: 5,
+  },
+  quantityContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
-  foodCart__itemButton: {
-    width: 25,
-    height: 25,
-    backgroundColor: "#00F598",
-    borderRadius: 8,
+  quantityButton: {
+    width: 30,
+    height: 30,
     justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#00F598",
+    borderRadius: 15,
+  },
+  quantityButtonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  quantityText: {
+    marginHorizontal: 10,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  confirmServiceButton: {
+    backgroundColor: "#28A745",
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 10,
+    marginHorizontal: 10,
+  },
+  confirmServiceButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  priceSection: {
+    marginTop: "auto",
+    padding: 15,
+    backgroundColor: "#F5F7FA",
+    borderRadius: 10,
+  },
+  priceSectionTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#333",
+  },
+  priceList: {
+    marginBottom: 10,
+  },
+  priceItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 8,
+  },
+  priceServiceName: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  priceText: {
+    fontSize: 14,
+    color: "#666",
+  },
+  totalPrice: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+  },
+  totalPriceLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  totalPriceValue: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#00F598",
+  },
+  proceedButton: {
+    backgroundColor: "#00F598",
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: "center",
+    marginVertical: 15,
+    width: "49.5%",
+  },
+  proceedButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "400",
+  },
+  retryButton: {
+    marginTop: 10,
+    backgroundColor: "#00F598",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  retryButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  groupButton: {
+    // marginTop: "auto",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  roomInfo: {
+    flex: 1,
     alignItems: "center",
     marginHorizontal: 5,
   },
-  foodCart__itemButtonText: {
-    fontSize: 16,
-    color: "#FFFFFF",
+  roomLabel: {
+    fontSize: 12,
+    color: "#666",
+    marginBottom: 5,
   },
-  foodCart__itemQuantityText: {
-    fontSize: 16,
-    color: "#000000",
+  roomValue: {
+    fontSize: 14,
+    fontWeight: "bold",
   },
-  foodCart__selectTime: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  input: {
+    width: "100%",
+    height: 30,
     borderWidth: 1,
-    borderColor: "#CCCCCC",
+    borderColor: "#ddd",
     borderRadius: 5,
-    padding: 10,
-    marginBottom: 20,
-  },
-  foodCart__selectTimeLabel: {
+    paddingHorizontal: 8,
     fontSize: 14,
-    color: "#666666",
-  },
-  foodCart__selectTimeValue: {
-    fontSize: 14,
-    color: "#000000",
-  },
-  foodCart__selectTimeArrow: {
-    fontSize: 14,
-    color: "#666666",
-  },
-  foodCart__orderSummary: {
-    marginBottom: 20,
-  },
-  foodCart__orderSummaryTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#000000",
-    marginBottom: 10,
-  },
-  foodCart__orderSummaryItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  foodCart__orderSummaryItemName: {
-    fontSize: 14,
-    color: "#000000",
-    lineHeight: 21,
-  },
-  foodCart__orderSummaryItemName__total: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#000000",
-    lineHeight: 21,
-  },
-  foodCart__orderSummaryItemPrice: {
-    fontSize: 14,
-    color: "#000000",
-    lineHeight: 21,
-  },
-  foodCart__orderSummaryItemPrice__total: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#000000",
-    lineHeight: 21,
-  },
-  foodCart__proceedButton: {
-    backgroundColor: "#00F598",
-    borderRadius: 10,
-    paddingVertical: 15,
-    alignItems: "center",
-    marginVertical: 20,
-    marginTop: "auto",
-  },
-  foodCart__proceedButtonText: {
-    fontSize: 16,
-    fontWeight: "400",
-    color: "#FFFFFF",
+    color: "#333",
+    backgroundColor: "#fff",
   },
 });
-
-export default FoodCart;
-
-// xử lý logic chỉnh quantity thì chỉnh data trong mảng
-// logic ấn thêm thì món ăn sẽ thêm vào danh sách giỏ hàng

@@ -52,6 +52,7 @@ const OrderConfirmScreen = ({ navigation }) => {
     bookingPayload,
     listUniqueIdBookingRoom,
     loadingBookingRoom,
+    roomNumberFake, // là roomQuantities được tạo thành từ roomNumber ở bên HotelRoomList và lưu vào redux
   } = useAppSelector((state) => state.hotel);
   // bookingPayload?.roomRequestList?.forEach((item) => {
   //   console.log("BPL từ redux OCS", item?.serviceIdList);
@@ -80,6 +81,12 @@ const OrderConfirmScreen = ({ navigation }) => {
       serviceSelect?.map((service) => service.serviceType) || []
     );
     return Array.from(serviceTypes);
+  };
+
+  const handleToOrderFood = () => {
+    // console.log("OCS 87 >>>>>>>>>>>>>>>>>>>>>>>>>>>>", roomNumberFake);
+    // dispatch(fetchServicesByCategory(roomNumberFake));
+    navigation.navigate("OrderFood");
   };
   // Sửa renderListRoom để dùng với ScrollView
   const renderListRoom = (item) => (
@@ -110,7 +117,7 @@ const OrderConfirmScreen = ({ navigation }) => {
               <TouchableOpacity
                 key={type}
                 style={styles.iconWrapper}
-                onPress={() => navigation.navigate("OrderFood")}
+                onPress={() => handleToOrderFood()}
               >
                 {getServiceIcon(type)}
               </TouchableOpacity>

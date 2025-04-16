@@ -153,29 +153,29 @@ export const fetchBookingRoom = createAsyncThunk(
       // if (!accessToken) {
       //   return rejectWithValue("No access token available");
       // }
-      console.log("-------------------bookingPayload-------------------------");
-      const printServiceLists = (data) => {
-        data.roomRequestList.forEach((room, index) => {
-          console.log(`Phòng ${index + 1} (uniqueId: ${room.uniqueId}):`);
-          if (room.serviceList && room.serviceList.length > 0) {
-            room.serviceList.forEach((service, serviceIndex) => {
-              console.log(
-                `  Dịch vụ ${serviceIndex + 1}: ID = ${
-                  service.id
-                }, Số lượng = ${service.quantity}, Thời gian = "${
-                  service.time || ""
-                }", Ghi chú = "${service.note || ""}"`
-              );
-            });
-          } else {
-            console.log("  Không có dịch vụ nào.");
-          }
-        });
-      };
+      // console.log("-------------------bookingPayload-------------------------");
+      // const printServiceLists = (data) => {
+      //   data.roomRequestList.forEach((room, index) => {
+      //     console.log(`Phòng ${index + 1} (uniqueId: ${room.uniqueId}):`);
+      //     if (room.serviceList && room.serviceList.length > 0) {
+      //       room.serviceList.forEach((service, serviceIndex) => {
+      //         console.log(
+      //           `  Dịch vụ ${serviceIndex + 1}: ID = ${
+      //             service.id
+      //           }, Số lượng = ${service.quantity}, Thời gian = "${
+      //             service.time || ""
+      //           }", Ghi chú = "${service.note || ""}"`
+      //         );
+      //       });
+      //     } else {
+      //       console.log("  Không có dịch vụ nào.");
+      //     }
+      //   });
+      // };
 
       // Gọi hàm với biến test
-      printServiceLists(bookingPayload);
-      console.log("---------------bookingPayload---------------------------");
+      // printServiceLists(bookingPayload);
+      // console.log("---------------bookingPayload---------------------------");
 
       const response = await fetch(`${API_BASE_URL}/api/booking/get_booking`, {
         method: "POST",
@@ -264,7 +264,7 @@ const hotelSlice = createSlice({
     loadingBookingRoom: false,
 
     map: false,
-
+    roomNumbeFaker: [],
     error: null, // Lỗi nếu có
     inforFilter: {
       locationId: "0",
@@ -298,6 +298,9 @@ const hotelSlice = createSlice({
     uppdateListUniqueIdBookingRoom(state, action) {
       // console.log("233 HS check", action.payload);
       state.listUniqueIdBookingRoom = [...action.payload];
+    },
+    updateRoomNumber(state, action) {
+      state.roomNumbeFaker = action.payload;
     },
     updateBookingPayload(state, action) {
       console.log(action.payload);
@@ -515,6 +518,7 @@ export const {
   updateFilter,
   mapOpenClose,
   updateHotelDetailId,
+  updateRoomNumber,
   uppdateListUniqueIdBookingRoom,
   addServiceToRoom,
   updateBookingPayload,

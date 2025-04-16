@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import LinearGradient from "react-native-linear-gradient";
@@ -109,74 +111,80 @@ const LoginScreen = ({ navigation, route }) => {
     setPassword("");
   };
   return (
-    <View style={styles.container}>
-      <View style={styles.wrapTitle}>
-        <Text style={styles.title}>Đăng nhập với Email </Text>
-      </View>
-      <View style={styles.whiteFrame}>
-        <View style={[styles.inputContainer, styles.inputContainerFirst]}>
-          <Ionicons name="mail-outline" size={20} color="#0090FF" />
-          <TextInput
-            placeholder="Email"
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-          />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
+    >
+      <View style={styles.container}>
+        <View style={styles.wrapTitle}>
+          <Text style={styles.title}>Đăng nhập với Email </Text>
         </View>
-        {/* Ô input Mật khẩu */}
-        <View style={styles.inputContainer}>
-          <Ionicons name="lock-closed-outline" size={20} color="#0090FF" />
-          <TextInput
-            placeholder="Mật khẩu"
-            secureTextEntry
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-          />
-        </View>
-        {/* ForgotPassword */}
-        {/* Quên mật khẩu */}
-        <Text
-          style={styles.forgotPassword}
-          onPress={() => navigation.navigate("ForgotPassword")}
-        >
-          Quên mật khẩu?
-        </Text>
-        {/* Nút Đăng nhập */}
-        <TouchableOpacity style={styles.button} onPress={handleEmailLogin}>
-          <Text style={styles.buttonText}>Đăng nhập</Text>
-        </TouchableOpacity>
-        {/* Nút đăng nhập bằng Google và Facebook */}
-        <View>
-          <Text style={styles.textOr}>Hoặc đăng nhập bằng</Text>
-        </View>
-        <View style={styles.socialButtons}>
-          <TouchableOpacity
-            onPress={() => handleToPhoneLogin()}
-            style={[styles.socialButton, { backgroundColor: "#3b5998" }]}
-          >
-            <Text style={styles.socialButtonText}>Số Điện Thoại </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => handleToGoogleLogin()}
-            style={[styles.socialButton, { backgroundColor: "#db4437" }]}
-          >
-            <Text style={styles.socialButtonText}>GOOGLE</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Chưa có tài khoản? </Text>
+        <View style={styles.whiteFrame}>
+          <View style={[styles.inputContainer, styles.inputContainerFirst]}>
+            <Ionicons name="mail-outline" size={20} color="#0090FF" />
+            <TextInput
+              placeholder="Email"
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+            />
+          </View>
+          {/* Ô input Mật khẩu */}
+          <View style={styles.inputContainer}>
+            <Ionicons name="lock-closed-outline" size={20} color="#0090FF" />
+            <TextInput
+              placeholder="Mật khẩu"
+              secureTextEntry
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+            />
+          </View>
+          {/* ForgotPassword */}
+          {/* Quên mật khẩu */}
           <Text
-            style={styles.footerLink}
-            onPress={() => navigation.navigate("Register")}
+            style={styles.forgotPassword}
+            onPress={() => navigation.navigate("ForgotPassword")}
           >
-            Đăng ký
+            Quên mật khẩu?
           </Text>
+          {/* Nút Đăng nhập */}
+          <TouchableOpacity style={styles.button} onPress={handleEmailLogin}>
+            <Text style={styles.buttonText}>Đăng nhập</Text>
+          </TouchableOpacity>
+          {/* Nút đăng nhập bằng Google và Facebook */}
+          <View>
+            <Text style={styles.textOr}>Hoặc đăng nhập bằng</Text>
+          </View>
+          <View style={styles.socialButtons}>
+            <TouchableOpacity
+              onPress={() => handleToPhoneLogin()}
+              style={[styles.socialButton, { backgroundColor: "#3b5998" }]}
+            >
+              <Text style={styles.socialButtonText}>Số Điện Thoại </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handleToGoogleLogin()}
+              style={[styles.socialButton, { backgroundColor: "#db4437" }]}
+            >
+              <Text style={styles.socialButtonText}>GOOGLE</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Chưa có tài khoản? </Text>
+            <Text
+              style={styles.footerLink}
+              onPress={() => navigation.navigate("Register")}
+            >
+              Đăng ký
+            </Text>
+          </View>
         </View>
-      </View>
 
-      {/* Text chuyển sang Đăng ký */}
-    </View>
+        {/* Text chuyển sang Đăng ký */}
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 export default LoginScreen;

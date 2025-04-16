@@ -13,6 +13,9 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAppSelector, useAppDispatch } from "../../Redux/hook";
 import { addServiceToRoom } from "../../Redux/Slice/hotelSlice";
+import { convertToCartItems } from "../../Utils/convertToCartItems";
+import { fetchCart } from "../../Redux/Slice/serviceSlice";
+import getServiceIconOrderFood from "../../Components/Icon/getServiceIconOrderFood";
 
 const OrderFood = ({ navigation, route }) => {
   const [selectedCategory, setSelectedCategory] = useState({
@@ -45,7 +48,7 @@ const OrderFood = ({ navigation, route }) => {
   //   name: key,
   // }));
   const foodItems = serviceList[`${selectedCategory?.type}`] || [];
-
+  console.log(">>>>>>>>>>> 50 ", serviceQuantities);
   // Khởi tạo serviceQuantities từ bookingPayload khi vào màn hình
   useEffect(() => {
     if (bookingPayload?.roomRequestList) {
@@ -114,7 +117,7 @@ const OrderFood = ({ navigation, route }) => {
     });
   };
 
-  printServiceQuantities(serviceQuantities);
+  // printServiceQuantities(serviceQuantities);
   // Xử lý thêm dịch vụ với time và note mặc định
   const handleAdd = (uniqueId, serviceId) => {
     setServiceQuantities((prev) => {
@@ -273,7 +276,15 @@ const OrderFood = ({ navigation, route }) => {
   };
 
   const handleShopCart = () => {
-    navigation.navigate("FoodCart");
+    if (bookingPayload?.roomRequestList) {
+      const { cartItems, roomMapping } = convertToCartItems(
+        bookingPayload.roomRequestList
+      );
+      console.log(">>> 282 >>>", cartItems);
+
+      dispatch(fetchCart({ cartItems, roomMapping }));
+      navigation.navigate("FoodCart", { roomMapping });
+    }
   };
 
   const imageTest =
@@ -469,7 +480,7 @@ const OrderFood = ({ navigation, route }) => {
         <Text style={styles.headerTitle}>Đồ ăn</Text>
       </View>
 
-      <View style={styles.bodySection1}>
+      {/* <View style={styles.bodySection1}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.list}>
             {categories?.map((item) => (
@@ -499,8 +510,36 @@ const OrderFood = ({ navigation, route }) => {
             ))}
           </View>
         </ScrollView>
+      </View> */}
+      <View style={styles.bodySection1}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.list}>
+            {categories?.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.item}
+                onPress={() =>
+                  setSelectedCategory({ id: item.id, type: item.name })
+                }
+              >
+                <View
+                  style={[
+                    styles.itemIcon,
+                    selectedCategory.id === item.id ? styles.selectFood : "",
+                  ]}
+                >
+                  {getServiceIconOrderFood(
+                    item.name,
+                    28,
+                    selectedCategory.id === item.id ? "white" : "#B7C9D4"
+                  )}
+                </View>
+                <Text style={styles.itemText}>{item.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
       </View>
-
       <FlatList
         data={foodItems}
         renderItem={renderFoodItem}
@@ -543,10 +582,13 @@ const OrderFood = ({ navigation, route }) => {
           style={styles.confirmButton}
           onPress={handleConfirmOrder}
         >
-          <Ionicons name="checkbox-outline" size={30} color="white" />
+          {/* <Ionicons name="checkbox-outline" size={30} color="white" /> */}
+          <Text style={styles.confirmButtonText}>Xác nhận</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.cartButton} onPress={handleShopCart}>
-          <Ionicons name="cart-outline" size={30} color="white" />
+          {/* <Ionicons name="cart-outline" size={30} color="white" /> */}
+
+          <Text style={styles.cartButtonText}>Giỏ hàng</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -734,6 +776,18 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginHorizontal: 10,
   },
+  confirmButtonText: {
+    color: "white",
+    paddingVertical: "2",
+  },
+  cartButtonText: {
+    color: "white",
+    paddingVertical: "2",
+  },
 });
 
 export default OrderFood;
+// / xử lý logic chỉnh quantity thì chỉnh data trong mảng
+// logic ấn thêm thì món ăn sẽ thêm vào danh sách giỏ hàng
+// uniqueId:1,serviceIds: [{id:29,quanitty:1} , {id:30,quantity:2} , {id:31,quantity:5} ]
+// uniqueId:2,serviceIds:  [{id:29,quanitty:2} , {id:30,quantity:3} , {id:31,quantity:1} ]

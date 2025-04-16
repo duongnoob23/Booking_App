@@ -5,6 +5,8 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAppDispatch, useAppSelector } from "../../Redux/hook";
@@ -176,121 +178,132 @@ const InfoConfirmScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>THÔNG TIN CÁ NHÂN</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>THÔNG TIN CÁ NHÂN</Text>
 
-      <View
-        style={[styles.inputContainer, errors.firstName && styles.inputError]}
-      >
-        <Ionicons
-          name="person-outline"
-          size={20}
-          color="#007AFF"
-          style={styles.icon}
-        />
-        <TextInput
-          style={styles.input}
-          value={infomation.firstName}
-          // value={"TIEN DUONG"}
-          onChangeText={(value) => onChangeInfomation(value, "firstName")}
-          placeholder="Họ *"
-          placeholderTextColor="#999"
-          editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
-        />
-        {errors.firstName ? (
-          <Text style={styles.errorText}>{errors.firstName}</Text>
-        ) : null}
+        <View
+          style={[styles.inputContainer, errors.firstName && styles.inputError]}
+        >
+          <Ionicons
+            name="person-outline"
+            size={20}
+            color="#007AFF"
+            style={styles.icon}
+          />
+          <TextInput
+            style={styles.input}
+            value={infomation.firstName}
+            // value={"TIEN DUONG"}
+            onChangeText={(value) => onChangeInfomation(value, "firstName")}
+            placeholder="Họ *"
+            placeholderTextColor="#999"
+            editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
+          />
+          {errors.firstName ? (
+            <Text style={styles.errorText}>{errors.firstName}</Text>
+          ) : null}
+        </View>
+
+        <View
+          style={[styles.inputContainer, errors.lastName && styles.inputError]}
+        >
+          <Ionicons
+            name="person-outline"
+            size={20}
+            color="#007AFF"
+            style={styles.icon}
+          />
+          <TextInput
+            style={styles.input}
+            value={infomation.lastName}
+            // value={"LAM"}
+            onChangeText={(value) => onChangeInfomation(value, "lastName")}
+            placeholder="Tên *"
+            placeholderTextColor="#999"
+            editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
+          />
+          {errors.lastName ? (
+            <Text style={styles.errorText}>{errors.lastName}</Text>
+          ) : null}
+        </View>
+
+        <View
+          style={[styles.inputContainer, errors.email && styles.inputError]}
+        >
+          <Ionicons
+            name="mail-outline"
+            size={20}
+            color="#007AFF"
+            style={styles.icon}
+          />
+          <TextInput
+            style={styles.input}
+            value={infomation.email}
+            // value={"admin@gmail.com"}
+            onChangeText={(value) => onChangeInfomation(value, "email")}
+            placeholder="Email *"
+            placeholderTextColor="#999"
+            keyboardType="email-address"
+            editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
+          />
+          {errors.email ? (
+            <Text style={styles.errorText}>{errors.email}</Text>
+          ) : null}
+        </View>
+
+        <View
+          style={[
+            styles.inputContainer,
+            errors.phoneNumber && styles.inputError,
+          ]}
+        >
+          <Ionicons
+            name="call-outline"
+            size={20}
+            color="#007AFF"
+            style={styles.icon}
+          />
+          <Text style={styles.phoneCode}>{infomation.phoneCountry}</Text>
+          <TextInput
+            style={[styles.input, { flex: 1 }]}
+            value={infomation.phoneNumber}
+            // value={"0982474802"}
+            onChangeText={(value) => onChangeInfomation(value, "phoneNumber")}
+            placeholder="Số điện thoại *"
+            placeholderTextColor="#999"
+            keyboardType="phone-pad"
+            editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
+          />
+          <Ionicons
+            name="checkmark-circle"
+            size={20}
+            color={
+              infomation.phoneNumber && !errors.phoneNumber ? "#00C853" : "#999"
+            }
+            style={styles.checkIcon}
+          />
+          {errors.phoneNumber ? (
+            <Text style={styles.errorText}>{errors.phoneNumber}</Text>
+          ) : null}
+        </View>
+
+        {isLoggedIn && (
+          <TouchableOpacity style={[styles.button]} onPress={handleInfoConfirm}>
+            <Text style={styles.buttonText}>Xác nhận thông tin</Text>
+          </TouchableOpacity>
+        )}
+        {!isLoggedIn && (
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <Text style={styles.loginButtonText}>Đăng nhập tài khoản</Text>
+          </TouchableOpacity>
+        )}
       </View>
-
-      <View
-        style={[styles.inputContainer, errors.lastName && styles.inputError]}
-      >
-        <Ionicons
-          name="person-outline"
-          size={20}
-          color="#007AFF"
-          style={styles.icon}
-        />
-        <TextInput
-          style={styles.input}
-          value={infomation.lastName}
-          // value={"LAM"}
-          onChangeText={(value) => onChangeInfomation(value, "lastName")}
-          placeholder="Tên *"
-          placeholderTextColor="#999"
-          editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
-        />
-        {errors.lastName ? (
-          <Text style={styles.errorText}>{errors.lastName}</Text>
-        ) : null}
-      </View>
-
-      <View style={[styles.inputContainer, errors.email && styles.inputError]}>
-        <Ionicons
-          name="mail-outline"
-          size={20}
-          color="#007AFF"
-          style={styles.icon}
-        />
-        <TextInput
-          style={styles.input}
-          value={infomation.email}
-          // value={"admin@gmail.com"}
-          onChangeText={(value) => onChangeInfomation(value, "email")}
-          placeholder="Email *"
-          placeholderTextColor="#999"
-          keyboardType="email-address"
-          editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
-        />
-        {errors.email ? (
-          <Text style={styles.errorText}>{errors.email}</Text>
-        ) : null}
-      </View>
-
-      <View
-        style={[styles.inputContainer, errors.phoneNumber && styles.inputError]}
-      >
-        <Ionicons
-          name="call-outline"
-          size={20}
-          color="#007AFF"
-          style={styles.icon}
-        />
-        <Text style={styles.phoneCode}>{infomation.phoneCountry}</Text>
-        <TextInput
-          style={[styles.input, { flex: 1 }]}
-          value={infomation.phoneNumber}
-          // value={"0982474802"}
-          onChangeText={(value) => onChangeInfomation(value, "phoneNumber")}
-          placeholder="Số điện thoại *"
-          placeholderTextColor="#999"
-          keyboardType="phone-pad"
-          editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
-        />
-        <Ionicons
-          name="checkmark-circle"
-          size={20}
-          color={
-            infomation.phoneNumber && !errors.phoneNumber ? "#00C853" : "#999"
-          }
-          style={styles.checkIcon}
-        />
-        {errors.phoneNumber ? (
-          <Text style={styles.errorText}>{errors.phoneNumber}</Text>
-        ) : null}
-      </View>
-
-      {isLoggedIn && (
-        <TouchableOpacity style={[styles.button]} onPress={handleInfoConfirm}>
-          <Text style={styles.buttonText}>Xác nhận thông tin</Text>
-        </TouchableOpacity>
-      )}
-      {!isLoggedIn && (
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-          <Text style={styles.loginButtonText}>Đăng nhập tài khoản</Text>
-        </TouchableOpacity>
-      )}
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

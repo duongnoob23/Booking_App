@@ -18,6 +18,7 @@ import {
   fetchBookingRoom,
   update,
   updateBookingPayload,
+  updateRoomNumber,
   uppdateListUniqueIdBookingRoom,
 } from "../../Redux/Slice/hotelSlice";
 import { fetchServicesByCategory } from "../../Redux/Slice/serviceSlice";
@@ -130,6 +131,8 @@ const HotelRoomList = ({ navigation, route }) => {
       });
       return acc;
     }, []);
+    // dispatch(updateRoomNumber(roomQuantities));
+
     dispatch(fetchServicesByCategory(roomQuantities));
     navigation.navigate("InfoConfirm");
   };
@@ -152,6 +155,7 @@ const HotelRoomList = ({ navigation, route }) => {
       "-------------------------------------------------------------"
     );
 
+    // dispatch(updateRoomNumber(roomQuantities));
     dispatch(fetchServicesByCategory(roomQuantities));
     navigation.navigate("OrderFood");
   };
