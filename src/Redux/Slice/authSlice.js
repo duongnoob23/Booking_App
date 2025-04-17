@@ -4,7 +4,10 @@ import { API_BASE_URL } from "../../Constant/Constant";
 // isLoggedIn: false,
 const initValue = {
   accessToken: null,
+  accessToken:
+    "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQ0ODg2NDU3LCJleHAiOjE3NDQ5NzI4NTd9.2GWk9wXr2GcxEtFPG34vapyVZ_T-7ah9tS_n9FhVglY",
   isLoggedIn: false,
+  isLoggedIn: true,
   loading: false,
   error: null,
   loadingInfoUser: false,
@@ -17,7 +20,6 @@ const initValue = {
     country: "+84",
   },
   infoUser: null,
-
   inforUserChange: null,
 };
 
@@ -25,15 +27,10 @@ export const fetchUserInfo = createAsyncThunk(
   "auth/fetchUserInfo",
   async (_, { getState, rejectWithValue }) => {
     try {
-      const { accessToken } = getState().auth;
-      if (!accessToken) {
-        throw new Error("Không có token để gọi API");
-      }
       const response = await fetch(`${API_BASE_URL}/api/user/info`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
       });
 

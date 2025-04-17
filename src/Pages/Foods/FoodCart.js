@@ -371,7 +371,7 @@ const ShopCart = ({ navigation, route }) => {
           />
         </View> */}
         {/* Note */}
-        <View style={styles.roomInfo}>
+        {/* <View style={styles.roomInfo}>
           <Text style={styles.roomLabel}>Ghi chú</Text>
           <TextInput
             style={styles.input}
@@ -382,7 +382,7 @@ const ShopCart = ({ navigation, route }) => {
             placeholder="VD: Thêm đá"
             placeholderTextColor="#999"
           />
-        </View>
+        </View> */}
       </View>
     );
   };

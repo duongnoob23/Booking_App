@@ -168,7 +168,7 @@ const InfoConfirmScreen = ({ navigation }) => {
         return; // Dừng lại nếu validate thất bại
       }
     }
-
+    dispatch(updateInforUserChange(infomation));
     dispatch(fetchBookingRoom());
     navigation.navigate("OrderConfirm");
   };

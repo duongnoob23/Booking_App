@@ -16,6 +16,7 @@ import InfoConfirmScreen from "../Pages/Hotels/InfoConfirmScreen";
 import OrderConfirmScreen from "../Pages/Hotels/OrderConfirmScreen";
 import LoginScreen from "../Pages/Auth/LoginScreen";
 import RegisterScreen from "../Pages/Auth/RegisterScreen";
+import Discount from "../Pages/Promotion/Discount";
 const Stack = createNativeStackNavigator();
 
 const HomeStackNavigator = () => {
@@ -150,6 +151,15 @@ const HomeStackNavigator = () => {
           title: " Chi tiết đơn đặt ",
           headerShown: true,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="Discount"
+        component={Discount}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Mã giảm giá ",
         }}
       />
     </Stack.Navigator>

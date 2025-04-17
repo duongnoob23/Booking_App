@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -9,58 +9,103 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useLayoutEffect } from "react";
-const Discount = ({ navigation }) => {
-  //   const navigation = useNavigation();
+import { useAppSelector, useAppDispatch } from "../../Redux/hook";
+import { fetchListPromotion } from "../../Redux/Slice/promotionSlice";
+import { formatPrice } from "../../Utils/formarPrice";
+import {
+  fetchBookingRoom,
+  updateBookingPayload,
+} from "../../Redux/Slice/hotelSlice";
 
-  const discountItems = [
-    {
-      id: "1",
-      title: "Giảm 20% cho các đặt phòng trên 1500K",
-      code: "Mã: STAY20",
-      expiry: "Hạn sử dụng: 15/03/2025",
-    },
-    {
-      id: "2",
-      title: "Giảm 100K cho lần đặt phòng đầu tiên",
-      code: "Mã: 15FT",
-      expiry: "Hạn sử dụng: 12/03/2025",
-    },
-    {
-      id: "3",
-      title: "Giảm 50K khi thanh toán bằng Mastercard",
-      code: "Mã: MT3",
-      expiry: "Hạn sử dụng: 13/03/2025",
-    },
-  ];
+import cloneDeep from "lodash/cloneDeep";
+const Discount = ({ navigation, route }) => {
+  const prePage = route?.params?.prePage || "";
+  console.log(">>> prePage", route.params);
+  console.log(">>> prePage", prePage);
+  const { listPromotion, loadingPromotion } = useAppSelector(
+    (state) => state.promotion
+  );
+  const { bookingPayload } = useAppSelector((state) => state.hotel);
+  console.log("21>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", bookingPayload);
+  const dispatch = useAppDispatch();
+
+  console.log("24 DS>>>>>>>>>>>>>>>>>>>>>>>>>>>>", listPromotion);
+
+  // const test = [
+  //   {
+  //     code: "SUMMER25",
+  //     description: "Giảm giá 25% với những hóa đơn trên 2 triệu đồng.",
+  //     discountValue: 25,
+  //     expirationDate: "30-04-2025 17:40:08",
+  //     id: 1,
+  //     minBookingAmount: 200000,
+  //     validFromDate: "04-04-2025 17:40:54",
+  //   },
+  //   {
+  //     code: "WELCOME100",
+  //     description: "Giảm ngay 100.000đ với hóa đơn đầu tiên",
+  //     discountValue: 100000,
+  //     expirationDate: "27-04-2025 17:42:36",
+  //     id: 2,
+  //     minBookingAmount: 0,
+  //     validFromDate: "04-04-2025 17:43:01",
+  //   },
+  // ];
+
+  const handleFetchListPromotion = () => {
+    const code = "";
+    const totalPrice = 1900000.0;
+    dispatch(fetchListPromotion({ code, totalPrice }));
+  };
+  const discountItems = listPromotion;
 
   const handleToDiscountHistory = () => {
     navigation.navigate("DiscountHistory");
   };
 
+  const handleChooseSale = (item) => {
+    console.log(prePage);
+    if (prePage === "OrderConfirm") {
+      const bookingPayload_ = cloneDeep(bookingPayload);
+      bookingPayload_.couponId = item?.id;
+      dispatch(updateBookingPayload(bookingPayload_));
+      dispatch(fetchBookingRoom());
+      navigation.navigate("OrderConfirm");
+      console.log(item);
+    } else {
+      console.log(item);
+    }
+  };
+
+  if (loadingPromotion) {
+    return (
+      <View>
+        <Text>loading....</Text>
+      </View>
+    );
+  }
   return (
     <View style={styles.discountCodes}>
       {/* Header */}
-      <View style={styles.discountCodes__header}>
-        {/* <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons
-            name="chevron-back-outline"
-            size={24}
-            color="#007BFF"
-            style={styles.discountCodes__headerBack}
-          />
-        </TouchableOpacity>
-        <Text style={styles.discountCodes__headerTitle}>Mã giảm giá</Text> */}
+      {/* <View style={styles.discountCodes__header}>
         <TouchableOpacity
           style={styles.discountButton}
-          onPress={() => handleToDiscountHistory()}
+          onPress={() => handleFetchListPromotion()}
         >
-          <Text style={styles.discountCodes__headerHistory}>Lịch sử</Text>
+          <Text style={styles.discountCodes__headerHistory}>Fetch</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       {/* Danh sách mã giảm giá */}
+      <TouchableOpacity onPress={() => handleFetchListPromotion()}>
+        <Text>Fetch</Text>
+      </TouchableOpacity>
       {discountItems.map((item) => (
-        <View key={item.id} style={styles.discountCodes__item}>
+        <TouchableOpacity
+          key={item?.id}
+          style={styles.discountCodes__item}
+          onPress={() => handleChooseSale(item)}
+        >
           <Ionicons
             name="gift-outline"
             size={45}
@@ -68,11 +113,19 @@ const Discount = ({ navigation }) => {
             style={styles.discountCodes__itemIcon}
           />
           <View style={styles.discountCodes__itemContent}>
-            <Text style={styles.discountCodes__itemTitle}>{item.title}</Text>
-            <Text style={styles.discountCodes__itemCode}>{item.code}</Text>
-            <Text style={styles.discountCodes__itemExpiry}>{item.expiry}</Text>
+            <Text style={styles.discountCodes__itemTitle}>
+              {item?.description}
+            </Text>
+            <Text style={styles.discountCodes__itemCode}>{item?.code}</Text>
+
+            <Text style={styles.discountCodes__itemExpiry}>
+              Số tiền đặt phòng thấp nhất {formatPrice(item?.minBookingAmount)}
+            </Text>
+            <Text style={styles.discountCodes__itemExpiry}>
+              Hạn sử dụng: {item?.expirationDate}
+            </Text>
           </View>
-        </View>
+        </TouchableOpacity>
       ))}
     </View>
   );
@@ -83,6 +136,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
     paddingHorizontal: 20,
+    paddingTop: 20,
   },
   discountCodes__header: {
     flexDirection: "row",
@@ -99,7 +153,7 @@ const styles = StyleSheet.create({
     color: "#000000",
   },
   discountButton: {
-    backgroundColor: "green",
+    backgroundColor: "gray",
     borderRadius: 8,
     paddingHorizontal: 15,
     paddingVertical: 5,
@@ -123,18 +177,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   discountCodes__itemTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
     color: "#000000",
     marginBottom: 5,
   },
   discountCodes__itemCode: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#007BFF",
     marginBottom: 5,
   },
   discountCodes__itemExpiry: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#888888",
   },
 });

@@ -71,6 +71,7 @@ const ModalCheckOut = ({
     </Modal>
   );
 };
+export default ModalCheckOut;
 
 const styles = StyleSheet.create({
   modalOverlay: {
@@ -121,5 +122,3 @@ const styles = StyleSheet.create({
     color: "#333",
   },
 });
-
-export default ModalCheckOut;

@@ -13,7 +13,8 @@ import getServiceIcon from "../../Components/Icon/getServiceIcon";
 import { fetchBookingRoom } from "../../Redux/Slice/hotelSlice";
 import SkeletonListHotelByLocation from "../../Components/Skeleton/Home/SkeletonListHotelByLocation";
 import SkeletonOrderConfirm from "../../Components/Skeleton/Hotels/SkeletonOrderConfirm";
-
+import { formatPrice } from "../../Utils/formarPrice";
+import { fetchListPromotion } from "../../Redux/Slice/promotionSlice";
 const OrderConfirmScreen = ({ navigation }) => {
   useLayoutEffect(() => {
     navigation.getParent().setOptions({ tabBarStyle: { display: "none" } });
@@ -45,7 +46,7 @@ const OrderConfirmScreen = ({ navigation }) => {
       },
     ],
   };
-  const { userInfor } = useAppSelector((state) => state.auth);
+  const { userInfor, inforUserChange } = useAppSelector((state) => state.auth);
   const { serviceList } = useAppSelector((state) => state.service);
   const {
     bookingData,
@@ -88,6 +89,17 @@ const OrderConfirmScreen = ({ navigation }) => {
     // dispatch(fetchServicesByCategory(roomNumberFake));
     navigation.navigate("OrderFood");
   };
+
+  const handleToSale = () => {
+    const totalPrice =
+      +bookingData?.totalPriceRoom + +bookingData?.totalPriceService;
+    const code = "";
+    // console.log(totalPrice);
+
+    // console.log(bookingData?.totalPriceRoom);
+    dispatch(fetchListPromotion({ code, totalPrice }));
+    navigation.navigate("Discount", { prePage: "OrderConfirm" });
+  };
   // Sửa renderListRoom để dùng với ScrollView
   const renderListRoom = (item) => (
     <View style={styles.roomWrapper}>
@@ -105,7 +117,7 @@ const OrderConfirmScreen = ({ navigation }) => {
       </View>
       <View style={styles.roomInfo}>
         <Text style={styles.roomLabel}>Giá</Text>
-        <Text style={styles.roomValue}>{item?.priceRoom}</Text>
+        <Text style={styles.roomValue}>{formatPrice(item?.priceRoom)}</Text>
       </View>
       <View style={styles.roomInfoService}>
         <View style={styles.roomInfoServiceText}>
@@ -155,7 +167,7 @@ const OrderConfirmScreen = ({ navigation }) => {
       {/* <View style={styles.br}></View> */}
     </View>
   );
-
+  console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> 158 OCS", bookingData);
   if (loadingBookingRoom) {
     return <SkeletonOrderConfirm />;
   }
@@ -174,16 +186,23 @@ const OrderConfirmScreen = ({ navigation }) => {
           <View style={styles.infoSection}>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Tên</Text>
-              <Text style={styles.infoValue}>{userInfor.lastName}</Text>
+              <Text style={styles.infoValue}>
+                {(inforUserChange && inforUserChange.lastName) ||
+                  userInfor.lastName}
+              </Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Email</Text>
-              <Text style={styles.infoValue}>{userInfor.email}</Text>
+              <Text style={styles.infoValue}>
+                {(inforUserChange && inforUserChange.email) || userInfor.email}
+              </Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Số điện thoại</Text>
               <Text style={styles.infoValue}>
-                {userInfor.country} {userInfor.phoneNumber}
+                {userInfor.country}{" "}
+                {(inforUserChange && inforUserChange.phoneNumber) ||
+                  userInfor.phoneNumber}
               </Text>
             </View>
           </View>
@@ -231,15 +250,53 @@ const OrderConfirmScreen = ({ navigation }) => {
           <View style={styles.br}></View>
         </View>
         {/* Phần cuối: Mã giảm giá, Phương thức thanh toán, Nút xác nhận (cố định) */}
-        <View style={styles.footerSection}>
-          <View style={styles.infoSectionSale}>
-            <View>
-              <Text style={styles.subTitle}>Mã giảm giá</Text>
-            </View>
-            <View>
-              <Text>TEST 10</Text>
+
+        <View style={styles.headerSection}>
+          <View style={styles.infoSection}>
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>Mã giảm giá </Text>
+              <TouchableOpacity
+                style={styles.wrapperInfoValueSale}
+                onPress={() => handleToSale()}
+              >
+                <Ionicons name="bookmark-outline" size={18} color="#007AFF" />
+                <Text style={styles.infoValueSale}>couponCode</Text>
+              </TouchableOpacity>
             </View>
           </View>
+        </View>
+
+        <View style={styles.headerSection}>
+          <Text style={(styles.title, styles.titleCenter)}>Hóa đơn </Text>
+          <View style={styles.infoSection}>
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>Giá tiền phòng</Text>
+              <Text style={styles.infoValue}>
+                {formatPrice(bookingData && bookingData?.totalPriceRoom)}
+              </Text>
+            </View>
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabelSale}>Giá tiền dịch vụ</Text>
+              <Text style={styles.infoValue}>
+                {formatPrice(bookingData && bookingData?.totalPriceService)}
+              </Text>
+            </View>
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>Mã giảm giá</Text>
+              <Text style={styles.infoValue}>
+                {formatPrice(bookingData && bookingData?.priceCoupon)}
+              </Text>
+            </View>
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>Giá cuối cùng</Text>
+              <Text style={styles.infoValue}>
+                {formatPrice(bookingData && bookingData?.finalPrice)}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.br}></View>
+        </View>
+        <View style={styles.footerSection}>
           <View style={styles.br}></View>
 
           <Text style={styles.subTitle}>Phương thức thanh toán</Text>
@@ -426,5 +483,19 @@ const styles = StyleSheet.create({
   },
   iconWrapper: {
     marginLeft: 3,
+  },
+  infoValueSale: {
+    padding: 3,
+    color: "#007AFF",
+    fontSize: 12,
+    marginBottom: 2,
+    padding: 2,
+    textAlign: "",
+  },
+  wrapperInfoValueSale: {
+    flexDirection: "row",
+    borderWidth: 1,
+    borderColor: "#007AFF",
+    borderRadius: 8,
   },
 });

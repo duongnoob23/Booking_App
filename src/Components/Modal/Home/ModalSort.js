@@ -110,6 +110,7 @@ const ModalSort = ({ onClose }) => {
     </View>
   );
 };
+export default ModalSort;
 
 const styles = StyleSheet.create({
   modalContent: {
@@ -208,5 +209,3 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 });
-
-export default ModalSort;

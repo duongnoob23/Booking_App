@@ -114,7 +114,7 @@ const HomeScreen = ({ navigation }) => {
   // console.log("----- 105 HomeScreen selectDay", selectDay);
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(fetchListService());
+    // dispatch(fetchListService());
     dispatch(fetchAmenityList());
     dispatch(fetchHotelList());
     dispatch(fetchLocationList());
