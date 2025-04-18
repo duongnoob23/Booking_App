@@ -15,11 +15,18 @@ import { useState } from "react";
 import { useAppSelector } from "../../Redux/hook";
 import { formatPrice } from "../../Utils/formarPrice";
 
-const RoomBooked = () => {
+const RoomCheckedOut = () => {
   const { bookingStatus, loadingBookingStatus } = useAppSelector(
     (state) => state.hotel
   );
-  const bookings = bookingStatus?.BOOKED || [];
+  const bookings = bookingStatus?.CHECKOUT || [];
+  if (!bookings) {
+    return (
+      <View>
+        <Text>Loading checkin....</Text>
+      </View>
+    );
+  }
 
   const renderBookingItem = ({ item }) => (
     <View style={styles.bookingHistoryScreen__bookingItem}>
@@ -47,14 +54,9 @@ const RoomBooked = () => {
         </View>
       </View>
       <View style={styles.bookingHistoryScreen__actionButtons}>
-        {/* <TouchableOpacity style={styles.bookingHistoryScreen__infoButton}>
-          <Text style={styles.bookingHistoryScreen__infoButtonText}>
-            Thông tin
-          </Text>
-        </TouchableOpacity> */}
         <TouchableOpacity style={styles.bookingHistoryScreen__rebookButton}>
           <Text style={styles.bookingHistoryScreen__rebookButtonText}>
-            Hoãn
+            Đánh giá
           </Text>
         </TouchableOpacity>
       </View>
@@ -73,8 +75,6 @@ const RoomBooked = () => {
     </View>
   );
 };
-
-export default RoomBooked;
 
 const styles = StyleSheet.create({
   bookingHistoryScreen: {
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   bookingHistoryScreen__infoButton: {
-    backgroundColor: "#00A1D6", // Màu trung bình giữa #007AFF và #00C4B4
+    backgroundColor: "#00F598", // Màu trung bình giữa #007AFF và #00C4B4
     borderRadius: 8,
     paddingVertical: 5,
     paddingHorizontal: 20,
@@ -212,11 +212,11 @@ const styles = StyleSheet.create({
     fontWeight: "400",
   },
   bookingHistoryScreen__rebookButton: {
-    backgroundColor: "red", // Màu trung bình giữa #007AFF và #00C4B4
+    // backgroundColor: "#00F598", // Màu trung bình giữa #007AFF và #00C4B4
     borderRadius: 8,
     paddingVertical: 5,
     paddingHorizontal: 30,
-    backgroundColor: "red",
+    backgroundColor: "#00F598",
   },
   bookingHistoryScreen__rebookButtonText: {
     fontSize: 14,
@@ -256,3 +256,5 @@ const styles = StyleSheet.create({
     color: "white",
   },
 });
+
+export default RoomCheckedOut;

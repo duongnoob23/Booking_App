@@ -19,17 +19,29 @@ const checkoutDate = formatToYYYYMMDD(tomorrow);
 
 export const fetchHotelList = createAsyncThunk(
   "hotel/fetchHotelList",
-  async () => {
+  async (_, { getState, rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/hotel/home`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-      const data = await response.json();
-      // console.log("Data:", data);
-      // console.log("Data[0]:", data.data[0]);
-      // console.log("HotelRequestList:", data.data[0].hotelRequestList);
-      return data.data[0].hotelRequestList;
+      const state = getState();
+      const accessToken = state?.auth?.accessToken;
+      if (accessToken) {
+        const response = await fetch(`${API_BASE_URL}/api/hotel/home`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        const data = await response.json();
+        return data.data;
+      } else {
+        const response = await fetch(`${API_BASE_URL}/api/hotel/home`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await response.json();
+        console.log("HistorySearchList, HotelRequestList", data.data);
+        return data.data;
+      }
     } catch (error) {
       console.error("Error in fetchHotelList:", error);
       throw error; // Thông báo lỗi cho Redux
@@ -92,18 +104,40 @@ export const fetchAmenityList = createAsyncThunk(
 
 export const fetchHotelByLocation = createAsyncThunk(
   "hotel/fetchHotelByLocation",
-  async (value) => {
+  async (value, { getState, rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/hotel/filter`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(value),
-      });
+      const state = getState();
 
-      const data = await response.json();
-      // console.log(">>> 73 hotelSlice data", data?.data?.content);
-      // console.log(">>> 73 hotelSlice data", data);
-      return data?.data?.content;
+      const accessToken = state.auth.accessToken;
+      if (accessToken) {
+        const response = await fetch(
+          // `${API_BASE_URL}/api/hotel/filter?sortBy=${}&sort=${}`,
+          `${API_BASE_URL}/api/hotel/filter`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify(value),
+          }
+        );
+        console.log("Tìm kiếm với tokenAccess");
+        const data = await response.json();
+        return data?.data?.content;
+      } else {
+        const response = await fetch(
+          // `${API_BASE_URL}/api/hotel/filter?sortBy=${}&sort=${}`,
+          `${API_BASE_URL}/api/hotel/filter`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(value),
+          }
+        );
+        const data = await response.json();
+        return data?.data?.content;
+      }
     } catch (error) {
       console.log("error in fetch hotel location:", error);
       throw error;
@@ -139,43 +173,6 @@ export const fetchBookingRoom = createAsyncThunk(
       const { bookingPayload } = getState().hotel;
       const { accessToken } = getState().auth;
       console.log(accessToken);
-
-      // bookingPayload?.roomRequestList?.forEach((item) => {
-      //   console.log("BPL từ redux", item?.serviceList);
-      // });
-
-      // if (!bookingPayload || !bookingPayload.roomRequestList) {
-      //   return rejectWithValue(
-      //     "bookingPayload is invalid or missing roomRequestList"
-      //   );
-      // }
-
-      // if (!accessToken) {
-      //   return rejectWithValue("No access token available");
-      // }
-      // console.log("-------------------bookingPayload-------------------------");
-      // const printServiceLists = (data) => {
-      //   data.roomRequestList.forEach((room, index) => {
-      //     console.log(`Phòng ${index + 1} (uniqueId: ${room.uniqueId}):`);
-      //     if (room.serviceList && room.serviceList.length > 0) {
-      //       room.serviceList.forEach((service, serviceIndex) => {
-      //         console.log(
-      //           `  Dịch vụ ${serviceIndex + 1}: ID = ${
-      //             service.id
-      //           }, Số lượng = ${service.quantity}, Thời gian = "${
-      //             service.time || ""
-      //           }", Ghi chú = "${service.note || ""}"`
-      //         );
-      //       });
-      //     } else {
-      //       console.log("  Không có dịch vụ nào.");
-      //     }
-      //   });
-      // };
-
-      // Gọi hàm với biến test
-      // printServiceLists(bookingPayload);
-      // console.log("---------------bookingPayload---------------------------");
 
       const response = await fetch(`${API_BASE_URL}/api/booking/get_booking`, {
         method: "POST",
@@ -213,38 +210,58 @@ export const fetchBookingRoom = createAsyncThunk(
   }
 );
 
-// console.log("-------- 144 hotelSL", data?.data);
+export const fetchServiceList = createAsyncThunk(
+  "hotel/fetchServiceList",
+  async () => {
+    const response = await fetch(`${API_BASE_URL}/api/service/get_list`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-// const { listUniqueIdBookingRoom } = getState().hotel;
-// console.log(listUniqueIdBookingRoom);
-// const updatedRoomBookedList = data?.data?.roomBookedList?.map(
-//   (room, index) => {
-//     const originalRoom = listUniqueIdBookingRoom[index];
-//     return {
-//       ...room,
-//       uniqueId: originalRoom?.uniqueId,
-//     };
-//   }
-// );
+    const data = await response.json();
+    // console.log("272 HS >>>>>>>>>>>>>>>>>>>> filterList", data.data);
+    return data.data;
+  }
+);
 
-// console.log(">>> 163 HS", updatedRoomBookedList);
-// console.log(">>> 164 HS", data.data);
+export const fetchBookingStatus = createAsyncThunk(
+  "hotel/fetchBookingStatus",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const state = getState();
+      const accessToken = state.auth.accessToken;
+      console.log("accessToken", accessToken);
+      const res = await fetch(`${API_BASE_URL}/api/booking/history_booking`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const data = await res.json();
+      console.log("fetchBookingStatus ", data.data);
+      return data.data;
+    } catch (error) {
+      console.log("error in fetchBookingStatus :", error);
+      throw error;
+    }
+  }
+);
 
-// data?.data?.roomBookedList = updatedRoomBookedList;
-// return {
-//   ...data.data,
-//   roomBookedList: updatedRoomBookedList,
-// };
 const hotelSlice = createSlice({
   name: "hotel",
   initialState: {
     sortList: [
-      { id: 1, name: "Giá tăng dần" },
-      { id: 2, name: "Giá giảm dần" },
-      { id: 3, name: "Đánh giá tăng dần" },
-      { id: 4, name: "Đánh giá giảm dần" },
+      { id: 1, name: "Giá tăng dần", key: "price", value: "asc" },
+      { id: 2, name: "Giá giảm dần", key: "price", value: "desc" },
+      { id: 3, name: "Đánh giá tăng dần", key: "review", value: "asc" },
+      { id: 4, name: "Đánh giá giảm dần", key: "review", value: "desc" },
     ],
+
     amenityList: [],
+
     filterList: [],
     hotelList: [], // Danh sách khách sạn (Ưu đãi cuối tuần)
     locationList: [], // Danh sach Dia Diem
@@ -252,7 +269,7 @@ const hotelSlice = createSlice({
     hotelDetailId: "",
     hotelByLocation: [], // Danh sach Khach san theo dia diem
     hotelRoomList: [],
-
+    hotelHistorySearch: [],
     bookingData: [], // lưu data danh sách các phòng trả về sau khi gọi api booking/get_booking
     bookingPayload: [], // lưu data ngày sau khi ấn đặt ngay ở hotelRoomList, đợi xác nhận thông tin, có accessToken sẽ gửi lênlên
     listUniqueIdBookingRoom: [], // lưu uniqueId key
@@ -262,7 +279,7 @@ const hotelSlice = createSlice({
     loadingListHotel: false,
     loadingHotelRoomList: false,
     loadingBookingRoom: false,
-
+    loadingBookingStatus: false,
     map: false,
     roomNumbeFaker: [],
     error: null, // Lỗi nếu có
@@ -276,6 +293,13 @@ const hotelSlice = createSlice({
       amenityIds: [],
       serviceIds: [],
       sortById: 1,
+    },
+
+    bookingStatus: {
+      BOOKED: [],
+      CHECKIN: [],
+      CHECKOUT: [],
+      CANCELED: [],
     },
   },
   reducers: {
@@ -306,71 +330,6 @@ const hotelSlice = createSlice({
       console.log(action.payload);
       state.bookingPayload = action.payload;
     },
-
-    // addServiceToRoom(state, action) {
-    //   try {
-    //     const serviceData = action.payload;
-    //     console.log(">>> addServiceToRoom serviceData >>>", serviceData);
-
-    //     if (state.bookingPayload && state.bookingPayload.roomRequestList) {
-    //       const updatedRoomRequestList =
-    //         state.bookingPayload.roomRequestList.map((item) => {
-    //           const matchingRoom = serviceData.find(
-    //             (data) => data.uniqueId === item.uniqueId
-    //           );
-    //           if (matchingRoom) {
-    //             // Tạo danh sách dịch vụ mới, gộp serviceIds từ matchingRoom
-    //             const updatedServiceIdList = [...(item.serviceList || [])];
-
-    //             matchingRoom.serviceIds.forEach((newService) => {
-    //               const existingServiceIndex = updatedServiceIdList.findIndex(
-    //                 (s) => s.id === newService.id
-    //               );
-    //               if (existingServiceIndex >= 0) {
-    //                 // Nếu dịch vụ đã tồn tại, cập nhật quantity, giữ nguyên time và note nếu có
-    //                 updatedServiceIdList[existingServiceIndex] = {
-    //                   id: newService.id,
-    //                   quantity:
-    //                     updatedServiceIdList[existingServiceIndex].quantity +
-    //                     newService.quantity,
-    //                   time:
-    //                     newService.time ||
-    //                     updatedServiceIdList[existingServiceIndex].time ||
-    //                     "",
-    //                   note:
-    //                     newService.note ||
-    //                     updatedServiceIdList[existingServiceIndex].note ||
-    //                     "",
-    //                 };
-    //               } else {
-    //                 // Nếu dịch vụ chưa có, thêm mới với time và note
-    //                 updatedServiceIdList.push({
-    //                   id: newService.id,
-    //                   quantity: newService.quantity,
-    //                   time: newService.time || "",
-    //                   note: newService.note || "",
-    //                 });
-    //               }
-    //             });
-
-    //             return {
-    //               ...item,
-    //               serviceList: updatedServiceIdList,
-    //             };
-    //           }
-    //           return item;
-    //         });
-
-    //       // Cập nhật bookingPayload
-    //       state.bookingPayload = {
-    //         ...state.bookingPayload,
-    //         roomRequestList: updatedRoomRequestList,
-    //       };
-    //     }
-    //   } catch (error) {
-    //     console.log("error in addServiceToRoom", error);
-    //   }
-    // },
 
     addServiceToRoom(state, action) {
       try {
@@ -427,7 +386,8 @@ const hotelSlice = createSlice({
       })
       .addCase(fetchHotelList.fulfilled, (state, action) => {
         state.loading = false;
-        state.hotelList = action.payload;
+        state.hotelList = action.payload[0].hotelRequestList;
+        state.hotelHistorySearch = action.payload[0].historySearchList;
       })
       .addCase(fetchHotelList.rejected, (state, action) => {
         state.loading = false;
@@ -507,6 +467,34 @@ const hotelSlice = createSlice({
       })
       .addCase(fetchBookingRoom.rejected, (state, action) => {
         state.loadingBookingRoom = false;
+        state.error = action.error.message;
+      })
+
+      // Xu ly fetchServiceList
+      .addCase(fetchServiceList.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(fetchServiceList.fulfilled, (state, action) => {
+        state.filterList = action.payload;
+      })
+      .addCase(fetchServiceList.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+      // Xu ly fetchServiceList
+      .addCase(fetchBookingStatus.pending, (state) => {
+        state.loadingBookingStatus = true;
+        state.error = null;
+      })
+      .addCase(fetchBookingStatus.fulfilled, (state, action) => {
+        state.loadingBookingStatus = false;
+
+        state.bookingStatus.BOOKED = action.payload[0].hotelBookingList;
+        state.bookingStatus.CHECKIN = action.payload[1].hotelBookingList;
+        state.bookingStatus.CHECKOUT = action.payload[2].hotelBookingList;
+        state.bookingStatus.CANCELED = action.payload[3].hotelBookingList;
+      })
+      .addCase(fetchBookingStatus.rejected, (state, action) => {
+        state.loadingBookingStatus = false;
         state.error = action.error.message;
       });
   },

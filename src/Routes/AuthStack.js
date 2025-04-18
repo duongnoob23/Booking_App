@@ -6,7 +6,6 @@ import PhoneLogin from "../Pages/Auth/PhoneLogin";
 import VerifyAccountScreen from "../Pages/Auth/VerifyAccountScreen";
 import ForgotPasswordScreen from "../Pages/Auth/ForgotPasswordScreen";
 import TermScreen from "../Pages/Auth/TermScreen";
-import CounterComponent from "../Pages/Auth/count";
 
 const Stack = createNativeStackNavigator();
 

@@ -4,10 +4,11 @@ import { API_BASE_URL } from "../../Constant/Constant";
 // isLoggedIn: false,
 const initValue = {
   accessToken: null,
-  accessToken:
-    "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQ0ODg2NDU3LCJleHAiOjE3NDQ5NzI4NTd9.2GWk9wXr2GcxEtFPG34vapyVZ_T-7ah9tS_n9FhVglY",
+
+  // accessToken:
+  //   "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQ0ODg2NDU3LCJleHAiOjE3NDQ5NzI4NTd9.2GWk9wXr2GcxEtFPG34vapyVZ_T-7ah9tS_n9FhVglY",
   isLoggedIn: false,
-  isLoggedIn: true,
+  // isLoggedIn: true,
   loading: false,
   error: null,
   loadingInfoUser: false,

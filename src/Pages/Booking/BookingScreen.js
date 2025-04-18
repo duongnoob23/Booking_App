@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -15,8 +15,16 @@ import { useState } from "react";
 import RoomCancelled from "./RoomCancelled";
 import RoomBooking from "./RoomBooking";
 import RoomBooked from "./RoomBooked";
+import RoomCheckedOut from "./RoomCheckedOut";
+import { useAppDispatch, useAppSelector } from "../../Redux/hook";
+import { fetchBookingStatus } from "../../Redux/Slice/hotelSlice";
 
 const BookingScreen = () => {
+  const { bookingStatus, loadingBookingStatus } = useAppSelector(
+    (state) => state.hotel
+  );
+  const dispatch = useAppDispatch();
+
   const Tab = createMaterialTopTabNavigator();
   const [css, setCss] = useState(1);
   const bookings = [
@@ -32,6 +40,19 @@ const BookingScreen = () => {
       price: 127,
     },
   ];
+
+  // useEffect(() => {
+  //   dispatch(fetchBookingStatus());
+  // }, [bookingStatus]);
+
+  // console.log("bookingStatus 47", bookingStatus);
+  if (loadingBookingStatus) {
+    return (
+      <View>
+        <Text>Loading....</Text>
+      </View>
+    );
+  }
 
   const CustomTabBar = ({ state, descriptors, navigation }) => {
     return (
@@ -55,7 +76,7 @@ const BookingScreen = () => {
               state.index === 0 && styles.activeText,
             ]}
           >
-            Đang đặt
+            Đã đặt
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -76,7 +97,29 @@ const BookingScreen = () => {
               state.index === 1 && styles.activeText,
             ]}
           >
-            Đã đặt
+            Đang ở
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.header__tab,
+            // styles.header__tab__3,
+            // css === 3 && styles.active,
+            state.index === 2 && styles.active,
+          ]}
+          onPress={() => {
+            // setCss(3);
+            navigation.navigate("CheckedOut");
+          }}
+        >
+          <Text
+            style={[
+              styles.header__tab__text,
+              // css === 3 && styles.activeText,
+              state.index === 2 && styles.activeText,
+            ]}
+          >
+            Đã trả
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -84,7 +127,7 @@ const BookingScreen = () => {
             styles.header__tab,
             styles.header__tab__3,
             // css === 3 && styles.active,
-            state.index === 2 && styles.active,
+            state.index === 3 && styles.active,
           ]}
           onPress={() => {
             // setCss(3);
@@ -95,7 +138,7 @@ const BookingScreen = () => {
             style={[
               styles.header__tab__text,
               // css === 3 && styles.activeText,
-              state.index === 2 && styles.activeText,
+              state.index === 3 && styles.activeText,
             ]}
           >
             Đã hủy
@@ -186,6 +229,11 @@ const BookingScreen = () => {
         <Tab.Screen
           name="Booking"
           component={RoomBooking}
+          options={{ tabBarLabel: "Đã đặt " }}
+        />
+        <Tab.Screen
+          name="CheckedOut"
+          component={RoomCheckedOut}
           options={{ tabBarLabel: "Đã đặt " }}
         />
         <Tab.Screen
@@ -359,7 +407,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderWidth: 1,
     borderColor: "#0090FF",
-    paddingHorizontal: 30,
+    paddingHorizontal: 20,
   },
   header__tab__1: {
     borderTopLeftRadius: 15,

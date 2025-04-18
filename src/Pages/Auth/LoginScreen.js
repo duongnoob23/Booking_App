@@ -21,6 +21,10 @@ import {
   logout,
 } from "../../Redux/Slice/authSlice";
 import { API_BASE_URL } from "../../Constant/Constant";
+import {
+  fetchBookingStatus,
+  fetchHotelList,
+} from "../../Redux/Slice/hotelSlice";
 /* 
 {"data": 
 {"accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQzMTgyOTA3LCJleHAiOjE3NDMyNjkzMDd9.QPIwLj0wTe5y1n98COb4H8SeWYk11w3FQpe31BunkqA", 
@@ -57,11 +61,13 @@ const LoginScreen = ({ navigation, route }) => {
       console.log(">>> data", data);
       if (data?.data?.accessToken) {
         dispatch(loginSuccess(data?.data?.accessToken));
-
+        dispatch(fetchHotelList());
+        dispatch(fetchBookingStatus());
         // dispatch(loginSuccess(data.data)); isLoggedIn = true auto
         console.log("Đăng nhập thành công!");
         // Alert.alert("Đăng nhập thành công!", `JWT: ${data.data.accessToken}`);
         Alert.alert("Đăng nhập thành công!");
+
         // navigation.navigate("Login");
         if (route?.params?.preScreen === "InfoConfirm") {
           navigation.navigate("InfoConfirm");

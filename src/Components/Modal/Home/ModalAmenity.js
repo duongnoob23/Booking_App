@@ -50,6 +50,7 @@ const ModalAmenity = ({ onClose }) => {
 
   const handleApply = () => {
     dispatch(updateFilter({ ...inforFilter, amenityIds: selectedAmenities }));
+
     console.log(inforFilter.amenityIds);
     onClose();
   };
@@ -61,14 +62,6 @@ const ModalAmenity = ({ onClose }) => {
 
   return (
     <View style={styles.modalContent}>
-      {/* Header của View */}
-      {/* <View style={styles.header}>
-        <Text style={styles.headerText}>Tiện nghi</Text>
-        <TouchableOpacity onPress={onClose}>
-          <Ionicons name="close" size={24} color="#000" />
-        </TouchableOpacity>
-      </View> */}
-
       {/* Kiểm tra dữ liệu trước khi render */}
       {!amenitiesData || amenitiesData.length === 0 ? (
         <View style={styles.emptyContainer}>

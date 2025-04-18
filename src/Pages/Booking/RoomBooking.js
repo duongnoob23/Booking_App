@@ -12,68 +12,49 @@ import { Ionicons } from "@expo/vector-icons"; // Dùng icon từ Expo
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import PriceScreen from "../Hotels/PriceScreen";
 import { useState } from "react";
+import { useAppSelector } from "../../Redux/hook";
+import { formatPrice } from "../../Utils/formarPrice";
+const RoomBooking = () => {
+  const { bookingStatus, loadingBookingStatus } = useAppSelector(
+    (state) => state.hotel
+  );
 
-const RoomBooked = () => {
-  const bookings = [
-    {
-      id: "1",
-      image:
-        "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=", // Placeholder cho hình ảnh
-      name: "Heden golf",
-      rating: 3.9,
-      reviews: 200,
-      date: "23 - 7 - 2019",
-      discount: "25% OFF",
-      price: 127,
-    },
-    {
-      id: "2",
-      image:
-        "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=", // Placeholder cho hình ảnh
-      name: "Heden golf",
-      rating: 3.9,
-      reviews: 200,
-      date: "23 - 7 - 2019",
-      discount: "25% OFF",
-      price: 127,
-    },
-  ];
+  const bookings = bookingStatus?.CHECKIN || [];
 
   const renderBookingItem = ({ item }) => (
     <View style={styles.bookingHistoryScreen__bookingItem}>
       <Image
-        source={{ uri: item.image }}
+        source={{ uri: item?.image }}
         style={styles.bookingHistoryScreen__bookingImage}
       />
       <View style={styles.bookingHistoryScreen__bookingDetails}>
         <Text style={styles.bookingHistoryScreen__bookingName}>
-          {item.name}
+          {item?.hotelName}
         </Text>
         <View style={styles.bookingHistoryScreen__ratingRow}>
           <Ionicons name="star" size={16} color="#FFD700" />
           <Text style={styles.bookingHistoryScreen__ratingText}>
-            {item.rating} Đánh giá ({item.reviews})
+            {item?.rating} Đánh giá ({item?.feedbackSum})
           </Text>
         </View>
         <Text style={styles.bookingHistoryScreen__date}>
-          Đã đặt: {item.date}
+          Đã đặt: {item?.bookingDate}
         </Text>
         <View style={styles.bookingHistoryScreen__priceRow}>
-          <Text style={styles.bookingHistoryScreen__discount}>
-            {item.discount}
+          <Text style={styles.bookingHistoryScreen__price}>
+            {formatPrice(item?.bookingPrice)}
           </Text>
-          <Text style={styles.bookingHistoryScreen__price}>${item.price}</Text>
         </View>
       </View>
       <View style={styles.bookingHistoryScreen__actionButtons}>
-        <TouchableOpacity style={styles.bookingHistoryScreen__infoButton}>
+        {/* <TouchableOpacity style={styles.bookingHistoryScreen__infoButton}>
           <Text style={styles.bookingHistoryScreen__infoButtonText}>
             Thông tin
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity style={styles.bookingHistoryScreen__rebookButton}>
           <Text style={styles.bookingHistoryScreen__rebookButtonText}>
-            Đặt lại
+            CheckOut
           </Text>
         </TouchableOpacity>
       </View>
@@ -86,12 +67,14 @@ const RoomBooked = () => {
       <FlatList
         data={bookings}
         renderItem={renderBookingItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.bookingId}
         style={styles.bookingHistoryScreen__bookingList}
       />
     </View>
   );
 };
+
+export default RoomBooking;
 
 const styles = StyleSheet.create({
   bookingHistoryScreen: {
@@ -213,6 +196,7 @@ const styles = StyleSheet.create({
   bookingHistoryScreen__actionButtons: {
     justifyContent: "space-between",
     alignItems: "flex-end",
+    flexDirection: "column",
   },
   bookingHistoryScreen__infoButton: {
     backgroundColor: "#00A1D6", // Màu trung bình giữa #007AFF và #00C4B4
@@ -227,6 +211,7 @@ const styles = StyleSheet.create({
     fontWeight: "400",
   },
   bookingHistoryScreen__rebookButton: {
+    marginTop: "auto",
     backgroundColor: "#00A1D6", // Màu trung bình giữa #007AFF và #00C4B4
     borderRadius: 8,
     paddingVertical: 5,
@@ -271,5 +256,3 @@ const styles = StyleSheet.create({
     color: "white",
   },
 });
-
-export default RoomBooked;

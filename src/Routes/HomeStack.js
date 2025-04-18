@@ -17,6 +17,7 @@ import OrderConfirmScreen from "../Pages/Hotels/OrderConfirmScreen";
 import LoginScreen from "../Pages/Auth/LoginScreen";
 import RegisterScreen from "../Pages/Auth/RegisterScreen";
 import Discount from "../Pages/Promotion/Discount";
+import PaymentScreen from "../Pages/Payment/PaymentScreen";
 const Stack = createNativeStackNavigator();
 
 const HomeStackNavigator = () => {
@@ -160,6 +161,14 @@ const HomeStackNavigator = () => {
           headerShown: true,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
           title: "Mã giảm giá ",
+        }}
+      />
+      <Stack.Screen
+        name="PaymentScreen"
+        component={PaymentScreen}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
         }}
       />
     </Stack.Navigator>

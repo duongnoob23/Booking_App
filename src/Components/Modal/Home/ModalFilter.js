@@ -9,76 +9,108 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAppDispatch, useAppSelector } from "../../../Redux/hook";
 import { updateFilter } from "../../../Redux/Slice/hotelSlice";
-const ModalFilter = ({ onClose, onApply }) => {
-  const { amenityList, inforFilter } = useAppSelector((state) => state.hotel);
-  const amenitiesData = amenityList;
-  console.log(amenityList);
+const ModalFilter = ({ onClose }) => {
+  const { inforFilter, filterList } = useAppSelector((state) => state.hotel);
+
+  const serviceData = filterList;
 
   const dispatch = useAppDispatch();
 
-  const [selectedAmenities, setSelectedAmenities] = useState(
-    inforFilter.amenityIds
-  );
+  const [selectedService, setSelectService] = useState(inforFilter.serviceIds);
 
-  console.log(">>> 22 Modalamenity inforFilter:", inforFilter);
-  console.log(">>> 22 Modalamenity inforFilter:", inforFilter.amenityIds);
-
-  const toggleAmenity = (id) => {
-    if (selectedAmenities.includes(id)) {
-      setSelectedAmenities(
-        selectedAmenities.filter((amenityId) => amenityId !== id)
-      );
+  const toggleService = (id) => {
+    if (selectedService.includes(id)) {
+      setSelectService(selectedService.filter((serviceId) => serviceId !== id));
     } else {
-      setSelectedAmenities([...selectedAmenities, id]);
+      setSelectService([...selectedService, id]);
     }
   };
 
-  const getIconForAmenity = (name) => {
-    switch (name) {
-      case "Wi-fi miễn phí":
-        return "wifi-outline";
-      case "Phòng gym":
-        return "barbell-outline";
-      case "Thích hợp trẻ em":
-        return "happy-outline";
-      case "Bữa sáng miễn phí":
-        return "restaurant-outline";
-      default:
-        return "ellipse-outline";
-    }
+  const getIconForAmenity = (amenity) => {
+    const { name } = amenity;
+
+    // Ánh xạ từng name với một icon khác nhau
+    const nameIcons = {
+      "Nhìn ra thành phố": "eye-outline",
+      "Phòng tắm riêng": "water-outline",
+      "Đồ vệ sinh cá nhân miễn phí": "brush-outline",
+      "Két an toàn": "lock-closed-outline",
+      "Nhà vệ sinh": "water-outline",
+      "Lò sưởi": "flame-outline",
+      "Bồn tắm hoặc Vòi sen": "water-outline",
+      "Khăn tắm": "bandage-outline",
+      "Ra trải giường": "bed-outline",
+      "Ổ điện gần giường": "plug-outline",
+      "Sàn lát gạch/đá cẩm thạch": "cube-outline",
+      "Bàn làm việc": "desk-outline",
+      "Ghế cao dành cho trẻ em": "accessibility-outline",
+      "Khu vực tiếp khách": "chair-outline",
+      TV: "tv-outline",
+      Dép: "footsteps-outline",
+      "Tủ lạnh": "snow-outline",
+      "Máy pha trà/cà phê": "cafe-outline",
+      "Máy sấy tóc": "wind-outline",
+      "Dịch vụ báo thức": "alarm-outline",
+      "Ấm đun nước điện": "flash-outline",
+      "Truyền hình cáp": "videocam-outline",
+      "Két an toàn cỡ laptop": "laptop-outline",
+      "Tủ hoặc phòng để quần áo": "shirt-outline",
+      "Các tầng trên chỉ lên được bằng cầu thang": "stairs-outline",
+      "Giấy vệ sinh": "document-outline",
+      "Máy điều hòa độc lập cho từng phòng": "snow-outline",
+      "Bánh mì trứng": "egg-outline",
+      "Phở bò": "bowl-outline",
+      "Bún riêu": "fish-outline",
+      "Cháo gà": "nutrition-outline",
+      "Bánh cuốn": "leaf-outline",
+      "Cơm tấm sườn bì chả": "fast-food-outline",
+      "Canh chua cá lóc": "fish-outline",
+      "Gà kho gừng": "nutrition-outline",
+      "Cá kho tộ": "fish-outline",
+      "Bò xào lúc lắc": "flame-outline",
+      "Lẩu hải sản": "fish-outline",
+      "Tôm nướng muối ớt": "flame-outline",
+      "Bò bít tết": "flame-outline",
+      "Cua rang me": "fish-outline",
+      "Mực xào sa tế": "fish-outline",
+      "Salad cá ngừ": "nutrition-outline",
+      "Sushi cá hồi": "fish-outline",
+      "Hàu nướng phô mai": "fish-outline",
+      "Sườn BBQ": "flame-outline",
+      "Gỏi cuốn": "leaf-outline",
+      Massage: "hand-right-outline",
+      "Xông hơi": "thermometer-outline",
+      "Phòng gym": "barbell-outline",
+      "Đưa đón sân bay": "airplane-outline",
+      "Thuê xe": "car-sport-outline",
+      Taxi: "car-outline",
+      "Dọn phòng": "brush-outline",
+      "Giặt ủi": "shirt-outline",
+      "Trang trí phòng đặc biệt": "sparkles-outline",
+    };
+
+    // Trả về icon theo name, nếu không tìm thấy thì dùng icon mặc định
+    return nameIcons[name] || "ellipse-outline";
   };
 
   const handleApply = () => {
-    dispatch(updateFilter({ ...inforFilter, amenityIds: selectedAmenities }));
-    onApply();
+    dispatch(updateFilter({ ...inforFilter, serviceIds: selectedService }));
+    console.log(inforFilter.serviceIds);
     onClose();
   };
 
-  // Log để debug
-  // console.log("amenitiesData:", amenitiesData);
-
-  // Nếu không hiển thị thì trả về null
-
   return (
     <View style={styles.modalContent}>
-      {/* Header của View */}
-      {/* <View style={styles.header}>
-        <Text style={styles.headerText}>Tiện nghi</Text>
-        <TouchableOpacity onPress={onClose}>
-          <Ionicons name="close" size={24} color="#000" />
-        </TouchableOpacity>
-      </View> */}
-
       {/* Kiểm tra dữ liệu trước khi render */}
-      {!amenitiesData || amenitiesData.length === 0 ? (
+      {!serviceData || serviceData.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text>Không có tiện nghi nào</Text>
         </View>
       ) : (
         <ScrollView style={styles.scrollView}>
           <View style={styles.amenitiesContainer}>
-            {amenitiesData.map((amenity) => {
-              const isSelected = selectedAmenities.includes(amenity.id);
+            {serviceData.map((amenity) => {
+              const isSelected = selectedService.includes(amenity.id);
               return (
                 <TouchableOpacity
                   key={amenity.id}
@@ -86,10 +118,10 @@ const ModalFilter = ({ onClose, onApply }) => {
                     styles.amenityButton,
                     isSelected && styles.amenityButtonSelected,
                   ]}
-                  onPress={() => toggleAmenity(amenity.id)}
+                  onPress={() => toggleService(amenity.id)}
                 >
                   <Ionicons
-                    name={getIconForAmenity(amenity.name)}
+                    name={getIconForAmenity(amenity)} // Truyền toàn bộ đối tượng amenity
                     size={40}
                     color={isSelected ? "#FFF" : "#0090FF"}
                     style={styles.amenityIcon}
@@ -121,7 +153,7 @@ const ModalFilter = ({ onClose, onApply }) => {
     </View>
   );
 };
-
+export default ModalFilter;
 const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: "#FFF",
@@ -219,5 +251,3 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 });
-
-export default ModalFilter;

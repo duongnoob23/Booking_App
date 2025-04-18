@@ -6,15 +6,24 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
+  ActivityIndicator,
+  Alert,
+  Button,
 } from "react-native";
 import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { WebView } from "react-native-webview";
+import * as Linking from "expo-linking";
 import getServiceIcon from "../../Components/Icon/getServiceIcon";
 import { fetchBookingRoom } from "../../Redux/Slice/hotelSlice";
-import SkeletonListHotelByLocation from "../../Components/Skeleton/Home/SkeletonListHotelByLocation";
 import SkeletonOrderConfirm from "../../Components/Skeleton/Hotels/SkeletonOrderConfirm";
 import { formatPrice } from "../../Utils/formarPrice";
 import { fetchListPromotion } from "../../Redux/Slice/promotionSlice";
+import {
+  fetchPaymentOrder,
+  resetPaymentData,
+} from "../../Redux/Slice/paymentSlice";
+
 const OrderConfirmScreen = ({ navigation }) => {
   useLayoutEffect(() => {
     navigation.getParent().setOptions({ tabBarStyle: { display: "none" } });
@@ -22,30 +31,10 @@ const OrderConfirmScreen = ({ navigation }) => {
       navigation.getParent().setOptions({ tabBarStyle: { display: "flex" } });
     };
   }, [navigation]);
+
   const [paymentMethod, setPaymentMethod] = useState("ZaloPay");
-  const test = {
-    country: "+84",
-    email: "lamtiendung11082002@gmail.com",
-    firstName: "Lâm",
-    lastName: "Tiến Dưỡng ",
-    phoneNumber: "0982474802",
-    userId: "0",
-  };
-  const test2 = {
-    checkInDate: "2025-04-14",
-    checkOutDate: "2025-04-15",
-    hotelId: 2,
-    roomRequestList: [
-      {
-        adults: 0,
-        children: 0,
-        price: 1080000,
-        roomId: 2,
-        serviceIdList: [Array],
-        uniqueId: "room2_1",
-      },
-    ],
-  };
+  const [showWebView, setShowWebView] = useState(false);
+
   const { userInfor, inforUserChange } = useAppSelector((state) => state.auth);
   const { serviceList } = useAppSelector((state) => state.service);
   const {
@@ -53,30 +42,49 @@ const OrderConfirmScreen = ({ navigation }) => {
     bookingPayload,
     listUniqueIdBookingRoom,
     loadingBookingRoom,
-    roomNumberFake, // là roomQuantities được tạo thành từ roomNumber ở bên HotelRoomList và lưu vào redux
+    roomNumberFake,
   } = useAppSelector((state) => state.hotel);
-  // bookingPayload?.roomRequestList?.forEach((item) => {
-  //   console.log("BPL từ redux OCS", item?.serviceIdList);
-  // });
-  // bookingData?.roomBookedList?.forEach((item) => {
-  //   console.log("BPL từ redux OCS", item?.serviceSelect);
-  // });
+  const { paymentData, loadingPayment, error } = useAppSelector(
+    (state) => state.payment
+  );
 
   const dispatch = useAppDispatch();
-
   const listRoom = bookingData?.roomBookedList;
-  const listRoom1 = bookingPayload?.roomRequestList;
-
-  // console.log("listROom", listRoom);
-  // console.log("listRoom1", listRoom1);
 
   useEffect(() => {
-    // console.log("bookingData updated:", bookingData);
-  }, [bookingData]);
+    console.log("paymentData in OrderConfirm:", paymentData);
+    if (paymentData?.orderUrl) {
+      setShowWebView(true);
+    }
+  }, [paymentData]);
 
   useEffect(() => {
     dispatch(fetchBookingRoom(bookingPayload));
   }, [bookingPayload?.roomRequestList, dispatch]);
+
+  // Xử lý deep link từ ZaloPay
+  useEffect(() => {
+    const handleDeepLink = (event) => {
+      const data = Linking.parse(event.url);
+      console.log("Deeplink received:", data);
+      if (data.path === "payment-result") {
+        const { order_id } = data.queryParams;
+        Alert.alert("Thanh toán thành công", `Mã đơn: ${order_id}`);
+        navigation.navigate("Home");
+      } else {
+        Alert.alert("Thanh toán thất bại", "Giao dịch không hoàn tất.");
+        resetPaymentState();
+      }
+    };
+
+    const subscription = Linking.addEventListener("url", handleDeepLink);
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink({ url });
+    });
+
+    return () => subscription.remove();
+  }, []);
+
   const getUniqueServiceTypes = (serviceSelect) => {
     const serviceTypes = new Set(
       serviceSelect?.map((service) => service.serviceType) || []
@@ -85,8 +93,6 @@ const OrderConfirmScreen = ({ navigation }) => {
   };
 
   const handleToOrderFood = () => {
-    // console.log("OCS 87 >>>>>>>>>>>>>>>>>>>>>>>>>>>>", roomNumberFake);
-    // dispatch(fetchServicesByCategory(roomNumberFake));
     navigation.navigate("OrderFood");
   };
 
@@ -94,17 +100,14 @@ const OrderConfirmScreen = ({ navigation }) => {
     const totalPrice =
       +bookingData?.totalPriceRoom + +bookingData?.totalPriceService;
     const code = "";
-    // console.log(totalPrice);
-
-    // console.log(bookingData?.totalPriceRoom);
     dispatch(fetchListPromotion({ code, totalPrice }));
     navigation.navigate("Discount", { prePage: "OrderConfirm" });
   };
-  // Sửa renderListRoom để dùng với ScrollView
+
   const renderListRoom = (item) => (
     <View style={styles.roomWrapper}>
       <View style={styles.roomInfo}>
-        <Text style={styles.roomLabel}>Tên Phòng </Text>
+        <Text style={styles.roomLabel}>Tên Phòng</Text>
         <Text style={styles.roomValue}>{item?.roomName}</Text>
       </View>
       <View style={styles.roomInfo}>
@@ -112,8 +115,8 @@ const OrderConfirmScreen = ({ navigation }) => {
         <Text style={styles.roomValue}>{item?.roomType}</Text>
       </View>
       <View style={styles.roomInfo}>
-        <Text style={styles.roomLabel}>Số khách </Text>
-        <Text style={styles.roomValue}>{item?.adults} người </Text>
+        <Text style={styles.roomLabel}>Số khách</Text>
+        <Text style={styles.roomValue}>{item?.adults} người</Text>
       </View>
       <View style={styles.roomInfo}>
         <Text style={styles.roomLabel}>Giá</Text>
@@ -129,7 +132,7 @@ const OrderConfirmScreen = ({ navigation }) => {
               <TouchableOpacity
                 key={type}
                 style={styles.iconWrapper}
-                onPress={() => handleToOrderFood()}
+                onPress={handleToOrderFood}
               >
                 {getServiceIcon(type)}
               </TouchableOpacity>
@@ -151,8 +154,8 @@ const OrderConfirmScreen = ({ navigation }) => {
           style={[styles.roomValue, { fontWeight: "bold", color: "#007AFF" }]}
         >
           <View>
-            <Text style={[{ fontWeight: "bold", color: "#007AFF" }]}>
-              Xem thêm{" "}
+            <Text style={{ fontWeight: "bold", color: "#007AFF" }}>
+              Xem thêm
             </Text>
           </View>
           <View>
@@ -164,24 +167,86 @@ const OrderConfirmScreen = ({ navigation }) => {
           </View>
         </TouchableOpacity>
       </View>
-      {/* <View style={styles.br}></View> */}
     </View>
   );
-  console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> 158 OCS", bookingData);
+
+  const handlePayment = () => {
+    // console.log("bookingPayload:", bookingPayload);
+    // if (!bookingPayload) {
+    //   Alert.alert("Lỗi", "Dữ liệu đặt phòng không hợp lệ.");
+    //   return;
+    // }
+    navigation.navigate("PaymentScreen");
+    // dispatch(fetchPaymentOrder(bookingPayload));
+  };
+
+  const resetPaymentState = () => {
+    setShowWebView(false);
+    dispatch(resetPaymentData());
+  };
+
+  const parseRedirectParams = (url, fallbackTransId) => {
+    try {
+      const queryString = url.split("?")[1] || "";
+      const urlParams = new URLSearchParams(queryString);
+      const params = {
+        appTransId:
+          urlParams.get("apptransid") ||
+          urlParams.get("appTransId") ||
+          fallbackTransId,
+        message: urlParams.get("message") || "",
+      };
+      console.log("Parsed redirect params:", params);
+      return params;
+    } catch (error) {
+      console.error("Error parsing redirect URL:", error);
+      return {
+        appTransId: fallbackTransId,
+        message: "Invalid redirect URL",
+      };
+    }
+  };
+
+  const handleNavigationStateChange = (navState) => {
+    try {
+      const { url } = navState;
+      console.log("Navigation state changed, URL:", url);
+
+      if (!url || typeof url !== "string") {
+        console.log("URL không hợp lệ hoặc không tồn tại");
+        return;
+      }
+
+      // Chỉ xử lý deep link, không xử lý redirect trung gian từ ZaloPay
+      if (url.includes("myapp://")) {
+        console.log("ZaloPay deep link detected");
+        const params = parseRedirectParams(url, paymentData.appTransId);
+
+        if (params.appTransId) {
+          Alert.alert("Thanh toán thành công", `Mã đơn: ${params.appTransId}`);
+          navigation.navigate("Home");
+        } else {
+          Alert.alert("Lỗi", "Không tìm thấy mã giao dịch");
+          resetPaymentState();
+        }
+      }
+    } catch (error) {
+      console.error("Error in handleNavigationStateChange:", error);
+      Alert.alert("Lỗi", "Đã có lỗi xảy ra khi xử lý thanh toán.");
+      resetPaymentState();
+    }
+  };
+
   if (loadingBookingRoom) {
     return <SkeletonOrderConfirm />;
   }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContainer}>
-        {/* Phần đầu: Thông tin khách hàng (cố định) */}
-        {/* {[
-          styles.listContainer,
-          hasSelectedRooms && styles.listContainerPlus,
-        ]} */}
         <View style={styles.headerSection}>
-          <Text style={(styles.title, styles.titleCenter)}>
-            Thông tin khách hàng{" "}
+          <Text style={[styles.title, styles.titleCenter]}>
+            Thông tin khách hàng
           </Text>
           <View style={styles.infoSection}>
             <View style={styles.infoItem}>
@@ -206,12 +271,11 @@ const OrderConfirmScreen = ({ navigation }) => {
               </Text>
             </View>
           </View>
-          <View style={styles.br}></View>
+          <View style={styles.br} />
         </View>
-        {/* "hotelName": "Onomo", "hotelAddress": "Đà Nẵng", "totalAdults": 0,
-        "checkIn": "14-04-2025 14:20:00", "checkOut": "15-04-2025 12:20:00", */}
+
         <View style={styles.headerSection}>
-          <Text style={(styles.title, styles.titleCenter)}>
+          <Text style={[styles.title, styles.titleCenter]}>
             Thông tin khách sạn
           </Text>
           <View style={styles.infoSection}>
@@ -236,28 +300,26 @@ const OrderConfirmScreen = ({ navigation }) => {
               <Text style={styles.infoValue}>{bookingData.checkOut}</Text>
             </View>
           </View>
-          <View style={styles.br}></View>
+          <View style={styles.br} />
         </View>
-        {/* Phần giữa: Danh sách phòng (cuộn) */}
+
         <View style={styles.roomsSection}>
           <Text style={styles.subTitle}>Phòng đặt</Text>
-          {/* <View key={item?.uniqueId}>{renderListRoom(item)}</View> */}
           <ScrollView showsVerticalScrollIndicator={false}>
             {listRoom?.map((item, index) => (
               <View key={item.uniqueId}>{renderListRoom(item)}</View>
             ))}
           </ScrollView>
-          <View style={styles.br}></View>
+          <View style={styles.br} />
         </View>
-        {/* Phần cuối: Mã giảm giá, Phương thức thanh toán, Nút xác nhận (cố định) */}
 
         <View style={styles.headerSection}>
           <View style={styles.infoSection}>
             <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Mã giảm giá </Text>
+              <Text style={styles.infoLabel}>Mã giảm giá</Text>
               <TouchableOpacity
                 style={styles.wrapperInfoValueSale}
-                onPress={() => handleToSale()}
+                onPress={handleToSale}
               >
                 <Ionicons name="bookmark-outline" size={18} color="#007AFF" />
                 <Text style={styles.infoValueSale}>couponCode</Text>
@@ -267,7 +329,7 @@ const OrderConfirmScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.headerSection}>
-          <Text style={(styles.title, styles.titleCenter)}>Hóa đơn </Text>
+          <Text style={[styles.title, styles.titleCenter]}>Hóa đơn</Text>
           <View style={styles.infoSection}>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Giá tiền phòng</Text>
@@ -294,11 +356,11 @@ const OrderConfirmScreen = ({ navigation }) => {
               </Text>
             </View>
           </View>
-          <View style={styles.br}></View>
+          <View style={styles.br} />
         </View>
-        <View style={styles.footerSection}>
-          <View style={styles.br}></View>
 
+        <View style={styles.footerSection}>
+          <View style={styles.br} />
           <Text style={styles.subTitle}>Phương thức thanh toán</Text>
           <View style={styles.infoSectionLast}>
             <TouchableOpacity
@@ -325,7 +387,7 @@ const OrderConfirmScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity style={styles.button} onPress={handlePayment}>
             <Text style={styles.buttonText}>Xác nhận đặt phòng</Text>
           </TouchableOpacity>
         </View>
@@ -333,6 +395,7 @@ const OrderConfirmScreen = ({ navigation }) => {
     </SafeAreaView>
   );
 };
+
 export default OrderConfirmScreen;
 
 const styles = StyleSheet.create({

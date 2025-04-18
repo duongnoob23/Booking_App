@@ -18,7 +18,9 @@ import ModalSort from "../../Components/Modal/Home/ModalSort";
 import {
   fetchHotelById,
   fetchHotelByLocation,
+  fetchHotelList,
 } from "../../Redux/Slice/hotelSlice";
+import ModalFilter from "../../Components/Modal/Home/ModalFilter";
 const ListHotelByLocation = ({ navigation }) => {
   const [searchText, setSearchText] = useState("");
   const {
@@ -45,8 +47,14 @@ const ListHotelByLocation = ({ navigation }) => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+    dispatch(fetchHotelList());
     dispatch(fetchHotelByLocation(inforFilter));
-  }, [inforFilter.amenityIds, inforFilter.sortById, dispatch]);
+  }, [
+    inforFilter.amenityIds,
+    inforFilter.sortById,
+    inforFilter.serviceIds,
+    dispatch,
+  ]);
 
   // console.log(">>> 51 listByHotel", hotelByLocation);
 
@@ -202,6 +210,8 @@ const ListHotelByLocation = ({ navigation }) => {
       </TouchableOpacity>
     );
   };
+
+  console.log(modalVisible);
   return (
     <SafeAreaView style={styles.container}>
       {/* Tiêu đề và số lượng khách sạn */}
@@ -303,6 +313,10 @@ const ListHotelByLocation = ({ navigation }) => {
       ) : modalVisible.SortBy ? (
         <ModalSort
           onClose={() => setModalVisible({ ...modalVisible, SortBy: false })}
+        />
+      ) : modalVisible.FilterBy ? (
+        <ModalFilter
+          onClose={() => setModalVisible({ ...modalVisible, FilterBy: false })}
         />
       ) : (
         <ScrollView style={styles.scrollView}>

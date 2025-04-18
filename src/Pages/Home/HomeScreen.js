@@ -21,6 +21,7 @@ import {
   fetchHotelByLocation,
   fetchHotelList,
   fetchLocationList,
+  fetchServiceList,
 } from "../../Redux/Slice/hotelSlice";
 import ModalLocationList from "../../Components/Modal/Home/ModalLocationList";
 import cloneDeep from "lodash/cloneDeep";
@@ -33,45 +34,8 @@ import { updateFilter } from "../../Redux/Slice/hotelSlice";
 import { fetchListService } from "../../Redux/Slice/serviceSlice";
 import { fetchUserInfo } from "../../Redux/Slice/authSlice";
 const HomeScreen = ({ navigation }) => {
-  const continueSearch = [
-    {
-      id: "1",
-      name: "Heden Golf",
-      image:
-        "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
-      details: " 23-26 Tháng 8, 6-7 Người lớn, 1 trẻ em",
-    },
-    {
-      id: "2",
-      name: "Onomo",
-      image:
-        "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
-      details: " 23-26 Tháng 8, 6-7 Người lớn, 1 trẻ em",
-    },
-    {
-      id: "3",
-      name: "Adagio",
-      image:
-        "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
-      details: " 23-26 Tháng 8, 6-7 Người lớn, 1 trẻ em",
-    },
-    {
-      id: "4",
-      name: "Sofitel",
-      image:
-        "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
-      details: " 23-26 Tháng 8, 6-7 Người lớn, 1 trẻ em",
-    },
-    {
-      id: "5",
-      name: "Sofitel",
-      image:
-        "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
-      details: " 23-26 Tháng 8, 6-7 Người lớn, 1 trẻ em",
-    },
-  ];
-
   const {
+    hotelHistorySearch,
     hotelList,
     locationList,
     hotelDetail,
@@ -94,6 +58,7 @@ const HomeScreen = ({ navigation }) => {
     width: 0,
   });
 
+  const continueSearch = hotelHistorySearch;
   // const [inforFilter, setInforFilter] = useState({
   //   locationId: "0",
   //   checkin: checkinDate,
@@ -114,17 +79,23 @@ const HomeScreen = ({ navigation }) => {
   // console.log("----- 105 HomeScreen selectDay", selectDay);
   const dispatch = useAppDispatch();
   useEffect(() => {
-    // dispatch(fetchListService());
+    dispatch(fetchServiceList());
     dispatch(fetchAmenityList());
     dispatch(fetchHotelList());
     dispatch(fetchLocationList());
   }, [dispatch]);
+
+  useEffect(() => {
+    // dispatch(fetchHotelList());
+  }, [hotelHistorySearch]);
 
   const handleToHotelDetails = (item) => {
     const id = item?.hotelId;
     dispatch(fetchHotelById(id));
     navigation.navigate("HotelDetails", { item });
   };
+
+  console.log("hotelHistorySearch", hotelHistorySearch);
 
   const HotelRequestList = ({ item }) => {
     return (
@@ -259,6 +230,25 @@ const HomeScreen = ({ navigation }) => {
     // dispatch(fetchUserInfo());
     navigation.navigate("LoginScreen");
   };
+
+  const handleContinueSearch = (item) => {
+    console.log(item);
+    const inforFilter_ = {
+      locationId: item?.locationId,
+      checkin: item?.checkIn,
+      checkout: item?.checkOut,
+      adults: item?.adults,
+      children: item?.children,
+      amenityIds: [],
+      serviceIds: [],
+      sortById: 1,
+    };
+    console.log("inforFIlter Fake", inforFilter_);
+    dispatch(skeletonLoading());
+    dispatch(fetchHotelByLocation(inforFilter_));
+
+    navigation.navigate("ListHotelLocation");
+  };
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -374,20 +364,28 @@ const HomeScreen = ({ navigation }) => {
               >
                 {continueSearch?.map((item, index) => {
                   return (
-                    <View key={index} style={styles.recentSearchItem}>
+                    <TouchableOpacity
+                      onPress={() => handleContinueSearch(item)}
+                      key={index}
+                      style={styles.recentSearchItem}
+                    >
                       <Image
                         source={{
-                          uri: `${item.image}`,
+                          uri: `${item?.image}`,
                         }}
                         style={styles.recentSearchImage}
                       />
                       <View style={styles.recentSearchDetails}>
-                        <Text style={styles.recentSearchText}>{item.name}</Text>
+                        <Text style={styles.recentSearchText}>
+                          {item?.location}
+                        </Text>
                         <Text style={styles.recentSearchSubText}>
-                          {item.details}
+                          Từ {item?.checkIn} đến {item?.checkOut} ,
+                          {item?.adults}
+                          Người lớn , {item?.children} Trẻ em
                         </Text>
                       </View>
-                    </View>
+                    </TouchableOpacity>
                   );
                 })}
               </View>
@@ -536,7 +534,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginRight: 10,
     alignItems: "center",
-    width: 200,
+    width: 250,
     height: 70,
     marginBottom: 10,
   },
