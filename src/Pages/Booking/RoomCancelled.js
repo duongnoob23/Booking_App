@@ -77,17 +77,17 @@ const RoomCancelled = () => {
     <View style={styles.bookingHistoryScreen}>
       {/* Danh sách đặt phòng */}
 
-      {/* {bookings.length > 0 ? (
-        <FlatList
-          data={bookings}
-          renderItem={renderBookingItem}
-          keyExtractor={(item) => item.bookingId}
-          style={styles.bookingHistoryScreen__bookingList}
-        />
-      ) : ( */}
-      <View style={styles.RequireLogin}>
+      {/* {bookings.length > 0 ? ( */}
+      <FlatList
+        data={bookings}
+        renderItem={renderBookingItem}
+        keyExtractor={(item) => item.bookingId}
+        style={styles.bookingHistoryScreen__bookingList}
+      />
+      {/* ) : ( */}
+      {/* <View style={styles.RequireLogin}>
         <Text style={styles.RequireLoginText}>Bạn không có phòng đã hủy </Text>
-      </View>
+      </View> */}
       {/* )} */}
     </View>
   );

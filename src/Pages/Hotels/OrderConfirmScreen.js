@@ -22,6 +22,7 @@ import { fetchListPromotion } from "../../Redux/Slice/promotionSlice";
 import {
   fetchPaymentOrder,
   resetPaymentData,
+  updateCallPayment,
 } from "../../Redux/Slice/paymentSlice";
 
 const OrderConfirmScreen = ({ navigation }) => {
@@ -51,39 +52,39 @@ const OrderConfirmScreen = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const listRoom = bookingData?.roomBookedList;
 
-  useEffect(() => {
-    console.log("paymentData in OrderConfirm:", paymentData);
-    if (paymentData?.orderUrl) {
-      setShowWebView(true);
-    }
-  }, [paymentData]);
+  // useEffect(() => {
+  //   console.log("paymentData in OrderConfirm:", paymentData);
+  //   if (paymentData?.orderUrl) {
+  //     setShowWebView(true);
+  //   }
+  // }, [paymentData]);
 
   useEffect(() => {
     dispatch(fetchBookingRoom(bookingPayload));
   }, [bookingPayload?.roomRequestList, dispatch]);
 
   // Xử lý deep link từ ZaloPay
-  useEffect(() => {
-    const handleDeepLink = (event) => {
-      const data = Linking.parse(event.url);
-      console.log("Deeplink received:", data);
-      if (data.path === "payment-result") {
-        const { order_id } = data.queryParams;
-        Alert.alert("Thanh toán thành công", `Mã đơn: ${order_id}`);
-        navigation.navigate("Home");
-      } else {
-        Alert.alert("Thanh toán thất bại", "Giao dịch không hoàn tất.");
-        resetPaymentState();
-      }
-    };
+  // useEffect(() => {
+  //   const handleDeepLink = (event) => {
+  //     const data = Linking.parse(event.url);
+  //     console.log("Deeplink received:", data);
+  //     if (data.path === "payment-result") {
+  //       const { order_id } = data.queryParams;
+  //       Alert.alert("Thanh toán thành công", `Mã đơn: ${order_id}`);
+  //       navigation.navigate("Home");
+  //     } else {
+  //       Alert.alert("Thanh toán thất bại", "Giao dịch không hoàn tất.");
+  //       resetPaymentState();
+  //     }
+  //   };
 
-    const subscription = Linking.addEventListener("url", handleDeepLink);
-    Linking.getInitialURL().then((url) => {
-      if (url) handleDeepLink({ url });
-    });
+  //   const subscription = Linking.addEventListener("url", handleDeepLink);
+  //   Linking.getInitialURL().then((url) => {
+  //     if (url) handleDeepLink({ url });
+  //   });
 
-    return () => subscription.remove();
-  }, []);
+  //   return () => subscription.remove();
+  // }, []);
 
   const getUniqueServiceTypes = (serviceSelect) => {
     const serviceTypes = new Set(
@@ -177,65 +178,66 @@ const OrderConfirmScreen = ({ navigation }) => {
     //   return;
     // }
     navigation.navigate("PaymentScreen");
+    dispatch(updateCallPayment(true));
     // dispatch(fetchPaymentOrder(bookingPayload));
   };
 
-  const resetPaymentState = () => {
-    setShowWebView(false);
-    dispatch(resetPaymentData());
-  };
+  // const resetPaymentState = () => {
+  //   setShowWebView(false);
+  //   dispatch(resetPaymentData());
+  // };
 
-  const parseRedirectParams = (url, fallbackTransId) => {
-    try {
-      const queryString = url.split("?")[1] || "";
-      const urlParams = new URLSearchParams(queryString);
-      const params = {
-        appTransId:
-          urlParams.get("apptransid") ||
-          urlParams.get("appTransId") ||
-          fallbackTransId,
-        message: urlParams.get("message") || "",
-      };
-      console.log("Parsed redirect params:", params);
-      return params;
-    } catch (error) {
-      console.error("Error parsing redirect URL:", error);
-      return {
-        appTransId: fallbackTransId,
-        message: "Invalid redirect URL",
-      };
-    }
-  };
+  // const parseRedirectParams = (url, fallbackTransId) => {
+  //   try {
+  //     const queryString = url.split("?")[1] || "";
+  //     const urlParams = new URLSearchParams(queryString);
+  //     const params = {
+  //       appTransId:
+  //         urlParams.get("apptransid") ||
+  //         urlParams.get("appTransId") ||
+  //         fallbackTransId,
+  //       message: urlParams.get("message") || "",
+  //     };
+  //     console.log("Parsed redirect params:", params);
+  //     return params;
+  //   } catch (error) {
+  //     console.error("Error parsing redirect URL:", error);
+  //     return {
+  //       appTransId: fallbackTransId,
+  //       message: "Invalid redirect URL",
+  //     };
+  //   }
+  // };
 
-  const handleNavigationStateChange = (navState) => {
-    try {
-      const { url } = navState;
-      console.log("Navigation state changed, URL:", url);
+  // const handleNavigationStateChange = (navState) => {
+  //   try {
+  //     const { url } = navState;
+  //     console.log("Navigation state changed, URL:", url);
 
-      if (!url || typeof url !== "string") {
-        console.log("URL không hợp lệ hoặc không tồn tại");
-        return;
-      }
+  //     if (!url || typeof url !== "string") {
+  //       console.log("URL không hợp lệ hoặc không tồn tại");
+  //       return;
+  //     }
 
-      // Chỉ xử lý deep link, không xử lý redirect trung gian từ ZaloPay
-      if (url.includes("myapp://")) {
-        console.log("ZaloPay deep link detected");
-        const params = parseRedirectParams(url, paymentData.appTransId);
+  //     // Chỉ xử lý deep link, không xử lý redirect trung gian từ ZaloPay
+  //     if (url.includes("myapp://")) {
+  //       console.log("ZaloPay deep link detected");
+  //       const params = parseRedirectParams(url, paymentData.appTransId);
 
-        if (params.appTransId) {
-          Alert.alert("Thanh toán thành công", `Mã đơn: ${params.appTransId}`);
-          navigation.navigate("Home");
-        } else {
-          Alert.alert("Lỗi", "Không tìm thấy mã giao dịch");
-          resetPaymentState();
-        }
-      }
-    } catch (error) {
-      console.error("Error in handleNavigationStateChange:", error);
-      Alert.alert("Lỗi", "Đã có lỗi xảy ra khi xử lý thanh toán.");
-      resetPaymentState();
-    }
-  };
+  //       if (params.appTransId) {
+  //         Alert.alert("Thanh toán thành công", `Mã đơn: ${params.appTransId}`);
+  //         navigation.navigate("Home");
+  //       } else {
+  //         Alert.alert("Lỗi", "Không tìm thấy mã giao dịch");
+  //         resetPaymentState();
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error in handleNavigationStateChange:", error);
+  //     Alert.alert("Lỗi", "Đã có lỗi xảy ra khi xử lý thanh toán.");
+  //     resetPaymentState();
+  //   }
+  // };
 
   if (loadingBookingRoom) {
     return <SkeletonOrderConfirm />;

@@ -18,6 +18,7 @@ import LoginScreen from "../Pages/Auth/LoginScreen";
 import RegisterScreen from "../Pages/Auth/RegisterScreen";
 import Discount from "../Pages/Promotion/Discount";
 import PaymentScreen from "../Pages/Payment/PaymentScreen";
+import PaymentResultScreen from "../Pages/Payment/PaymentResultScreen";
 const Stack = createNativeStackNavigator();
 
 const HomeStackNavigator = () => {
@@ -167,7 +168,15 @@ const HomeStackNavigator = () => {
         name="PaymentScreen"
         component={PaymentScreen}
         options={{
-          headerShown: true,
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+        }}
+      />
+      <Stack.Screen
+        name="PaymentResultScreen"
+        component={PaymentResultScreen}
+        options={{
+          headerShown: false,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
         }}
       />

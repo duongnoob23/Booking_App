@@ -9,10 +9,20 @@ import {
   TextInput,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { useAppDispatch } from "../../../Redux/hook";
+import { useAppDispatch, useAppSelector } from "../../../Redux/hook";
 import { fetchConfirmBookingCancelled } from "../../../Redux/Slice/bookingSlice";
+import { fetchBookingStatus } from "../../../Redux/Slice/hotelSlice";
 
-const ModalBookingCancelled = ({ visible, onClose, onConfirm, bookingId }) => {
+const ModalBookingCancelled = ({
+  visible,
+  onClose,
+  onConfirm,
+  bookingId,
+  navigation,
+  handleToBookingScreen,
+}) => {
+  const bookingStatus = useAppSelector((state) => state.booking);
+
   const [cancelReason, setCancelReason] = useState("");
   const [error, setError] = useState("");
   const dispatch = useAppDispatch();
@@ -60,10 +70,11 @@ const ModalBookingCancelled = ({ visible, onClose, onConfirm, bookingId }) => {
     console.log("Xác nhận hủy phòng với lý do:", cancelReason);
 
     dispatch(fetchConfirmBookingCancelled(value));
-
+    dispatch(fetchBookingStatus());
     setError(""); // Xóa lỗi nếu đã nhập lý do
     setCancelReason(""); // Reset TextInput
     onClose(); // Đóng modal
+    handleToBookingScreen();
   };
 
   return (

@@ -52,10 +52,11 @@ const paymentSlice = createSlice({
       returnCode: 0,
       returnMessage: "",
     },
+    callPayment: false,
   },
   reducers: {
     // Reset paymentData nếu cần
-    resetPaymentData: (state) => {
+    resetPaymentData(state) {
       state.paymentData = {
         zpTransToken: "",
         appTransId: "",
@@ -65,6 +66,9 @@ const paymentSlice = createSlice({
       };
       state.error = null;
       state.loadingPayment = false;
+    },
+    updateCallPayment(state, action) {
+      state.callPayment = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -84,5 +88,5 @@ const paymentSlice = createSlice({
   },
 });
 
-export const { resetPaymentData } = paymentSlice.actions;
+export const { resetPaymentData, updateCallPayment } = paymentSlice.actions;
 export default paymentSlice.reducer;
