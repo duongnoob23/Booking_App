@@ -26,11 +26,11 @@ const Discount = ({ navigation, route }) => {
     (state) => state.promotion
   );
   const { bookingPayload } = useAppSelector((state) => state.hotel);
+  const { accessToken, isLoggedIn } = useAppSelector((state) => state.auth);
   console.log("21>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", bookingPayload);
   const dispatch = useAppDispatch();
 
   console.log("24 DS>>>>>>>>>>>>>>>>>>>>>>>>>>>>", listPromotion);
-
   // const test = [
   //   {
   //     code: "SUMMER25",
@@ -77,6 +77,27 @@ const Discount = ({ navigation, route }) => {
     }
   };
 
+  console.log("accessToken isLoggedIn", accessToken, isLoggedIn);
+
+  if (!accessToken && !isLoggedIn) {
+    return (
+      <View style={styles.RequireLogin}>
+        <Text style={styles.RequireLoginText}>
+          Bạn cần đăng nhập để xem mã giảm giá
+        </Text>
+      </View>
+    );
+  }
+
+  console.log(discountItems);
+  if (accessToken && isLoggedIn && !discountItems) {
+    return (
+      <View style={styles.RequireLogin}>
+        <Text style={styles.RequireLoginText}>Bạn chưa có mã giảm giá nào</Text>
+      </View>
+    );
+  }
+
   if (loadingPromotion) {
     return (
       <View>
@@ -84,6 +105,7 @@ const Discount = ({ navigation, route }) => {
       </View>
     );
   }
+
   return (
     <View style={styles.discountCodes}>
       {/* Header */}
@@ -97,36 +119,45 @@ const Discount = ({ navigation, route }) => {
       </View> */}
 
       {/* Danh sách mã giảm giá */}
-      <TouchableOpacity onPress={() => handleFetchListPromotion()}>
+      {/* <TouchableOpacity onPress={() => handleFetchListPromotion()}>
         <Text>Fetch</Text>
-      </TouchableOpacity>
-      {discountItems.map((item) => (
-        <TouchableOpacity
-          key={item?.id}
-          style={styles.discountCodes__item}
-          onPress={() => handleChooseSale(item)}
-        >
-          <Ionicons
-            name="gift-outline"
-            size={45}
-            color="#007BFF"
-            style={styles.discountCodes__itemIcon}
-          />
-          <View style={styles.discountCodes__itemContent}>
-            <Text style={styles.discountCodes__itemTitle}>
-              {item?.description}
-            </Text>
-            <Text style={styles.discountCodes__itemCode}>{item?.code}</Text>
+      </TouchableOpacity> */}
+      {discountItems.length > 0 ? (
+        discountItems.map((item) => (
+          <TouchableOpacity
+            key={item?.id}
+            style={styles.discountCodes__item}
+            onPress={() => handleChooseSale(item)}
+          >
+            <Ionicons
+              name="gift-outline"
+              size={45}
+              color="#007BFF"
+              style={styles.discountCodes__itemIcon}
+            />
+            <View style={styles.discountCodes__itemContent}>
+              <Text style={styles.discountCodes__itemTitle}>
+                {item?.description}
+              </Text>
+              <Text style={styles.discountCodes__itemCode}>{item?.code}</Text>
 
-            <Text style={styles.discountCodes__itemExpiry}>
-              Số tiền đặt phòng thấp nhất {formatPrice(item?.minBookingAmount)}
-            </Text>
-            <Text style={styles.discountCodes__itemExpiry}>
-              Hạn sử dụng: {item?.expirationDate}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      ))}
+              <Text style={styles.discountCodes__itemExpiry}>
+                Số tiền đặt phòng thấp nhất{" "}
+                {formatPrice(item?.minBookingAmount)}
+              </Text>
+              <Text style={styles.discountCodes__itemExpiry}>
+                Hạn sử dụng: {item?.expirationDate}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ))
+      ) : (
+        <View style={styles.RequireLogin}>
+          <Text style={styles.RequireLoginText}>
+            Bạn chưa có mã giảm giá nào
+          </Text>
+        </View>
+      )}
     </View>
   );
 };

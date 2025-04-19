@@ -60,6 +60,10 @@ const Profile = ({ navigation }) => {
   const handleToSettingsScreen = () => {
     navigation.navigate("SettingsScreen");
   };
+
+  const handleToPersonalVoucher = () => {
+    navigation.navigate("PersonalVoucher");
+  };
   // useFocusEffect(() =>{
   //   console.log(">>>> chay roi");
   // },[])
@@ -104,6 +108,14 @@ const Profile = ({ navigation }) => {
           onPress={() => handleToRewardMember()}
         >
           <Text style={styles.optionText}>Phần thưởng và Thành viên</Text>
+          <Ionicons name="chevron-forward" size={20} color="#0090FF" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.optionItem}
+          onPress={() => handleToPersonalVoucher()}
+        >
+          <Text style={styles.optionText}>Voucher của bạn </Text>
           <Ionicons name="chevron-forward" size={20} color="#0090FF" />
         </TouchableOpacity>
 

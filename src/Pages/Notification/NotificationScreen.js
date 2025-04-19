@@ -1,8 +1,14 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useAppSelector } from "../../Redux/hook";
 
 const NotificationsScreen = () => {
+  const { accessToken, isLoggedIn } = useAppSelector((state) => state.auth);
+  const { notificationList } = useAppSelector((state) => state.notification);
+
+  // console.log("notification list 10", notificationList);
+
   const notifications = [
     {
       id: "1",
@@ -46,6 +52,16 @@ const NotificationsScreen = () => {
     },
   ];
 
+  if (!accessToken && !isLoggedIn) {
+    return (
+      <View style={styles.RequireLogin}>
+        <Text style={styles.RequireLoginText}>
+          Bạn cần đăng nhập để xem thông báo
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.notifications}>
       {/* Header */}
@@ -65,24 +81,34 @@ const NotificationsScreen = () => {
       </View> */}
 
       {/* Danh sách thông báo */}
-      {notifications.map((item) => (
-        <View key={item.id} style={styles.notifications__item}>
-          <Ionicons
-            name={item.icon}
-            size={40}
-            color={item.iconColor}
-            style={styles.notifications__itemIcon}
-          />
-          <View style={styles.notifications__itemContent}>
-            <Text style={styles.notifications__itemTitle}>{item.title}</Text>
-            <Text style={styles.notifications__itemText}>{item.content}</Text>
-            {item.time ? (
-              <Text style={[styles.notifications__itemTime]}>{item.time}</Text>
-            ) : null}
-            <Text style={styles.notifications__itemNote}>{item.note}</Text>
+      {notifications.length > 0 ? (
+        notifications.map((item) => (
+          <View key={item.id} style={styles.notifications__item}>
+            <Ionicons
+              name={item.icon}
+              size={40}
+              color={item.iconColor}
+              style={styles.notifications__itemIcon}
+            />
+            <View style={styles.notifications__itemContent}>
+              <Text style={styles.notifications__itemTitle}>{item.title}</Text>
+              <Text style={styles.notifications__itemText}>{item.content}</Text>
+              {item.time ? (
+                <Text style={[styles.notifications__itemTime]}>
+                  {item.time}
+                </Text>
+              ) : null}
+              <Text style={styles.notifications__itemNote}>{item.note}</Text>
+            </View>
           </View>
+        ))
+      ) : (
+        <View style={styles.RequireLogin}>
+          <Text style={styles.RequireLoginText}>
+            Bạn không có thông báo nào
+          </Text>
         </View>
-      ))}
+      )}
     </View>
   );
 };

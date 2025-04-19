@@ -12,17 +12,56 @@ import { Ionicons } from "@expo/vector-icons"; // Dùng icon từ Expo
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import PriceScreen from "../Hotels/PriceScreen";
 import { useState } from "react";
-import { useAppSelector } from "../../Redux/hook";
+import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import { formatPrice } from "../../Utils/formarPrice";
+import { getBookingDetails } from "../../Redux/Slice/bookingSlice";
 
-const RoomBooked = () => {
+const RoomBooked = ({ navigation }) => {
+  const { accessToken, isLoggedIn } = useAppSelector((state) => state.auth);
+
   const { bookingStatus, loadingBookingStatus } = useAppSelector(
     (state) => state.hotel
   );
-  const bookings = bookingStatus?.BOOKED || [];
+
+  const { bookingDetailData } = useAppSelector((state) => state.booking);
+
+  console.log("bookingDetailData 29 >>>", bookingDetailData);
+  const dispatch = useAppDispatch();
+  // const bookings = bookingStatus?.BOOKED || [];
+  const bookings = [
+    {
+      bookingId: 46,
+      hotelName: "Heden Golf",
+      rating: 3.9,
+      feedbackSum: 85,
+      bookingDate: "19-04-2025",
+      bookingPrice: "5400000.00",
+      image:
+        "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1729241122/Room/nipyn0qgyoyhtgkadlyi.jpg",
+    },
+    {
+      bookingId: 48,
+      hotelName: "Heden Golf",
+      rating: 3.9,
+      feedbackSum: 85,
+      bookingDate: "19-04-2025",
+      bookingPrice: "20000.00",
+      image:
+        "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1729241122/Room/nipyn0qgyoyhtgkadlyi.jpg",
+    },
+  ];
+
+  const handleToBookingDetail = (item) => {
+    // console.log("item.bookingId", item.bookingId);
+    dispatch(getBookingDetails(item.bookingId));
+    navigation.navigate("BookingHistoryDetails");
+  };
 
   const renderBookingItem = ({ item }) => (
-    <View style={styles.bookingHistoryScreen__bookingItem}>
+    <TouchableOpacity
+      style={styles.bookingHistoryScreen__bookingItem}
+      onPress={() => handleToBookingDetail(item)}
+    >
       <Image
         source={{ uri: item?.image }}
         style={styles.bookingHistoryScreen__bookingImage}
@@ -58,18 +97,35 @@ const RoomBooked = () => {
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
+
+  // if (!accessToken && !isLoggedIn) {
+  //   return (
+  //     <View style={styles.RequireLogin}>
+  //       <Text style={styles.RequireLoginText}>
+  //         Bạn cần đăng nhập để xem tính năng này
+  //       </Text>
+  //     </View>
+  //   );
+  // }
 
   return (
     <View style={styles.bookingHistoryScreen}>
       {/* Danh sách đặt phòng */}
+
+      {/* {bookings.length > 0 ? ( */}
       <FlatList
         data={bookings}
         renderItem={renderBookingItem}
         keyExtractor={(item) => item.bookingId}
         style={styles.bookingHistoryScreen__bookingList}
       />
+      {/* ) : (
+        <View style={styles.RequireLogin}>
+          <Text style={styles.RequireLoginText}>Bạn không có phòng đã đặt</Text>
+        </View>
+      )} */}
     </View>
   );
 };

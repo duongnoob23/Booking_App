@@ -24,6 +24,7 @@ import { API_BASE_URL } from "../../Constant/Constant";
 import {
   fetchBookingStatus,
   fetchHotelList,
+  fetchNotificationList,
 } from "../../Redux/Slice/hotelSlice";
 /* 
 {"data": 
@@ -63,6 +64,7 @@ const LoginScreen = ({ navigation, route }) => {
         dispatch(loginSuccess(data?.data?.accessToken));
         dispatch(fetchHotelList());
         dispatch(fetchBookingStatus());
+        dispatch(fetchNotificationList());
         // dispatch(loginSuccess(data.data)); isLoggedIn = true auto
         console.log("Đăng nhập thành công!");
         // Alert.alert("Đăng nhập thành công!", `JWT: ${data.data.accessToken}`);

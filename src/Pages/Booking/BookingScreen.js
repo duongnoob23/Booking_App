@@ -23,6 +23,7 @@ const BookingScreen = () => {
   const { bookingStatus, loadingBookingStatus } = useAppSelector(
     (state) => state.hotel
   );
+
   const dispatch = useAppDispatch();
 
   const Tab = createMaterialTopTabNavigator();
@@ -54,6 +55,7 @@ const BookingScreen = () => {
     );
   }
 
+  console.log(bookingStatus);
   const CustomTabBar = ({ state, descriptors, navigation }) => {
     return (
       <View style={styles.header__tabs}>

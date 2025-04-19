@@ -50,6 +50,8 @@ const HotelRoomList = ({ navigation, route }) => {
     return newRooms;
   };
 
+  console.log(hotelRoomList);
+
   useEffect(() => {
     if (hotelRoomList && hotelRoomList.length > 0) {
       // Chỉ cập nhật roomNumber nếu nó chưa được khởi tạo (tránh reset giá trị người dùng đã chọn)

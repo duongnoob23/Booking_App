@@ -85,9 +85,9 @@ const HomeScreen = ({ navigation }) => {
     dispatch(fetchLocationList());
   }, [dispatch]);
 
-  useEffect(() => {
-    // dispatch(fetchHotelList());
-  }, [hotelHistorySearch]);
+  // useEffect(() => {
+  //   dispatch(fetchHotelList());
+  // }, [hotelHistorySearch]);
 
   const handleToHotelDetails = (item) => {
     const id = item?.hotelId;
@@ -228,7 +228,7 @@ const HomeScreen = ({ navigation }) => {
 
   const handleToInfoConfirm = () => {
     // dispatch(fetchUserInfo());
-    navigation.navigate("LoginScreen");
+    navigation.navigate("RateApp");
   };
 
   const handleContinueSearch = (item) => {

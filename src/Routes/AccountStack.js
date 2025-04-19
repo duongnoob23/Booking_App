@@ -6,6 +6,8 @@ import Profile from "../Pages/Profile/Profile";
 import RewardMember from "../Pages/Profile/RewardMember";
 import ChangePasswordScreen from "../Pages/Setting/ChangePasswordScreen";
 import SettingsScreen from "../Pages/Setting/SettingsScreen";
+import PersonalVoucher from "../Pages/Profile/PersonalVoucher";
+import VoucherDetail from "../Pages/Profile/VoucherDetail";
 
 const Stack = createNativeStackNavigator();
 
@@ -56,7 +58,7 @@ const AccountStackNavigator = () => {
         options={{
           headerShown: true,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
-          title: "Phần thươngr & Thành viên ",
+          title: "Phần thưởng & Thành viên ",
         }}
       />
       <Stack.Screen
@@ -75,6 +77,24 @@ const AccountStackNavigator = () => {
           headerShown: true,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
           title: "Lịch sử điểm thưởng",
+        }}
+      />
+      <Stack.Screen
+        name="PersonalVoucher"
+        component={PersonalVoucher}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Voucher của bạn",
+        }}
+      />
+      <Stack.Screen
+        name="VoucherDetail"
+        component={VoucherDetail}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Chi tiết Voucher",
         }}
       />
     </Stack.Navigator>

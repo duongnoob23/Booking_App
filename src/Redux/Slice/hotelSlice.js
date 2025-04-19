@@ -110,6 +110,9 @@ export const fetchHotelByLocation = createAsyncThunk(
 
       const accessToken = state.auth.accessToken;
       if (accessToken) {
+        console.log("----------- run1");
+        console.log("check acessToekn fetchHotelByLocation", accessToken);
+
         const response = await fetch(
           // `${API_BASE_URL}/api/hotel/filter?sortBy=${}&sort=${}`,
           `${API_BASE_URL}/api/hotel/filter`,
@@ -117,15 +120,18 @@ export const fetchHotelByLocation = createAsyncThunk(
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
+              // Authorization: `Bearer ${accessToken}`,
             },
             body: JSON.stringify(value),
           }
         );
-        console.log("Tìm kiếm với tokenAccess");
         const data = await response.json();
+        console.log("check data >>>>> run1", data.data);
+
         return data?.data?.content;
       } else {
+        console.log("----------- run2");
+
         const response = await fetch(
           // `${API_BASE_URL}/api/hotel/filter?sortBy=${}&sort=${}`,
           `${API_BASE_URL}/api/hotel/filter`,
@@ -250,6 +256,45 @@ export const fetchBookingStatus = createAsyncThunk(
   }
 );
 
+export const fetchNotificationList = createAsyncThunk(
+  "hotel/fetchNotificationList",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const state = getState();
+      const accessToken = state?.auth?.accessToken;
+
+      // Log để debug
+      console.log("AccessToken:", accessToken);
+      if (!accessToken) {
+        throw new Error("Access token is missing");
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/notifications/user`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      // Kiểm tra response
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log("Error response:", errorData);
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("fetchNotificationList response:", data.data);
+
+      return data.data; // Trả về dữ liệu từ API
+    } catch (error) {
+      console.error("Error in fetchNotificationList:", error.message);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const hotelSlice = createSlice({
   name: "hotel",
   initialState: {
@@ -301,6 +346,9 @@ const hotelSlice = createSlice({
       CHECKOUT: [],
       CANCELED: [],
     },
+
+    loadingNotification: false,
+    notificationList: [],
   },
   reducers: {
     clearHotelDetail(state) {
@@ -496,6 +544,19 @@ const hotelSlice = createSlice({
       .addCase(fetchBookingStatus.rejected, (state, action) => {
         state.loadingBookingStatus = false;
         state.error = action.error.message;
+      })
+
+      .addCase(fetchNotificationList.pending, (state) => {
+        state.loadingNotification = true;
+        state.error = null;
+      })
+      .addCase(fetchNotificationList.fulfilled, (state, action) => {
+        state.loadingNotification = false;
+        state.notificationList = action.payload;
+      })
+      .addCase(fetchNotificationList.rejected, (state, action) => {
+        state.loadingNotification = false;
+        state.error = action.payload; // Sử dụng action.payload để lấy lỗi
       });
   },
 });

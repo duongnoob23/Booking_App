@@ -278,7 +278,7 @@ const PaymentScreen = ({ navigation }) => {
             style={styles.webview}
             javaScriptEnabled={true}
             domStorageEnabled={true}
-            // onNavigationStateChange={handleNavigationStateChange}
+            onNavigationStateChange={handleNavigationStateChange}
             injectedJavaScript={injectedJavaScript}
             startInLoadingState={true}
             onShouldStartLoadWithRequest={(request) => {

@@ -16,6 +16,17 @@ import { useAppSelector } from "../../Redux/hook";
 import { formatPrice } from "../../Utils/formarPrice";
 
 const RoomCancelled = () => {
+  const { accessToken, isLoggedIn } = useAppSelector((state) => state.auth);
+  // if (!accessToken && !isLoggedIn) {
+  //   return (
+  //     <View style={styles.RequireLogin}>
+  //       <Text style={styles.RequireLoginText}>
+  //         Bạn cần đăng nhập để xem tính năng này
+  //       </Text>
+  //     </View>
+  //   );
+  // }
+
   const { bookingStatus, loadingBookingStatus } = useAppSelector(
     (state) => state.hotel
   );
@@ -65,12 +76,19 @@ const RoomCancelled = () => {
   return (
     <View style={styles.bookingHistoryScreen}>
       {/* Danh sách đặt phòng */}
-      <FlatList
-        data={bookings}
-        renderItem={renderBookingItem}
-        keyExtractor={(item) => item.bookingId}
-        style={styles.bookingHistoryScreen__bookingList}
-      />
+
+      {/* {bookings.length > 0 ? (
+        <FlatList
+          data={bookings}
+          renderItem={renderBookingItem}
+          keyExtractor={(item) => item.bookingId}
+          style={styles.bookingHistoryScreen__bookingList}
+        />
+      ) : ( */}
+      <View style={styles.RequireLogin}>
+        <Text style={styles.RequireLoginText}>Bạn không có phòng đã hủy </Text>
+      </View>
+      {/* )} */}
     </View>
   );
 };
