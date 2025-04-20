@@ -8,6 +8,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import LinearGradient from "react-native-linear-gradient";
@@ -122,8 +123,8 @@ const LoginScreen = ({ navigation, route }) => {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
+      behavior={undefined} // Tắt hành vi tự động đẩy
+      keyboardVerticalOffset={0} // Không cần offset khi behavior là undefined
     >
       <View style={styles.container}>
         <View style={styles.wrapTitle}>

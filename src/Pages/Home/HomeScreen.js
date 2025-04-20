@@ -46,7 +46,7 @@ const HomeScreen = ({ navigation }) => {
   } = useAppSelector((state) => state.hotel);
 
   const [open, setOpen] = useState({
-    Modal_1: true,
+    Modal_1: false,
     Modal_CheckIn: false,
     Modal_CheckOut: false,
     Modal_GuestsAndRooms: false,
