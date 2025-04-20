@@ -26,7 +26,7 @@ import {
   fetchBookingStatus,
   fetchHotelList,
 } from "../../Redux/Slice/hotelSlice";
-
+import { CommonActions } from "@react-navigation/native";
 import { fetchListNotification } from "../../Redux/Slice/notificationSlice";
 /* 
 {"data": 
@@ -72,6 +72,12 @@ const LoginScreen = ({ navigation, route }) => {
         // Alert.alert("Đăng nhập thành công!", `JWT: ${data.data.accessToken}`);
         Alert.alert("Đăng nhập thành công!");
 
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0, // Màn hình đầu tiên trong stack
+            routes: [{ name: "Profile" }], // Chỉ giữ Profile trong stack
+          })
+        );
         // navigation.navigate("Login");
         if (route?.params?.preScreen === "InfoConfirm") {
           navigation.navigate("InfoConfirm");
@@ -185,7 +191,7 @@ const LoginScreen = ({ navigation, route }) => {
             <Text style={styles.footerText}>Chưa có tài khoản? </Text>
             <Text
               style={styles.footerLink}
-              onPress={() => navigation.navigate("Register")}
+              onPress={() => navigation.navigate("RegisterScreen")}
             >
               Đăng ký
             </Text>

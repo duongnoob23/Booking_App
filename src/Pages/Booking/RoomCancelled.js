@@ -84,20 +84,19 @@ const RoomCancelled = ({ navigation }) => {
 
   return (
     <View style={styles.bookingHistoryScreen}>
-      {/* Danh sách đặt phòng */}
-
-      {/* {bookings.length > 0 ? ( */}
-      <FlatList
-        data={bookings}
-        renderItem={renderBookingItem}
-        keyExtractor={(item) => item.bookingId}
-        style={styles.bookingHistoryScreen__bookingList}
-      />
-      {/* ) : ( */}
-      {/* <View style={styles.RequireLogin}>
-        <Text style={styles.RequireLoginText}>Bạn không có phòng đã hủy </Text>
-      </View> */}
-      {/* )} */}
+      {bookings.length > 0 ? (
+        <FlatList
+          data={bookings}
+          renderItem={renderBookingItem}
+          keyExtractor={(item) => item.bookingId.toString()} // Đảm bảo key là string
+          style={styles.bookingHistoryScreen__bookingList}
+        />
+      ) : (
+        <View style={styles.emptyContainer}>
+          <Ionicons name="calendar-outline" size={50} color="#888888" />
+          <Text style={styles.emptyText}>Bạn chưa có phòng đã trả</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -281,5 +280,18 @@ const styles = StyleSheet.create({
   },
   activeText: {
     color: "white",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#888888",
+    textAlign: "center",
+    marginTop: 20,
   },
 });

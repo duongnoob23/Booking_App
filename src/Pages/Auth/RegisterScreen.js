@@ -1,43 +1,180 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useAppDispatch, useAppSelector } from "../../Redux/hook";
+import { registerUser, resetRegisterState } from "../../Redux/Slice/authSlice";
 
 const RegisterScreen = ({ navigation }) => {
+  // State cho các trường input
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
+
+  // State cho lỗi validate
+  const [errors, setErrors] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    password: "",
+  });
+
+  const dispatch = useAppDispatch();
+  const { registerLoading, registerSuccess, registerError } = useAppSelector(
+    (state) => state.auth
+  );
+
+  // Theo dõi trạng thái đăng ký để hiển thị thông báo và điều hướng
+  useEffect(() => {
+    if (registerSuccess) {
+      Alert.alert("Đăng ký thành công!", "Vui lòng xác thực tài khoản.");
+      dispatch(resetRegisterState());
+      navigation.navigate("VerifyAccount");
+    }
+    if (registerError) {
+      Alert.alert("Lỗi đăng ký", registerError);
+      dispatch(resetRegisterState());
+    }
+  }, [registerSuccess, registerError, dispatch, navigation]);
+
+  // Hàm validate dữ liệu
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phoneNumber: "",
+      password: "",
+    };
+
+    if (!firstName.trim()) {
+      newErrors.firstName = "* Họ không được để trống";
+      isValid = false;
+    }
+
+    if (!lastName.trim()) {
+      newErrors.lastName = "* Tên không được để trống";
+      isValid = false;
+    }
+
+    if (!email.trim()) {
+      newErrors.email = "* Email không được để trống";
+      isValid = false;
+    } else if (
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)
+    ) {
+      newErrors.email = "* Email không đúng định dạng";
+      isValid = false;
+    }
+
+    if (!phoneNumber.trim()) {
+      newErrors.phoneNumber = "* Số điện thoại không được để trống";
+      isValid = false;
+    } else if (!/^\+\d+$/.test(phoneNumber)) {
+      newErrors.phoneNumber =
+        "* Số điện thoại phải bắt đầu bằng + và chỉ chứa số";
+      isValid = false;
+    }
+
+    if (!password.trim()) {
+      newErrors.password = "* Mật khẩu không được để trống";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  // Hàm xử lý khi nhấn nút "Tạo tài khoản"
+  const handleRegister = () => {
+    if (validateForm()) {
+      // Dữ liệu hợp lệ, chuẩn bị dữ liệu gửi lên backend
+      const registerData = {
+        email: email,
+        password: password,
+        firstName: firstName,
+        lastName: lastName,
+        phoneNumber: phoneNumber,
+      };
+      // Gọi API đăng ký
+      dispatch(registerUser(registerData));
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.wrapTitle}>
         <Text style={styles.title}>Đăng ký</Text>
       </View>
       <View style={styles.whiteFrame}>
-        {/* Tiêu đề */}
-
-        {/* Ô input Họ tên đầy đủ */}
+        {/* Ô input Họ */}
         <View style={[styles.inputContainer, styles.inputContainerFirst]}>
           <Ionicons name="person-outline" size={20} color="#0090FF" />
-          <TextInput placeholder="Họ tên đầy đủ" style={styles.input} />
+          <TextInput
+            placeholder="Họ"
+            style={styles.input}
+            value={firstName}
+            onChangeText={setFirstName}
+          />
         </View>
+        {errors.firstName ? (
+          <Text style={styles.errorText}>{errors.firstName}</Text>
+        ) : null}
+
+        {/* Ô input Tên đệm & Tên */}
+        <View style={styles.inputContainer}>
+          <Ionicons name="person-outline" size={20} color="#0090FF" />
+          <TextInput
+            placeholder="Tên đệm & Tên"
+            style={styles.input}
+            value={lastName}
+            onChangeText={setLastName}
+          />
+        </View>
+        {errors.lastName ? (
+          <Text style={styles.errorText}>{errors.lastName}</Text>
+        ) : null}
 
         {/* Ô input Email */}
         <View style={styles.inputContainer}>
           <Ionicons name="mail-outline" size={20} color="#0090FF" />
-          <TextInput placeholder="Email" style={styles.input} />
+          <TextInput
+            placeholder="Email"
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
         </View>
+        {errors.email ? (
+          <Text style={styles.errorText}>{errors.email}</Text>
+        ) : null}
 
         {/* Ô input Số điện thoại */}
         <View style={styles.inputContainer}>
           <Ionicons name="call-outline" size={20} color="#0090FF" />
           <TextInput
-            placeholder="Số điện thoại"
-            keyboardType="numeric"
+            placeholder="Số điện thoại (VD: +84...)"
+            keyboardType="phone-pad"
             style={styles.input}
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
           />
         </View>
+        {errors.phoneNumber ? (
+          <Text style={styles.errorText}>{errors.phoneNumber}</Text>
+        ) : null}
 
         {/* Ô input Mật khẩu */}
         <View style={styles.inputContainer}>
@@ -46,15 +183,23 @@ const RegisterScreen = ({ navigation }) => {
             placeholder="Mật khẩu"
             secureTextEntry
             style={styles.input}
+            value={password}
+            onChangeText={setPassword}
           />
         </View>
+        {errors.password ? (
+          <Text style={styles.errorText}>{errors.password}</Text>
+        ) : null}
 
         {/* Nút Tạo tài khoản */}
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate("VerifyAccount")}
+          onPress={handleRegister}
+          disabled={registerLoading}
         >
-          <Text style={styles.buttonText}>Tạo tài khoản</Text>
+          <Text style={styles.buttonText}>
+            {registerLoading ? "Đang đăng ký..." : "Tạo tài khoản"}
+          </Text>
         </TouchableOpacity>
         <View>
           <Text style={styles.textOr}>Hoặc đăng nhập bằng</Text>
@@ -88,14 +233,12 @@ const RegisterScreen = ({ navigation }) => {
           <Text style={styles.footerText}>Đã có tài khoản? </Text>
           <Text
             style={styles.footerLink}
-            onPress={() => navigation.navigate("Login")}
+            onPress={() => navigation.navigate("LoginScreen")}
           >
             Đăng nhập
           </Text>
         </View>
       </View>
-
-      {/* Text chuyển sang Đăng nhập */}
     </View>
   );
 };
@@ -105,7 +248,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     alignItems: "center",
-    backgroundColor: "#00F598", // Màu nền xanh lá cây
+    backgroundColor: "#00F598",
   },
   whiteFrame: {
     backgroundColor: "#fff",
@@ -135,13 +278,13 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 5,
     borderBottomColor: "gray",
     borderBottomWidth: 1,
   },
   inputContainerFirst: {
-    marginTop: 60,
-    marginBottom: 20,
+    marginTop: 40,
+    marginBottom: 5,
   },
   input: {
     flex: 1,
@@ -150,8 +293,14 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 5,
   },
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginBottom: 10,
+    marginLeft: 30,
+  },
   button: {
-    backgroundColor: "#00F598", // Màu nút giống màu nền
+    backgroundColor: "#00F598",
     borderRadius: 15,
     padding: 10,
     alignItems: "center",
@@ -166,7 +315,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "gray",
     fontSize: 14,
-    marginTop: 75,
+    marginTop: 50,
     marginBottom: 0,
     fontSize: 13,
   },
@@ -177,26 +326,39 @@ const styles = StyleSheet.create({
   },
   socialButton: {
     width: "48%",
-    //     flex: 1,
     padding: 10,
     borderRadius: 15,
     alignItems: "center",
   },
-  socialButtonText: { color: "#fff" },
+  socialButtonText: {
+    color: "#fff",
+  },
   contract: {
     flexDirection: "row",
     justifyContent: "center",
     marginTop: 10,
   },
-  contractText: { color: "gray", fontSize: 13 },
-  contractLink: { color: "#00FF94", textDecorationLine: "underline" },
+  contractText: {
+    color: "gray",
+    fontSize: 13,
+  },
+  contractLink: {
+    color: "#00FF94",
+    textDecorationLine: "underline",
+  },
   footer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 50,
+    marginTop: 30,
   },
-  footerText: { color: "gray", fontSize: 13 },
-  footerLink: { color: "#00FF94", textDecorationLine: "underline" },
+  footerText: {
+    color: "gray",
+    fontSize: 13,
+  },
+  footerLink: {
+    color: "#00FF94",
+    textDecorationLine: "underline",
+  },
 });
 
 export default RegisterScreen;

@@ -8,7 +8,7 @@ import {
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { app } from "../../../config/firebaseConfig";
-
+import { API_BASE_URL } from "../../Constant/Constant";
 WebBrowser.maybeCompleteAuthSession();
 
 const GoogleLogin = () => {
@@ -17,7 +17,7 @@ const GoogleLogin = () => {
   const [request, response, promptAsync] = Google.useAuthRequest({
     clientId:
       "481411658885-nrvi6ms35aefa7pt9pg80hd1f2b3dsjc.apps.googleusercontent.com",
-    redirectUri: "https://bookingapp-41256.firebaseapp.com/__/auth/handler",
+    redirectUri: `${API_BASE_URL}/api/auth/firebase`,
     scopes: ["profile", "email"],
   });
 

@@ -11,20 +11,33 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { auth, app } from "../../../config/firebaseConfig";
 import { getAuth, signInWithPhoneNumber } from "firebase/auth";
 import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
-
-// const auth = getAuth(app);
-//  +84986156736
-// +8498247480284982474802
+import { API_BASE_URL } from "../../Constant/Constant";
+import { loginSuccess } from "../../Redux/Slice/authSlice";
+import {
+  fetchBookingStatus,
+  fetchHotelList,
+} from "../../Redux/Slice/hotelSlice";
+import { fetchListNotification } from "../../Redux/Slice/notificationSlice";
+import { useAppDispatch } from "../../Redux/hook";
+import { CommonActions } from "@react-navigation/native";
 const PhoneLogin = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
-  // const [confirm, setConfirm] = useState("PhoneLogin"); // PhoneOTP
-  const [confirm, setConfirm] = useState(null); // PhoneOTP
+  const [confirm, setConfirm] = useState(null);
   const [code, setCode] = useState("");
   const recaptchaVerifier = useRef(null);
-
+  const dispatch = useAppDispatch();
   // Gửi OTP
   const sendOTP = async () => {
     try {
+      // Đảm bảo số điện thoại bắt đầu bằng mã quốc gia (ví dụ: +84 cho Việt Nam)
+      if (!phoneNumber.startsWith("+")) {
+        Alert.alert(
+          "Lỗi",
+          "Số điện thoại phải bắt đầu bằng mã quốc gia (ví dụ: +84)"
+        );
+        return;
+      }
+
       console.log(">>> check phone ", phoneNumber);
       const confirmation = await signInWithPhoneNumber(
         auth,
@@ -42,42 +55,47 @@ const PhoneLogin = ({ navigation }) => {
   // Xác thực OTP và gửi ID Token đến backend
   const verifyOTP = async () => {
     try {
+      if (!confirm) {
+        Alert.alert("Lỗi", "Không có dữ liệu xác nhận OTP. Vui lòng thử lại!");
+        return;
+      }
+
       const userCredential = await confirm.confirm(code);
       const idToken = await userCredential.user.getIdToken(); // Lấy ID Token từ Firebase
 
       // Gửi ID Token đến backend để xác thực
-      // const response = await fetch("http://localhost/api/auth/firebase", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ idToken }),
-      // });
-
-      // const data = await response.json();
-      // if (data.jwtToken) {
-      //   Alert.alert("Đăng nhập thành công!", `JWT: ${data.jwtToken}`);
-      // } else {
-      //   Alert.alert("Lỗi xác thực với backend!");
-      // }
-
-      const response = await fetch(
-        "https://api-booking-app-gbfsg5f0e4hwfzh0.japaneast-01.azurewebsites.net/api/auth/firebase",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tokenId: idToken }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/auth/firebase`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tokenId: idToken }),
+      });
 
       const data = await response.json();
       console.log(">>> data", data);
-      if (data.data.accessToken) {
-        // Alert.alert("Đăng nhập thành công!", `JWT: ${data.data.accessToken}`);
+      if (data.data && data.data.accessToken) {
         Alert.alert("Đăng nhập thành công!");
+
+        dispatch(loginSuccess(data?.data?.accessToken));
+        dispatch(fetchHotelList());
+        dispatch(fetchBookingStatus());
+        dispatch(fetchListNotification());
+        // Điều hướng đến màn hình chính hoặc lưu token vào state/storage nếu cần
+        // navigation.navigate("Home");
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0, // Màn hình đầu tiên trong stack
+            routes: [{ name: "Profile" }], // Chỉ giữ Profile trong stack
+          })
+        );
+        navigation.navigate("Home");
       } else {
-        Alert.alert("Lỗi xác thực với backend!");
+        Alert.alert(
+          "Lỗi xác thực với backend!",
+          data.message || "Không nhận được token"
+        );
       }
     } catch (error) {
-      Alert.alert("OTP không đúng, thử lại!");
+      Alert.alert("OTP không đúng, thử lại!", error.message);
     }
   };
 
@@ -103,7 +121,7 @@ const PhoneLogin = ({ navigation }) => {
             <View style={[styles.inputContainer, styles.inputContainerFirst]}>
               <Ionicons name="call-outline" size={20} color="#0090FF" />
               <TextInput
-                placeholder="Phone"
+                placeholder="+84..."
                 style={styles.input}
                 value={phoneNumber}
                 onChangeText={setPhoneNumber}
@@ -112,7 +130,7 @@ const PhoneLogin = ({ navigation }) => {
             </View>
 
             <TouchableOpacity style={styles.button} onPress={sendOTP}>
-              <Text style={styles.buttonText}>Gửi OTP </Text>
+              <Text style={styles.buttonText}>Gửi OTP</Text>
             </TouchableOpacity>
           </>
         ) : (
@@ -124,7 +142,7 @@ const PhoneLogin = ({ navigation }) => {
                 style={styles.input}
                 value={code}
                 onChangeText={setCode}
-                keyboardType="phone-pad"
+                keyboardType="number-pad"
               />
             </View>
 
@@ -135,14 +153,13 @@ const PhoneLogin = ({ navigation }) => {
         )}
 
         {/* Nút Đăng nhập */}
-
         <Text
           style={styles.forgotPassword}
           onPress={() => navigation.navigate("ForgotPassword")}
         >
           Quên mật khẩu?
         </Text>
-        {/* Nút đăng nhập bằng Google và Facebook */}
+        {/* Nút đăng nhập bằng Google và Email */}
         <View>
           <Text style={styles.textOr}>Hoặc đăng nhập bằng</Text>
         </View>
@@ -172,7 +189,6 @@ const PhoneLogin = ({ navigation }) => {
     </View>
   );
 };
-export default PhoneLogin;
 
 const styles = StyleSheet.create({
   container: {
@@ -258,7 +274,6 @@ const styles = StyleSheet.create({
   },
   socialButton: {
     width: "48%",
-    //     flex: 1,
     padding: 10,
     borderRadius: 15,
     alignItems: "center",
@@ -269,7 +284,4 @@ const styles = StyleSheet.create({
   footerLink: { color: "#00FF94", textDecorationLine: "underline" },
 });
 
-// khi nhập input thì bị đẩy lênn , fix cứng
-// Thêm import KeyboardAvoidingView từ react-native.
-
-// Bao bọc toàn bộ giao diện trong <KeyboardAvoidingView> với behavior và keyboardVerticalOffset để điều chỉnh khi bàn phím xuất hiện.
+export default PhoneLogin;

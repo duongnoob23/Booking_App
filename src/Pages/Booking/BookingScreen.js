@@ -23,16 +23,15 @@ const BookingScreen = () => {
   const { bookingStatus, loadingBookingStatus } = useAppSelector(
     (state) => state.hotel
   );
-
+  const { accessToken, isLoggedIn } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
-
   const Tab = createMaterialTopTabNavigator();
   const [css, setCss] = useState(1);
   const bookings = [
     {
       id: "1",
       image:
-        "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=", // Placeholder cho hình ảnh
+        "https://media.istockphoto.com/id/2148367059/fr/photo/la-ligne-dhorizon-c%C3%B4ti%C3%A8re-de-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.webp?a=1&b=1&s=612x612&w=0&k=20&c=gAwIfTVBEupXPG_K5DoK1k4kpJ_m7SkDF_UlkLrIcGk=",
       name: "Heden golf",
       rating: 3.9,
       reviews: 200,
@@ -42,20 +41,33 @@ const BookingScreen = () => {
     },
   ];
 
-  // useEffect(() => {
-  //   dispatch(fetchBookingStatus());
-  // }, [bookingStatus]);
+  // Chỉ gọi API khi người dùng đã đăng nhập
+  useEffect(() => {
+    if (accessToken && isLoggedIn) {
+      dispatch(fetchBookingStatus());
+    }
+  }, [dispatch, accessToken, isLoggedIn]); // Thêm accessToken và isLoggedIn vào dependency array để gọi lại API nếu trạng thái đăng nhập thay đổi
 
-  // console.log("bookingStatus 47", bookingStatus);
-  if (loadingBookingStatus) {
+  // Kiểm tra chưa đăng nhập
+  if (!accessToken && !isLoggedIn) {
     return (
-      <View>
-        <Text>Loading....</Text>
+      <View style={styles.emptyContainer}>
+        <Ionicons name="log-in-outline" size={48} color="#6B7280" />
+        <Text style={styles.emptyText}>Đăng nhập để sử dụng tính năng này</Text>
       </View>
     );
   }
 
-  console.log(bookingStatus);
+  // Kiểm tra dữ liệu đang tải hoặc chưa có
+  if (loadingBookingStatus || !bookingStatus) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>Đang tải...</Text>
+      </View>
+    );
+  }
+
+  // Phần còn lại giữ nguyên
   const CustomTabBar = ({ state, descriptors, navigation }) => {
     return (
       <View style={styles.header__tabs}>
@@ -63,18 +75,15 @@ const BookingScreen = () => {
           style={[
             styles.header__tab,
             styles.header__tab__1,
-            // css === 1 && styles.active,
             state.index === 0 && styles.active,
           ]}
           onPress={() => {
-            // setCss(1);
             navigation.navigate("Booked");
           }}
         >
           <Text
             style={[
               styles.header__tab__text,
-              // css === 1 && styles.activeText,
               state.index === 0 && styles.activeText,
             ]}
           >
@@ -82,20 +91,14 @@ const BookingScreen = () => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[
-            styles.header__tab,
-            // css === 2 && styles.active,
-            state.index === 1 && styles.active,
-          ]}
+          style={[styles.header__tab, state.index === 1 && styles.active]}
           onPress={() => {
-            // setCss(2);
             navigation.navigate("Booking");
           }}
         >
           <Text
             style={[
               styles.header__tab__text,
-              // css === 2 && styles.activeText,
               state.index === 1 && styles.activeText,
             ]}
           >
@@ -103,21 +106,14 @@ const BookingScreen = () => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[
-            styles.header__tab,
-            // styles.header__tab__3,
-            // css === 3 && styles.active,
-            state.index === 2 && styles.active,
-          ]}
+          style={[styles.header__tab, state.index === 2 && styles.active]}
           onPress={() => {
-            // setCss(3);
             navigation.navigate("CheckedOut");
           }}
         >
           <Text
             style={[
               styles.header__tab__text,
-              // css === 3 && styles.activeText,
               state.index === 2 && styles.activeText,
             ]}
           >
@@ -128,18 +124,15 @@ const BookingScreen = () => {
           style={[
             styles.header__tab,
             styles.header__tab__3,
-            // css === 3 && styles.active,
             state.index === 3 && styles.active,
           ]}
           onPress={() => {
-            // setCss(3);
             navigation.navigate("Cancelled");
           }}
         >
           <Text
             style={[
               styles.header__tab__text,
-              // css === 3 && styles.activeText,
               state.index === 3 && styles.activeText,
             ]}
           >
@@ -150,53 +143,8 @@ const BookingScreen = () => {
     );
   };
 
-  const renderBookingItem = ({ item }) => (
-    <View style={styles.bookingHistoryScreen__bookingItem}>
-      <Image
-        source={{ uri: item.image }}
-        style={styles.bookingHistoryScreen__bookingImage}
-      />
-      <View style={styles.bookingHistoryScreen__bookingDetails}>
-        <Text style={styles.bookingHistoryScreen__bookingName}>
-          {item.name}
-        </Text>
-        <View style={styles.bookingHistoryScreen__ratingRow}>
-          <Ionicons name="star" size={16} color="#FFD700" />
-          <Text style={styles.bookingHistoryScreen__ratingText}>
-            {item.rating} Đánh giá ({item.reviews})
-          </Text>
-        </View>
-        <Text style={styles.bookingHistoryScreen__date}>
-          Đã đặt: {item.date}
-        </Text>
-        <View style={styles.bookingHistoryScreen__priceRow}>
-          <Text style={styles.bookingHistoryScreen__discount}>
-            {item.discount}
-          </Text>
-          <Text style={styles.bookingHistoryScreen__price}>${item.price}</Text>
-        </View>
-      </View>
-      <View style={styles.bookingHistoryScreen__actionButtons}>
-        <TouchableOpacity style={styles.bookingHistoryScreen__infoButton}>
-          <Text style={styles.bookingHistoryScreen__infoButtonText}>
-            Thông tin
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bookingHistoryScreen__rebookButton}>
-          <Text style={styles.bookingHistoryScreen__rebookButtonText}>
-            Đặt lại
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
   return (
     <View style={styles.bookingHistoryScreen}>
-      {/* Tiêu đề */}
-      {/* <Text style={styles.bookingHistoryScreen__title}>Lịch sử đặt phòng</Text> */}
-
-      {/* Thanh tìm kiếm */}
       <View style={styles.bookingHistoryScreen__searchBar}>
         <Ionicons
           name="search"
@@ -244,29 +192,17 @@ const BookingScreen = () => {
           options={{ tabBarLabel: "Đã hủy " }}
         />
       </Tab.Navigator>
-      {/* Danh sách đặt phòng */}
-      {/* <FlatList
-        data={bookings}
-        renderItem={renderBookingItem}
-        keyExtractor={(item) => item.id}
-        style={styles.bookingHistoryScreen__bookingList}
-      /> */}
     </View>
   );
 };
 
+// Styles giữ nguyên, đã có emptyContainer và emptyText
 const styles = StyleSheet.create({
   bookingHistoryScreen: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    paddingTop: 40, // Khoảng cách từ thanh trạng thái
+    paddingTop: 40,
     paddingHorizontal: 15,
-  },
-  bookingHistoryScreen__title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 15,
   },
   bookingHistoryScreen__searchBar: {
     flexDirection: "row",
@@ -291,119 +227,10 @@ const styles = StyleSheet.create({
   bookingHistoryScreen__clearIcon: {
     marginLeft: 10,
   },
-  bookingHistoryScreen__filterTabs: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
-  bookingHistoryScreen__filterTab: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-    borderRadius: 20,
-    paddingVertical: 10,
-    alignItems: "center",
-    marginHorizontal: 5,
-  },
-  bookingHistoryScreen__filterTab__active: {
-    backgroundColor: "#007AFF",
-    borderColor: "#007AFF",
-  },
-  bookingHistoryScreen__filterTabText: {
-    fontSize: 16,
-    color: "#333",
-  },
-  bookingHistoryScreen__filterTabText__active: {
-    color: "#FFFFFF",
-  },
-  bookingHistoryScreen__bookingList: {
-    flex: 1,
-  },
-  bookingHistoryScreen__bookingItem: {
-    flexDirection: "row",
-    marginBottom: 20,
-  },
-  bookingHistoryScreen__bookingImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 10,
-    marginRight: 15,
-  },
-  bookingHistoryScreen__bookingDetails: {
-    flex: 1,
-  },
-  bookingHistoryScreen__bookingName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 5,
-  },
-  bookingHistoryScreen__ratingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 5,
-  },
-  bookingHistoryScreen__ratingText: {
-    fontSize: 14,
-    color: "#333",
-    marginLeft: 5,
-  },
-  bookingHistoryScreen__date: {
-    fontSize: 14,
-    color: "#333",
-    marginBottom: 5,
-    fontWeight: "bold",
-  },
-  bookingHistoryScreen__priceRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  bookingHistoryScreen__discount: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#FFA500",
-    marginRight: 50,
-  },
-  bookingHistoryScreen__price: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#000",
-  },
-  bookingHistoryScreen__actionButtons: {
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-  },
-  bookingHistoryScreen__infoButton: {
-    backgroundColor: "#00A1D6", // Màu trung bình giữa #007AFF và #00C4B4
-    borderRadius: 8,
-    paddingVertical: 5,
-    paddingHorizontal: 20,
-    backgroundColor: "#00F598",
-  },
-  bookingHistoryScreen__infoButtonText: {
-    fontSize: 14,
-    color: "#FFFFFF",
-    fontWeight: "400",
-  },
-  bookingHistoryScreen__rebookButton: {
-    backgroundColor: "#00A1D6", // Màu trung bình giữa #007AFF và #00C4B4
-    borderRadius: 8,
-    paddingVertical: 5,
-    paddingHorizontal: 30,
-    backgroundColor: "#00F598",
-  },
-  bookingHistoryScreen__rebookButtonText: {
-    fontSize: 14,
-    color: "#FFFFFF",
-    fontWeight: "400",
-  },
   header__tabs: {
     flexDirection: "row",
     justifyContent: "center",
     paddingVertical: 10,
-    // borderBottomWidth: 1,
-    // borderBottomColor: "#ddd",
   },
   header__tab: {
     paddingVertical: 5,
@@ -415,7 +242,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 15,
     borderBottomLeftRadius: 15,
   },
-
   header__tab__3: {
     borderTopRightRadius: 15,
     borderBottomRightRadius: 15,
@@ -429,6 +255,19 @@ const styles = StyleSheet.create({
   },
   activeText: {
     color: "white",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#888888",
+    textAlign: "center",
+    marginTop: 20,
   },
 });
 

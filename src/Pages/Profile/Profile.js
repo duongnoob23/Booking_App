@@ -1,20 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  navigation,
-} from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAppSelector } from "../../Redux/hook";
 
 const Profile = ({ navigation }) => {
-  // const navigation = useNavigation();
+  const { isLoggedIn } = useAppSelector((state) => state.auth);
 
-  // Dữ liệu người dùng
+  // Dữ liệu người dùng mặc định khi đã đăng nhập
   const [userData, setUserData] = useState({
     name: "John Smith",
     email: "johnsmith@gmail.com",
@@ -22,21 +16,29 @@ const Profile = ({ navigation }) => {
     avatar:
       "https://media.istockphoto.com/id/1587604256/vi/anh/ch%C3%A2n-dung-lu%E1%BA%ADt-s%C6%B0-v%C3%A0-ng%C6%B0%E1%BB%9Di-ph%E1%BB%A5-n%E1%BB%AF-da-%C4%91en-v%E1%BB%9Bi-m%C3%A1y-t%C3%ADnh-b%E1%BA%A3ng-n%E1%BB%A5-c%C6%B0%E1%BB%9Di-v%C3%A0-h%E1%BA%A1nh-ph%C3%BAc-t%E1%BA%A1i-n%C6%A1i-l%C3%A0m.jpg?s=612x612&w=0&k=20&c=0hnV6JuSMy8XAV25oJFzQeHPYysYe8cfHUyhgZlQYQc=",
   });
-  console.log(">>> check userData profile", userData);
+
+  // Dữ liệu giả khi chưa đăng nhập
+  const anonymousData = {
+    name: "Ẩn danh",
+    email: "email@anonym.com",
+    phone: "+123456789",
+    avatar:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2F8DoZLvVpkbPZs1z1dBzXKLvgRNwgUrstA&s", // Avatar mặc định của Facebook
+    // "https://images.unsplash.com/photo-1573547429441-d7ef62e04b63?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGFub255bW91c3xlbnwwfHwwfHx8MA%3D%3D", // Avatar mặc định của Facebook
+  };
+
   useFocusEffect(
     useCallback(() => {
       const fetchUserData = async () => {
         try {
           const storedData = await AsyncStorage.getItem("userProfile");
           if (storedData) {
-            // Hợp nhất dữ liệu từ AsyncStorage với dữ liệu mặc định
             const parsedData = JSON.parse(storedData);
             setUserData((prevData) => ({
-              ...userData, // Giữ dữ liệu mặc định
-              ...parsedData, // Ghi đè bằng dữ liệu từ AsyncStorage nếu có
+              ...prevData,
+              ...parsedData,
             }));
           } else {
-            // Nếu AsyncStorage trống, lưu dữ liệu mặc định vào đó
             await AsyncStorage.setItem("userProfile", JSON.stringify(userData));
           }
         } catch (error) {
@@ -44,19 +46,20 @@ const Profile = ({ navigation }) => {
         }
       };
 
-      fetchUserData();
-    }, [])
+      if (isLoggedIn) {
+        fetchUserData();
+      }
+    }, [isLoggedIn])
   );
-
-  const handleUpdateUserDate = () => {};
 
   const handleToEditProfile = () => {
     navigation.navigate("EditProfile", { userData });
-    // navigation.navigate("Chỉnh sửa hồ sơ", { userData });
   };
+
   const handleToRewardMember = () => {
     navigation.navigate("RewardMember");
   };
+
   const handleToSettingsScreen = () => {
     navigation.navigate("SettingsScreen");
   };
@@ -64,17 +67,21 @@ const Profile = ({ navigation }) => {
   const handleToPersonalVoucher = () => {
     navigation.navigate("PersonalVoucher");
   };
-  // useFocusEffect(() =>{
-  //   console.log(">>>> chay roi");
-  // },[])
+
+  const handleLogin = () => {
+    navigation.navigate("LoginScreen");
+  };
+
+  // Dữ liệu hiển thị dựa trên trạng thái đăng nhập
+  const displayData = isLoggedIn ? userData : anonymousData;
+
   return (
     <View style={styles.container}>
       {/* Ảnh nền */}
       <View style={styles.topContainer}>
-        {/* <Image uri={userData.avatar} style={styles.profileImage} /> */}
         <Image
           source={{
-            uri: `${userData.avatar}`,
+            uri: displayData.avatar,
           }}
           style={styles.profileImage}
         />
@@ -82,49 +89,60 @@ const Profile = ({ navigation }) => {
 
       {/* Card chứa thông tin cá nhân */}
       <View style={styles.profileCard}>
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => handleToEditProfile()}
-        >
-          <Ionicons name="pencil" size={26} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.userName}>{userData.name}</Text>
-        <Text style={styles.userEmail}>{userData.email}</Text>
-        <Text style={styles.userPhone}>{userData.phone}</Text>
+        {/* Chỉ hiển thị nút chỉnh sửa nếu đã đăng nhập */}
+        {isLoggedIn && (
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={handleToEditProfile}
+          >
+            <Ionicons name="pencil" size={26} color="white" />
+          </TouchableOpacity>
+        )}
+        <Text style={styles.userName}>{displayData.name}</Text>
+        <Text style={styles.userEmail}>{displayData.email}</Text>
+        <Text style={styles.userPhone}>{displayData.phone}</Text>
       </View>
 
       {/* Các tùy chọn bên dưới */}
       <View style={styles.optionsContainer}>
-        <TouchableOpacity
-          style={styles.optionItem}
-          onPress={() => handleToSettingsScreen()}
-        >
-          <Text style={styles.optionText}>Cài đặt</Text>
-          <Ionicons name="chevron-forward" size={20} color="#0090FF" />
-        </TouchableOpacity>
+        {isLoggedIn ? (
+          <>
+            <TouchableOpacity
+              style={styles.optionItem}
+              onPress={handleToSettingsScreen}
+            >
+              <Text style={styles.optionText}>Cài đặt</Text>
+              <Ionicons name="chevron-forward" size={20} color="#0090FF" />
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.optionItem}
-          onPress={() => handleToRewardMember()}
-        >
-          <Text style={styles.optionText}>Phần thưởng và Thành viên</Text>
-          <Ionicons name="chevron-forward" size={20} color="#0090FF" />
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.optionItem}
+              onPress={handleToRewardMember}
+            >
+              <Text style={styles.optionText}>Phần thưởng và Thành viên</Text>
+              <Ionicons name="chevron-forward" size={20} color="#0090FF" />
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.optionItem}
-          onPress={() => handleToPersonalVoucher()}
-        >
-          <Text style={styles.optionText}>Voucher của bạn </Text>
-          <Ionicons name="chevron-forward" size={20} color="#0090FF" />
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.optionItem}
+              onPress={handleToPersonalVoucher}
+            >
+              <Text style={styles.optionText}>Voucher của bạn</Text>
+              <Ionicons name="chevron-forward" size={20} color="#0090FF" />
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={() => navigation.navigate("LoginScreen")}
-        >
-          <Text style={styles.logoutText}>Đăng xuất</Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={() => navigation.navigate("LoginScreen")}
+            >
+              <Text style={styles.logoutText}>Đăng xuất</Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <Text style={styles.loginText}>Đăng nhập</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -144,7 +162,6 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
     overflow: "hidden",
   },
-
   profileImage: {
     width: "100%",
     height: "100%",
@@ -152,8 +169,6 @@ const styles = StyleSheet.create({
   },
   profileCard: {
     position: "relative",
-    // top: "40%", // Đẩy Card lên trên ảnh nền
-    // left: "5%",
     width: "85%",
     backgroundColor: "white",
     padding: 20,
@@ -174,9 +189,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#00C853",
     padding: 8,
     borderRadius: 100,
-    // transform: [{ translateX: "45%" }],
-    // transform: [{ translateY: "-45%" }],
-    // textAlign: "center",
     justifyContent: "center",
     alignItems: "center",
     elevation: 5,
@@ -195,11 +207,9 @@ const styles = StyleSheet.create({
     color: "#555",
   },
   optionsContainer: {
-    // marginTop: 100 ,
     padding: 20,
   },
   optionItem: {
-    // marginTop:
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -215,7 +225,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   logoutButton: {
-    backgroundColor: "white",
+    backgroundColor: "#00F598",
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
@@ -223,8 +233,22 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     fontSize: 16,
-    color: "red",
+    color: "white",
     fontWeight: "400",
+  },
+  loginButton: {
+    marginTop: "80",
+    backgroundColor: "#00F598",
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    elevation: 3,
+    paddingHorizontal: 120,
+  },
+  loginText: {
+    fontSize: 16,
+    color: "white",
+    fontWeight: "bold",
   },
 });
 
