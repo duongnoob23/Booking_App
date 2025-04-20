@@ -8,6 +8,10 @@ import ChangePasswordScreen from "../Pages/Setting/ChangePasswordScreen";
 import SettingsScreen from "../Pages/Setting/SettingsScreen";
 import PersonalVoucher from "../Pages/Profile/PersonalVoucher";
 import VoucherDetail from "../Pages/Profile/VoucherDetail";
+import LoginScreen from "../Pages/Auth/LoginScreen";
+import PhoneLogin from "../Pages/Auth/PhoneLogin";
+import RegisterScreen from "../Pages/Auth/RegisterScreen";
+import GoogleLogin from "../Pages/Auth/GoogleLogin";
 
 const Stack = createNativeStackNavigator();
 
@@ -93,6 +97,42 @@ const AccountStackNavigator = () => {
         component={VoucherDetail}
         options={{
           headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Chi tiết Voucher",
+        }}
+      />
+      <Stack.Screen
+        name="LoginScreen"
+        component={LoginScreen}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Chi tiết Voucher",
+        }}
+      />
+      <Stack.Screen
+        name="PhoneLogin"
+        component={PhoneLogin}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Chi tiết Voucher",
+        }}
+      />
+      <Stack.Screen
+        name="RegisterScreen"
+        component={RegisterScreen}
+        options={{
+          headerShown: false,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Chi tiết Voucher",
+        }}
+      />
+      <Stack.Screen
+        name="GoogleLogin"
+        component={GoogleLogin}
+        options={{
+          headerShown: false,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
           title: "Chi tiết Voucher",
         }}

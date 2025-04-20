@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import Color from "color";
-
+import { useAppSelector } from "../../Redux/hook";
+import { API_BASE_URL } from "../../Constant/Constant";
 const RANKS = [
   {
     name: "Đồng",
@@ -75,6 +76,37 @@ const VOUCHERS = [
 ];
 
 const RewardMember = ({ navigation }) => {
+  const [ranksData, setRanksData] = useState([]);
+
+  const { accessToken, isLoggedIn } = useAppSelector((state) => state.auth);
+  console.log(accessToken, isLoggedIn);
+
+  const fetchMemberDuyLaAnh = async () => {
+    try {
+      console.log("run1", accessToken);
+      const res = await fetch(`${API_BASE_URL}/api/coupon/member`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const data = await res.json();
+      setRanksData(data);
+      console.log("94 >>>> data fetchMemberDuyLaAnh ", data);
+    } catch (error) {
+      console.log("error in fetchMemberDuyLaAnh", error);
+      throw error;
+    }
+  };
+
+  console.log(ranksData);
+  useEffect(() => {
+    console.log("run");
+    fetchMemberDuyLaAnh();
+  }, []);
+
   useLayoutEffect(() => {
     navigation.getParent().setOptions({ tabBarStyle: { display: "none" } });
     return () => {

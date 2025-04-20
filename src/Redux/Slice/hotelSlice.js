@@ -39,11 +39,11 @@ export const fetchHotelList = createAsyncThunk(
           headers: { "Content-Type": "application/json" },
         });
         const data = await response.json();
-        console.log("HistorySearchList, HotelRequestList", data.data);
+        // console.log("HistorySearchList, HotelRequestList", data.data);
         return data.data;
       }
     } catch (error) {
-      console.error("Error in fetchHotelList:", error);
+      // console.error("Error in fetchHotelList:", error);
       throw error; // Thông báo lỗi cho Redux
     }
   }
@@ -64,7 +64,7 @@ export const fetchHotelById = createAsyncThunk(
       // console.log(data.data);
       return data.data;
     } catch (error) {
-      console.error("Error in fetchHoteById:", error);
+      // console.error("Error in fetchHoteById:", error);
       throw error;
     }
   }
@@ -82,7 +82,7 @@ export const fetchLocationList = createAsyncThunk(
       // console.log(">>> 53 hotelSlice data", data.data);
       return data.data;
     } catch (error) {
-      console.error("error in fetch location list:", error);
+      // console.error("error in fetch location list:", error);
       throw error;
     }
   }
@@ -96,26 +96,35 @@ export const fetchAmenityList = createAsyncThunk(
       headers: { "Content-Type": "application/json" },
     });
     const data = await response.json();
-    console.log(data);
+    // console.log(data);
     return data?.data;
   }
 );
-// ?locationId=&checkin=2025-04-04&checkout=2025-04-04&adults=0&children=0&roomNumber=0&amenityIds=[]&serviceIds=[]
 
 export const fetchHotelByLocation = createAsyncThunk(
   "hotel/fetchHotelByLocation",
   async (value, { getState, rejectWithValue }) => {
     try {
       const state = getState();
-
       const accessToken = state.auth.accessToken;
+
+      const sortId = state.hotel.inforFilter.sortById;
+      console.log("sortId", sortId);
+      const sortItem = state.hotel.sortList.find((item) => item.id === sortId);
+      const sortBy = sortItem?.key; // Lấy key (ví dụ: "price")
+      const sortValue = sortItem?.value; // Lấy value (ví dụ: "asc")
+      console.log("sortBy:", sortBy);
+      console.log("sortValue:", sortValue);
+
+      console.log("1111111111111111111111", state.hotel.inforFilter.amenityIds);
+
       if (accessToken) {
         console.log("----------- run1");
         console.log("check acessToekn fetchHotelByLocation", accessToken);
 
         const response = await fetch(
-          // `${API_BASE_URL}/api/hotel/filter?sortBy=${}&sort=${}`,
-          `${API_BASE_URL}/api/hotel/filter`,
+          `${API_BASE_URL}/api/hotel/filter?sortBy=${sortBy}&sort=${sortValue}`,
+          // `${API_BASE_URL}/api/hotel/filter`,
           {
             method: "POST",
             headers: {
@@ -134,7 +143,7 @@ export const fetchHotelByLocation = createAsyncThunk(
 
         const response = await fetch(
           // `${API_BASE_URL}/api/hotel/filter?sortBy=${}&sort=${}`,
-          `${API_BASE_URL}/api/hotel/filter`,
+          `${API_BASE_URL}/api/hotel/filter?sortBy=${sortBy}&sort=${sortValue}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -155,7 +164,7 @@ export const fetchHotelRoomList = createAsyncThunk(
   "hotel/fetchHotelRoomList",
   async (value) => {
     try {
-      console.log("---------------", value);
+      // console.log("---------------", value);
       const response = await fetch(`${API_BASE_URL}/api/room/select_room`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -163,10 +172,10 @@ export const fetchHotelRoomList = createAsyncThunk(
       });
 
       const data = await response.json();
-      console.log("-------------- 125 hotelSlice data:", data.data);
+      // console.log("-------------- 125 hotelSlice data:", data.data);
       return data.data;
     } catch (error) {
-      console.log("error in fetchHotelRoomList:", error);
+      // console.log("error in fetchHotelRoomList:", error);
       throw error;
     }
   }
@@ -178,7 +187,7 @@ export const fetchBookingRoom = createAsyncThunk(
     try {
       const { bookingPayload } = getState().hotel;
       const { accessToken } = getState().auth;
-      console.log(accessToken);
+      // console.log(accessToken);
 
       const response = await fetch(`${API_BASE_URL}/api/booking/get_booking`, {
         method: "POST",
@@ -191,7 +200,7 @@ export const fetchBookingRoom = createAsyncThunk(
 
       const data = await response.json();
 
-      console.log("-------- 170 hotelSL", data.data);
+      // console.log("-------- 170 hotelSL", data.data);
 
       const updatedData = data.data.roomBookedList?.map((room, index) => {
         const originalRoom = bookingPayload.roomRequestList[index];
@@ -201,7 +210,7 @@ export const fetchBookingRoom = createAsyncThunk(
         };
       });
 
-      console.log(">>> 180 HS", updatedData);
+      // console.log(">>> 180 HS", updatedData);
 
       data.data.roomBookedList = updatedData;
       return {
@@ -210,7 +219,7 @@ export const fetchBookingRoom = createAsyncThunk(
       };
       // return data.data;
     } catch (error) {
-      console.log("error in fetchBookingRoom:", error);
+      // console.log("error in fetchBookingRoom:", error);
       throw error;
     }
   }
@@ -238,7 +247,7 @@ export const fetchBookingStatus = createAsyncThunk(
     try {
       const state = getState();
       const accessToken = state.auth.accessToken;
-      console.log("accessToken", accessToken);
+      // console.log("accessToken", accessToken);
       const res = await fetch(`${API_BASE_URL}/api/booking/history_booking`, {
         method: "GET",
         headers: {
@@ -247,54 +256,193 @@ export const fetchBookingStatus = createAsyncThunk(
         },
       });
       const data = await res.json();
-      console.log("fetchBookingStatus ", data.data);
+      // console.log("fetchBookingStatus ", data.data);
       return data.data;
     } catch (error) {
-      console.log("error in fetchBookingStatus :", error);
+      // console.log("error in fetchBookingStatus :", error);
       throw error;
     }
   }
 );
 
-export const fetchNotificationList = createAsyncThunk(
-  "hotel/fetchNotificationList",
-  async (_, { getState, rejectWithValue }) => {
+export const getReviewDetails = createAsyncThunk(
+  "hotel/getReviewDetails",
+  async (reviewId, { getState, rejectWithValue }) => {
     try {
-      const state = getState();
-      const accessToken = state?.auth?.accessToken;
-
-      // Log để debug
-      console.log("AccessToken:", accessToken);
-      if (!accessToken) {
-        throw new Error("Access token is missing");
-      }
-
-      const response = await fetch(`${API_BASE_URL}/api/notifications/user`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      // Kiểm tra response
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.log("Error response:", errorData);
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+      const response = await fetch(
+        `${API_BASE_URL}/api/hotel/review/${reviewId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const data = await response.json();
-      console.log("fetchNotificationList response:", data.data);
+      console.log("getReviewDetails", data.data);
+      console.log();
+      if (!response.ok) {
+        return rejectWithValue(data.message || "Lấy chi tiết review thất bại");
+      }
 
-      return data.data; // Trả về dữ liệu từ API
+      return data.data;
     } catch (error) {
-      console.error("Error in fetchNotificationList:", error.message);
-      return rejectWithValue(error.message);
+      console.log("error in getReviewDetails", error);
+      return rejectWithValue(
+        error.message || "Có lỗi xảy ra khi lấy chi tiết review"
+      );
     }
   }
 );
 
+// export const sendReview = createAsyncThunk(
+//   "hotel/sendReview",
+//   async (reviewData, { getState, rejectWithValue }) => {
+//     try {
+//       // const reviewData = {
+//       //   bookingId: "101",
+//       //   comment: "g",
+//       //   hotelId: "1",
+//       //   hotelPoint: "4",
+//       //   image: [
+//       //     {
+//       //       name: "sample-image.jpg",
+//       //       type: "image/jpeg",
+//       //       uri: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+//       //     },
+//       //   ],
+//       //   locationPoint: "4",
+//       //   roomPoint: "4",
+//       //   servicePoint: "4",
+//       // };
+//       // reviewData = {
+//       //   ...reviewData,
+//       //   image: [
+//       //     {
+//       //       name: "sample-image.jpg",
+//       //       type: "image/jpeg",
+//       //       uri: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+//       //     },
+//       //   ],
+//       // };
+
+//       console.log("reveiew data >>>", reviewData);
+//       const state = getState();
+//       const accessToken = state.auth.accessToken;
+//       if (!accessToken) {
+//         return rejectWithValue("Không có token để gọi API");
+//       }
+
+//       // Tạo FormData từ dữ liệu review
+//       const formData = new FormData();
+//       formData.append("hotelId", reviewData.hotelId);
+//       formData.append("bookingId", reviewData.bookingId);
+//       formData.append("hotelPoint", reviewData.hotelPoint);
+//       formData.append("roomPoint", reviewData.roomPoint);
+//       formData.append("locationPoint", reviewData.locationPoint);
+//       formData.append("servicePoint", reviewData.servicePoint);
+//       formData.append("comment", reviewData.comment);
+
+//       // Thêm hình ảnh nếu có (giả sử reviewData.image là một mảng các file)
+//       if (reviewData.image && reviewData.image.length > 0) {
+//         reviewData.image.forEach((file, index) => {
+//           formData.append("image", {
+//             uri: file.uri,
+//             type: file.type || "image/jpeg",
+//             name: file.name || `image_${index}.jpg`,
+//           });
+//         });
+//       }
+
+//       console.log("00000000000000000000000", formData.image);
+
+//       console.log("formData", formData);
+
+//       const response = await fetch(`${API_BASE_URL}/api/hotel/send_review`, {
+//         method: "POST",
+//         headers: {
+//           Authorization: `Bearer ${accessToken}`,
+//         },
+//         body: formData,
+//       });
+
+//       const data = await response.json();
+//       console.log("sendReview data", data);
+
+//       if (!response.ok) {
+//         return rejectWithValue(data.message || "Gửi review thất bại");
+//       }
+//       console.log("ĐÃ LƯU THÀNH CÔNG COMMENT VÀO CƠ SỞ DỮ LIỆU");
+//       return data;
+//     } catch (error) {
+//       console.log("error in sendReview", error);
+//       return rejectWithValue(error.message || "Có lỗi xảy ra khi gửi review");
+//     }
+//   }
+// );
+export const sendReview = createAsyncThunk(
+  "hotel/sendReview",
+  async (reviewData, { getState, rejectWithValue }) => {
+    try {
+      console.log("review data >>>", reviewData);
+      const state = getState();
+      const accessToken = state.auth.accessToken;
+      if (!accessToken) {
+        return rejectWithValue("Không có token để gọi API");
+      }
+
+      // Tạo FormData từ dữ liệu review
+      const formData = new FormData();
+      formData.append("hotelId", reviewData.hotelId.toString()); // Chuyển thành chuỗi
+      formData.append("bookingId", reviewData.bookingId.toString()); // Chuyển thành chuỗi
+      formData.append("hotelPoint", reviewData.hotelPoint.toString());
+      formData.append("roomPoint", reviewData.roomPoint.toString());
+      formData.append("locationPoint", reviewData.locationPoint.toString());
+      formData.append("servicePoint", reviewData.servicePoint.toString());
+      formData.append("comment", reviewData.comment);
+
+      // Thêm hình ảnh nếu có
+      if (reviewData.image && reviewData.image.length > 0) {
+        reviewData.image.forEach((file, index) => {
+          // Sửa type nếu không hợp lệ
+          const fileType =
+            file.type === "image" ? "image/jpeg" : file.type || "image/jpeg";
+          formData.append("image", {
+            uri: file.uri,
+            type: fileType,
+            name: file.name || `image_${index + 1}.jpg`,
+          });
+        });
+      }
+
+      // Không thể log trực tiếp FormData, thay vào đó log reviewData.image để kiểm tra
+      console.log("Images to be sent:", reviewData.image);
+
+      const response = await fetch(`${API_BASE_URL}/api/hotel/send_review`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      console.log("sendReview response data:", data);
+
+      if (!response.ok) {
+        console.log("API error:", data);
+        return rejectWithValue(data.message || "Gửi review thất bại");
+      }
+
+      console.log("ĐÃ LƯU THÀNH CÔNG COMMENT VÀO CƠ SỞ DỮ LIỆU");
+      return data;
+    } catch (error) {
+      console.log("Error in sendReview:", error);
+      return rejectWithValue(error.message || "Có lỗi xảy ra khi gửi review");
+    }
+  }
+);
 const hotelSlice = createSlice({
   name: "hotel",
   initialState: {
@@ -349,8 +497,45 @@ const hotelSlice = createSlice({
 
     loadingNotification: false,
     notificationList: [],
+
+    tempFilter: {
+      // Lưu trữ tạm thời các lựa chọn
+      amenityIds: [],
+      serviceIds: [],
+      sortById: 1,
+    },
+
+    loadingReviewDetails: false,
+    reviewDetailsData: [],
+    reviewDetailsError: null,
+
+    loadingSendReview: false,
+    sendReviewError: null,
+    sendReviewSuccess: false,
   },
   reducers: {
+    updateTempFilter(state, action) {
+      // console.log("run 1");
+      state.tempFilter = { ...state.tempFilter, ...action.payload };
+    },
+    applyFilter(state) {
+      // console.log("run 2");
+      // Copy tempFilter vào inforFilter khi nhấn "Áp dụng"
+      state.inforFilter = {
+        ...state.inforFilter,
+        amenityIds: state.tempFilter.amenityIds,
+        serviceIds: state.tempFilter.serviceIds,
+        sortById: state.tempFilter.sortById,
+      };
+    },
+    resetTempFilter(state) {
+      // Reset tempFilter về giá trị ban đầu hoặc đồng bộ với inforFilter
+      state.tempFilter = {
+        amenityIds: state.inforFilter.amenityIds,
+        serviceIds: state.inforFilter.serviceIds,
+        sortById: state.inforFilter.sortById,
+      };
+    },
     clearHotelDetail(state) {
       state.hotelDetail = null; // Xóa chi tiết khi cần
     },
@@ -375,14 +560,23 @@ const hotelSlice = createSlice({
       state.roomNumbeFaker = action.payload;
     },
     updateBookingPayload(state, action) {
-      console.log(action.payload);
+      // console.log(action.payload);
       state.bookingPayload = action.payload;
+    },
+    resetSendReviewState: (state) => {
+      state.loadingSendReview = false;
+      state.sendReviewError = null;
+      state.sendReviewSuccess = false;
+    },
+    updateLoadingSendReview: (state) => {
+      state.loadingSendReview = true;
+      state.sendReviewError = null;
     },
 
     addServiceToRoom(state, action) {
       try {
         const serviceData = action.payload;
-        console.log(">>> addServiceToRoom serviceData >>>", serviceData);
+        // console.log(">>> addServiceToRoom serviceData >>>", serviceData);
 
         if (state.bookingPayload && state.bookingPayload.roomRequestList) {
           const updatedRoomRequestList =
@@ -421,7 +615,7 @@ const hotelSlice = createSlice({
           };
         }
       } catch (error) {
-        console.log("error in addServiceToRoom", error);
+        // console.log("error in addServiceToRoom", error);
       }
     },
   },
@@ -509,7 +703,7 @@ const hotelSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchBookingRoom.fulfilled, (state, action) => {
-        console.log(" >>> 326 HS", action.payload);
+        // console.log(" >>> 326 HS", action.payload);
         state.loadingBookingRoom = false;
         state.bookingData = action.payload;
       })
@@ -545,18 +739,34 @@ const hotelSlice = createSlice({
         state.loadingBookingStatus = false;
         state.error = action.error.message;
       })
+      // xử lý getReviewDetails
+      .addCase(getReviewDetails.pending, (state) => {
+        state.loadingReviewDetails = true;
+        state.reviewDetailsError = null;
+      })
+      .addCase(getReviewDetails.fulfilled, (state, action) => {
+        state.loadingReviewDetails = false;
+        state.reviewDetailsData = action.payload;
+      })
+      .addCase(getReviewDetails.rejected, (state, action) => {
+        state.loadingReviewDetails = false;
+        state.reviewDetailsError = action.payload;
+      })
 
-      .addCase(fetchNotificationList.pending, (state) => {
-        state.loadingNotification = true;
-        state.error = null;
+      // XỬ LÝ SEND_REVIEW
+      .addCase(sendReview.pending, (state) => {
+        state.loadingSendReview = true;
+        state.sendReviewError = null;
+        state.sendReviewSuccess = false;
       })
-      .addCase(fetchNotificationList.fulfilled, (state, action) => {
-        state.loadingNotification = false;
-        state.notificationList = action.payload;
+      .addCase(sendReview.fulfilled, (state) => {
+        state.loadingSendReview = false;
+        state.sendReviewSuccess = true;
       })
-      .addCase(fetchNotificationList.rejected, (state, action) => {
-        state.loadingNotification = false;
-        state.error = action.payload; // Sử dụng action.payload để lấy lỗi
+      .addCase(sendReview.rejected, (state, action) => {
+        state.loadingSendReview = false;
+        state.sendReviewError = action.payload.message;
+        state.sendReviewSuccess = false;
       });
   },
 });
@@ -571,6 +781,11 @@ export const {
   uppdateListUniqueIdBookingRoom,
   addServiceToRoom,
   updateBookingPayload,
+  updateTempFilter,
+  applyFilter,
+  resetTempFilter,
+  resetSendReviewState,
+  updateLoadingSendReview,
 } = hotelSlice.actions;
 export default hotelSlice.reducer;
 

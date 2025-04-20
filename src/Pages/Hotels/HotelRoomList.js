@@ -50,7 +50,7 @@ const HotelRoomList = ({ navigation, route }) => {
     return newRooms;
   };
 
-  console.log(hotelRoomList);
+  // console.log(hotelRoomList);
 
   useEffect(() => {
     if (hotelRoomList && hotelRoomList.length > 0) {
@@ -124,7 +124,7 @@ const HotelRoomList = ({ navigation, route }) => {
   const hasSelectedRooms = Object.values(roomNumber).some((count) => count > 0);
 
   const handleToInfoConfirm = () => {
-    console.log(">>> 105 HTL  >>> bookingPayload:", bookingPayload);
+    // console.log(">>> 105 HTL  >>> bookingPayload:", bookingPayload);
     const roomQuantities = Object.keys(roomNumber).reduce((acc, key) => {
       const roomId = parseInt(key.replace("room", ""));
       acc.push({
@@ -141,9 +141,9 @@ const HotelRoomList = ({ navigation, route }) => {
 
   const handleToOrderFood = () => {
     // const roomQuantities =
-    console.log(
-      "-------------------------------------------------------------"
-    );
+    // console.log(
+    //   "-------------------------------------------------------------"
+    // );
     const roomQuantities = Object.keys(roomNumber).reduce((acc, key) => {
       const roomId = parseInt(key.replace("room", ""));
       acc.push({
@@ -152,10 +152,10 @@ const HotelRoomList = ({ navigation, route }) => {
       });
       return acc;
     }, []);
-    console.log(roomQuantities);
-    console.log(
-      "-------------------------------------------------------------"
-    );
+    // console.log(roomQuantities);
+    // console.log(
+    //   "-------------------------------------------------------------"
+    // );
 
     // dispatch(updateRoomNumber(roomQuantities));
     dispatch(fetchServicesByCategory(roomQuantities));
@@ -392,7 +392,7 @@ const HotelRoomList = ({ navigation, route }) => {
           style={styles.bookNowButton}
           onPress={() => {
             // Xử lý đặt phòng ở đây, ví dụ: navigation.navigate("BookingScreen", { roomNumber });
-            console.log("Đặt phòng:", roomNumber);
+            // console.log("Đặt phòng:", roomNumber);
           }}
         >
           <TouchableOpacity

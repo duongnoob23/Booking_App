@@ -91,3 +91,41 @@ const test = [
     validFromDate: "04-04-2025 17:43:01",
   },
 ];
+
+//  import React, { useState } from 'react';
+
+// const FileUpload = () => {
+//   const [file, setFile] = useState(null);
+
+//   const handleFileChange = (e) => {
+//     setFile(e.target.files[0]);
+//   };
+
+//   const handleUpload = async () => {
+//     if (!file) return;
+
+//     const formData = new FormData();
+//     formData.append('file', file); // 'file' là tên field mà backend mong đợi
+
+//     try {
+//       const response = await fetch('http://localhost:8080/upload', {
+//         method: 'POST',
+//         body: formData,
+//       });
+
+//       const result = await response.json();
+//       console.log('Upload thành công:', result);
+//     } catch (error) {
+//       console.error('Upload thất bại:', error);
+//     }
+//   };
+
+//   return (
+//     <div>
+//       <input type="file" onChange={handleFileChange} />
+//       <button onClick={handleUpload}>Upload</button>
+//     </div>
+//   );
+// };
+
+// export default FileUpload;

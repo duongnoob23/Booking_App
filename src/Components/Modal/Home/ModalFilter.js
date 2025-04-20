@@ -8,22 +8,47 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAppDispatch, useAppSelector } from "../../../Redux/hook";
-import { updateFilter } from "../../../Redux/Slice/hotelSlice";
+import {
+  applyFilter,
+  updateFilter,
+  updateTempFilter,
+} from "../../../Redux/Slice/hotelSlice";
 const ModalFilter = ({ onClose }) => {
-  const { inforFilter, filterList } = useAppSelector((state) => state.hotel);
+  const { inforFilter, filterList, tempFilter } = useAppSelector(
+    (state) => state.hotel
+  );
 
   const serviceData = filterList;
 
   const dispatch = useAppDispatch();
 
-  const [selectedService, setSelectService] = useState(inforFilter.serviceIds);
+  const [selectedService, setSelectService] = useState(
+    tempFilter.serviceIds || []
+  );
 
   const toggleService = (id) => {
+    let updateService;
     if (selectedService.includes(id)) {
-      setSelectService(selectedService.filter((serviceId) => serviceId !== id));
+      updateService = selectedService.filter((serviceId) => serviceId !== id);
     } else {
-      setSelectService([...selectedService, id]);
+      updateService = [...selectedService, id];
     }
+
+    setSelectService(updateService);
+    dispatch(updateTempFilter({ serviceIds: updateService }));
+  };
+
+  const handleApply = () => {
+    dispatch(applyFilter());
+    //  dispatch(updateFilter({ ...inforFilter, serviceIds: selectedService }));
+    //  console.log(inforFilter.serviceIds);
+    onClose();
+    // try {
+    //   dispatch(applyFilter());
+    //   onClose();
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   const getIconForAmenity = (amenity) => {
@@ -40,26 +65,26 @@ const ModalFilter = ({ onClose }) => {
       "Bồn tắm hoặc Vòi sen": "water-outline",
       "Khăn tắm": "bandage-outline",
       "Ra trải giường": "bed-outline",
-      "Ổ điện gần giường": "plug-outline",
+      "Ổ điện gần giường": "cube-outline",
       "Sàn lát gạch/đá cẩm thạch": "cube-outline",
-      "Bàn làm việc": "desk-outline",
+      "Bàn làm việc": "cube-outline",
       "Ghế cao dành cho trẻ em": "accessibility-outline",
-      "Khu vực tiếp khách": "chair-outline",
+      "Khu vực tiếp khách": "accessibility-outline",
       TV: "tv-outline",
       Dép: "footsteps-outline",
       "Tủ lạnh": "snow-outline",
       "Máy pha trà/cà phê": "cafe-outline",
-      "Máy sấy tóc": "wind-outline",
+      "Máy sấy tóc": "cube-outline",
       "Dịch vụ báo thức": "alarm-outline",
       "Ấm đun nước điện": "flash-outline",
       "Truyền hình cáp": "videocam-outline",
       "Két an toàn cỡ laptop": "laptop-outline",
       "Tủ hoặc phòng để quần áo": "shirt-outline",
-      "Các tầng trên chỉ lên được bằng cầu thang": "stairs-outline",
+      "Các tầng trên chỉ lên được bằng cầu thang": "cube-outline",
       "Giấy vệ sinh": "document-outline",
       "Máy điều hòa độc lập cho từng phòng": "snow-outline",
       "Bánh mì trứng": "egg-outline",
-      "Phở bò": "bowl-outline",
+      "Phở bò": "egg-outline",
       "Bún riêu": "fish-outline",
       "Cháo gà": "nutrition-outline",
       "Bánh cuốn": "leaf-outline",
@@ -88,15 +113,8 @@ const ModalFilter = ({ onClose }) => {
       "Giặt ủi": "shirt-outline",
       "Trang trí phòng đặc biệt": "sparkles-outline",
     };
-
     // Trả về icon theo name, nếu không tìm thấy thì dùng icon mặc định
     return nameIcons[name] || "ellipse-outline";
-  };
-
-  const handleApply = () => {
-    dispatch(updateFilter({ ...inforFilter, serviceIds: selectedService }));
-    console.log(inforFilter.serviceIds);
-    onClose();
   };
 
   return (

@@ -19,7 +19,7 @@ export const fetchListNotification = createAsyncThunk(
       });
 
       const data = await response.json();
-      console.log("fetchListNotification response:", data);
+      // console.log("fetchListNotification response:", data);
 
       return data;
     } catch (error) {

@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Dimensions,
   navigation,
+  Alert,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/FontAwesome"; // Sử dụng FontAwesome cho
@@ -23,6 +24,7 @@ import * as Progress from "react-native-progress";
 import ModalCheckIn from "../../Components/Modal/Home/ModalCheckIn";
 import ModalCheckOut from "../../Components/Modal/Home/ModalCheckOut";
 import ModalGuestsAndRooms from "../../Components/Modal/Home/ModalGuestsAndRooms";
+import { getReviewDetails, updateFilter } from "../../Redux/Slice/hotelSlice";
 
 const PriceScreen = ({ navigation, route }) => {
   const {
@@ -49,7 +51,7 @@ const PriceScreen = ({ navigation, route }) => {
   const handleToFoodDetail = () => {
     navigation.navigate("FoodDetails");
   };
-
+  const dispatch = useAppDispatch();
   const ratingPercentages = [
     {
       star: 5,
@@ -196,8 +198,16 @@ const PriceScreen = ({ navigation, route }) => {
     handleModalCheck(nameModal, false);
   };
 
+  const handleToRateDetails = (item) => {
+    console.log(item.reviewId);
+    dispatch(getReviewDetails(item.reviewId));
+    navigation.navigate("RateDetails", { name: item.username });
+  };
+
   const ratingsData =
     (hotelDetail && hotelDetail?.review?.feedback?.comments) || [];
+
+  // console.log("ratingsData", ratingsData);
   return (
     <ScrollView style={styles.body}>
       {/* Title and description */}
@@ -356,11 +366,10 @@ const PriceScreen = ({ navigation, route }) => {
         </View>
         <View style={styles.ratings__writeButton}>
           <Text style={[styles.ratings__writeButtonText, { color: "black" }]}>
-            Tóm tắt đánh giá{" "}
+            Tóm tắt đánh giá
           </Text>
           <Text style={styles.ratings__writeButtonText}> + VIẾT ĐÁNH GIÁ</Text>
         </View>
-
         <View style={styles.ratings__stats}>
           {ratingPercentages.map((item) => (
             <View key={item.star} style={styles.ratings__stats1}>
@@ -390,7 +399,6 @@ const PriceScreen = ({ navigation, route }) => {
             </View>
           ))}
         </View>
-
         <View style={styles.ratings__option}>
           <View style={styles.ratings__optionList}>
             <View style={styles.ratings__optionItem}>
@@ -438,7 +446,6 @@ const PriceScreen = ({ navigation, route }) => {
             </View>
           </View>
         </View>
-
         <View style={styles.ratings__statsScore}>
           <Text style={styles.ratings__statsScoreValue}>
             {hotelDetail && hotelDetail?.review?.feedback?.ratingHotel}
@@ -452,11 +459,12 @@ const PriceScreen = ({ navigation, route }) => {
             </View>
           </View>
         </View>
+
         {ratingsData?.map((item, index) => (
           <TouchableOpacity
-            key={index}
+            key={item.reviewId}
             style={styles.ratings__item}
-            onPress={() => navigation.navigate("RateDetails")}
+            onPress={() => handleToRateDetails(item)}
           >
             <Image
               source={{

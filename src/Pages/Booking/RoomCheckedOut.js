@@ -15,7 +15,7 @@ import { useState } from "react";
 import { useAppSelector } from "../../Redux/hook";
 import { formatPrice } from "../../Utils/formarPrice";
 
-const RoomCheckedOut = () => {
+const RoomCheckedOut = ({ navigation }) => {
   const { accessToken, isLoggedIn } = useAppSelector((state) => state.auth);
   // if (!accessToken && !isLoggedIn) {
   //   return (
@@ -38,6 +38,11 @@ const RoomCheckedOut = () => {
       </View>
     );
   }
+
+  const handleReviewHotel = (item) => {
+    console.log(item);
+    navigation.navigate("RateApp", { item: item });
+  };
 
   const renderBookingItem = ({ item }) => (
     <View style={styles.bookingHistoryScreen__bookingItem}>
@@ -65,7 +70,10 @@ const RoomCheckedOut = () => {
         </View>
       </View>
       <View style={styles.bookingHistoryScreen__actionButtons}>
-        <TouchableOpacity style={styles.bookingHistoryScreen__rebookButton}>
+        <TouchableOpacity
+          style={styles.bookingHistoryScreen__rebookButton}
+          onPress={() => handleReviewHotel(item)}
+        >
           <Text style={styles.bookingHistoryScreen__rebookButtonText}>
             Đánh giá
           </Text>

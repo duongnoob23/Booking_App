@@ -95,7 +95,7 @@ const CheckScreen = () => {
             {hotelDetail && hotelDetail?.nearBy?.descriptionLocation}
           </Text>
         </View>
-        <View style={styles.rating__details}>
+        {/* <View style={styles.rating__details}>
           <View style={styles.rating__detailItem}>
             <Ionicons name="walk-outline" size={30} color="#0090FF" />
             <Text style={styles.rating__detailScore}>3.8</Text>
@@ -117,7 +117,7 @@ const CheckScreen = () => {
               Tầm để đi đến chuyến đến sân bay.
             </Text>
           </View>
-        </View>
+        </View> */}
         <Text style={styles.rating__note}>
           Điểm số được tính dựa trên dữ liệu từ Google Maps và đánh giá mức độ
           gần của khách sạn với các điểm tham quan, phương tiện giao thông và

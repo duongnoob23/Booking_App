@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import { useDispatch } from "react-redux";
 
 const ModalCheckIn = ({
   visible,
@@ -9,6 +10,7 @@ const ModalCheckIn = ({
   setSelectDay,
   confirm,
 }) => {
+  const dispatch = useDispatch();
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const years = Array.from({ length: 10 }, (_, i) => 2025 + i);

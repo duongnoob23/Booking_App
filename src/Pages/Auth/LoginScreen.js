@@ -110,7 +110,7 @@ const LoginScreen = ({ navigation, route }) => {
   };
   const handleToPhoneLogin = () => {
     // navigation.navigate("PhoneLogin");
-    navigation.navigate("Count");
+    navigation.navigate("PhoneLogin");
     setEmail("");
     setPassword("");
   };

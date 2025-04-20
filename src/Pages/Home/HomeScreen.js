@@ -22,6 +22,8 @@ import {
   fetchHotelList,
   fetchLocationList,
   fetchServiceList,
+  updateTempFilter,
+  applyFilter,
 } from "../../Redux/Slice/hotelSlice";
 import ModalLocationList from "../../Components/Modal/Home/ModalLocationList";
 import cloneDeep from "lodash/cloneDeep";
@@ -95,7 +97,7 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate("HotelDetails", { item });
   };
 
-  console.log("hotelHistorySearch", hotelHistorySearch);
+  // console.log("hotelHistorySearch", hotelHistorySearch);
 
   const HotelRequestList = ({ item }) => {
     return (
@@ -190,7 +192,7 @@ const HomeScreen = ({ navigation }) => {
       "0"
     )}-${String(selectDay.day).padStart(2, "0")}`;
 
-    console.log(selectDay);
+    // console.log(selectDay);
     if (name === "checkin") {
       const today = new Date();
 
@@ -222,7 +224,7 @@ const HomeScreen = ({ navigation }) => {
   const handleFilterHotel = () => {
     dispatch(skeletonLoading());
     dispatch(fetchHotelByLocation(inforFilter));
-
+    console.log(">>> run 0");
     navigation.navigate("ListHotelLocation");
   };
 
@@ -232,7 +234,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleContinueSearch = (item) => {
-    console.log(item);
+    // console.log(item);
     const inforFilter_ = {
       locationId: item?.locationId,
       checkin: item?.checkIn,
@@ -243,7 +245,7 @@ const HomeScreen = ({ navigation }) => {
       serviceIds: [],
       sortById: 1,
     };
-    console.log("inforFIlter Fake", inforFilter_);
+    // console.log("inforFIlter Fake", inforFilter_);
     dispatch(skeletonLoading());
     dispatch(fetchHotelByLocation(inforFilter_));
 
@@ -255,9 +257,9 @@ const HomeScreen = ({ navigation }) => {
       {/* <Map /> */}
       <View style={styles.header}>
         <Text style={styles.title}>Tìm Phòng</Text>
-        <TouchableOpacity onPress={() => handleToInfoConfirm()}>
+        {/* <TouchableOpacity onPress={() => handleToInfoConfirm()}>
           <Icon name="filter" size={24} color="#007AFF" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       {/* Body */}
       <ScrollView style={styles.body} scrollEnabled={!open.Modal_1}>

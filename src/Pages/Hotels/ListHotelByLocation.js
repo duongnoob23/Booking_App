@@ -40,6 +40,7 @@ const ListHotelByLocation = ({ navigation }) => {
     SortBy: false,
   };
 
+  console.log(hotelByLocation);
   const [modalVisible, setModalVisible] = useState({
     modalDefault,
   });
@@ -157,7 +158,7 @@ const ListHotelByLocation = ({ navigation }) => {
           {/* Phần thông tin bên phải */}
           <View style={styles.hotelDetails}>
             {/* Tên khách sạn */}
-            <Text style={styles.hotelName}>{item.hotelName}</Text>
+            <Text style={styles.hotelName}>{item?.hotelName}</Text>
 
             {/* Mô tả */}
             <Text style={styles.description}>
@@ -167,18 +168,19 @@ const ListHotelByLocation = ({ navigation }) => {
             {/* Đánh giá và số nhận xét */}
             <View style={styles.ratingContainer}>
               <View style={styles.ratingBox}>
-                <Text style={styles.ratingText}>{item.hotelRating}</Text>
+                <Text style={styles.ratingText}>{item?.hotelRating}</Text>
               </View>
               <View style={styles.ratingBox2}>
-                <Text style={styles.reviewText}>Ngoại hạng</Text>
-                <Text style={styles.reviewCount}>55 nhận xét</Text>
+                <Text style={styles.reviewCount}>
+                  {item?.sumReview} nhận xét
+                </Text>
               </View>
             </View>
 
             {/* Khuyến mãi */}
             {item.promotionName && (
               <View style={styles.promotion}>
-                <Text style={styles.promotionText}>{item.promotionName}</Text>
+                <Text style={styles.promotionText}>{item?.promotionName}</Text>
               </View>
             )}
 
@@ -192,7 +194,7 @@ const ListHotelByLocation = ({ navigation }) => {
                 </View>
                 <View>
                   <Text style={styles.price}>
-                    {item.price.toLocaleString()} đ
+                    {item?.price?.toLocaleString()} đ
                   </Text>
                 </View>
               </View>

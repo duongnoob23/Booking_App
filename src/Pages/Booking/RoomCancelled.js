@@ -15,7 +15,7 @@ import { useState } from "react";
 import { useAppSelector } from "../../Redux/hook";
 import { formatPrice } from "../../Utils/formarPrice";
 
-const RoomCancelled = () => {
+const RoomCancelled = ({ navigation }) => {
   const { accessToken, isLoggedIn } = useAppSelector((state) => state.auth);
   // if (!accessToken && !isLoggedIn) {
   //   return (
@@ -32,6 +32,11 @@ const RoomCancelled = () => {
   );
 
   const bookings = bookingStatus?.CANCELED || [];
+
+  const handleReviewHotel = (item) => {
+    console.log(item);
+    navigation.navigate("RateApp", { item: item });
+  };
 
   const renderBookingItem = ({ item }) => (
     <View style={styles.bookingHistoryScreen__bookingItem}>
@@ -64,9 +69,13 @@ const RoomCancelled = () => {
             Thông tin
           </Text>
         </TouchableOpacity> */}
-        <TouchableOpacity style={styles.bookingHistoryScreen__rebookButton}>
+        <TouchableOpacity
+          style={styles.bookingHistoryScreen__rebookButton}
+          // onPress={() => handleReviewHotel(item)}
+        >
           <Text style={styles.bookingHistoryScreen__rebookButtonText}>
-            Đã hoàn tiền
+            {/* Đã hoàn tiền/ Đánh giá */}
+            Đánh giá
           </Text>
         </TouchableOpacity>
       </View>
