@@ -26,10 +26,16 @@ export const fetchListPromotion = createAsyncThunk(
       const state = getState();
       const accessToken = state.auth.accessToken;
 
-      // Kiểm tra accessToken
+      if (!accessToken) {
+        throw new Error("Missing access token");
+      }
+
+      const queryParams = new URLSearchParams({
+        totalPrice: totalPrice.toString(), // đảm bảo là string
+      });
 
       const response = await fetch(
-        `${API_BASE_URL}/api/coupon/get_by_user?&totalPrice=${totalPrice}`,
+        `${API_BASE_URL}/api/coupon/get_by_user?${queryParams}`,
         {
           method: "GET",
           headers: {

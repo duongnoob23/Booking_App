@@ -18,7 +18,13 @@ export const fetchSystemVouchers = createAsyncThunk(
       }
 
       return {
-        couponList: data.data.couponList || [],
+        couponList: data.data.couponList.map((item) => ({
+          id: String(item.id),
+          code: item.code,
+          description: item.description,
+          expirationDate: item.expirationDate,
+          iconBackground: "#00A4E8", // Mặc định màu cho systemVouchers
+        })),
         user: {
           name: userName || "Guest",
           Orders: data.data.currentTotalBooking || 0,
@@ -47,7 +53,6 @@ export const fetchMyVouchers = createAsyncThunk(
         return rejectWithValue(data.message || "Lỗi khi lấy voucher của bạn");
       }
 
-      // Định dạng dữ liệu giống formatVoucherData
       const statusMap = {
         CAN_USE: "unused",
         USED: "used",
@@ -146,6 +151,35 @@ export const fetchRanks = createAsyncThunk(
   }
 );
 
+export const fetchEventVouchers = createAsyncThunk(
+  "voucher/fetchEventVouchers",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const accessToken = getState().auth.accessToken;
+      const res = await fetch(`${API_BASE_URL}/api/coupon/event`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.statusCode !== 200) {
+        return rejectWithValue(data.message || "Lỗi khi lấy voucher sự kiện");
+      }
+
+      return data.data.map((item) => ({
+        id: String(item.id),
+        code: item.code,
+        description: item.description,
+        expirationDate: item.expirationDate,
+        iconBackground: "#FF6347", // Màu đặc trưng cho eventVouchers
+      }));
+    } catch (error) {
+      return rejectWithValue(error.message || "Lỗi không xác định");
+    }
+  }
+);
+
 const initialState = {
   error: null,
   loading: false,
@@ -155,6 +189,7 @@ const initialState = {
     used: [],
     expired: [],
   },
+  eventVouchers: [], // Thêm state cho eventVouchers
   ranks: [],
   user: { name: "Guest", Orders: 0, Spend: 0 },
   successSave: null,
@@ -171,6 +206,7 @@ const voucherSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Fetch system vouchers
       .addCase(fetchSystemVouchers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -184,6 +220,7 @@ const voucherSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      // Fetch my vouchers
       .addCase(fetchMyVouchers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -196,6 +233,7 @@ const voucherSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      // Save voucher
       .addCase(saveVoucher.pending, (state) => {
         state.loading = true;
         state.successSave = null;
@@ -209,6 +247,7 @@ const voucherSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      // Fetch ranks
       .addCase(fetchRanks.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -218,6 +257,19 @@ const voucherSlice = createSlice({
         state.ranks = action.payload;
       })
       .addCase(fetchRanks.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Fetch event vouchers
+      .addCase(fetchEventVouchers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchEventVouchers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.eventVouchers = action.payload;
+      })
+      .addCase(fetchEventVouchers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

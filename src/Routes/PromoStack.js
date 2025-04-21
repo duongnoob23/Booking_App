@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Discount from "../Pages/Promotion/Discount";
+import Discount from "../Pages/Promotion/PromotionScreen";
 import DiscountHistory from "../Pages/Promotion/DiscountHistory ";
 import DiscountHistoryExpired from "../Pages/Promotion/DiscountHistoryExpired";
 import DiscountHistoryUse from "../Pages/Promotion/DiscountHistoryUse";
@@ -21,7 +21,7 @@ const PromotionStackNavigator = ({ navigation }) => {
         options={{
           headerShown: true,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
-          title: "Mã giảm giá ",
+          title: "Ưu Đãi ",
           // headerRight: () => (
           //   <TouchableOpacity
           //     onPress={() => navigation.navigate("DiscountHistory")}

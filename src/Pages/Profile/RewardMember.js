@@ -12,8 +12,9 @@ import {
   fetchSystemVouchers,
   fetchRanks,
   saveVoucher,
+  fetchMyVouchers,
   clearVoucherStatus,
-} from "../../Redux/Slice/voucherSlice"; // Thay bằng đường dẫn thực tế
+} from "../../Redux/Slice/voucherSlice"; 
 
 const RewardMember = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -33,6 +34,7 @@ const RewardMember = ({ navigation }) => {
   useEffect(() => {
     if (isLoggedIn && accessToken) {
       dispatch(fetchSystemVouchers());
+      dispatch(fetchMyVouchers());
       dispatch(fetchRanks());
     }
   }, [dispatch, isLoggedIn, accessToken]);
@@ -108,7 +110,7 @@ const RewardMember = ({ navigation }) => {
     >
       <Text style={[styles.rankName, { color: item.color }]}>{item.name}</Text>
       <Text style={styles.rankCondition}>
-        {`Đơn hàng ≥ ${item.minOrders} | Chi tiêu ≥ ${item.minSpending.toLocaleString()} VND`}
+        {`Đặt thành công ≥ ${item.minOrders} | Chi tiêu ≥ ${item.minSpending.toLocaleString()} VND`}
       </Text>
       <Text style={styles.description}>{item.description}</Text>
     </View>
@@ -185,7 +187,7 @@ const RewardMember = ({ navigation }) => {
 
         <View style={styles.progressRow}>
           <View style={styles.progressBox}>
-            <Text style={styles.progressTitle}>Đơn hàng</Text>
+            <Text style={styles.progressTitle}>Đặt thành công</Text>
             <Text style={styles.progressStatus}>
               {user.Orders}/{nextRank?.minOrders || user.Orders}
             </Text>

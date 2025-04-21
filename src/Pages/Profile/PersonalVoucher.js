@@ -41,6 +41,18 @@ const PersonalVoucher = ({ navigation }) => {
   const handleToVoucherDetail = (voucher) => {
     navigation.navigate("VoucherDetail", { voucher });
   };
+  const handleToHome = (item) => {
+    if (item.status === "unused") {
+      // console.log("Current nav state: ", navigation.getState());
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Profile" }],
+      });
+      navigation.navigate("Home");
+    } else {
+      console.log("Voucher đã dùng/đã hết hạn");
+    }
+  };
 
   const voucherData =
     activeTab === "unused"
@@ -64,7 +76,7 @@ const PersonalVoucher = ({ navigation }) => {
             { backgroundColor: item.iconBackground },
           ]}
         >
-          <Text style={styles.voucherIcon}>S</Text>
+          <Text style={styles.voucherIcon}>V</Text>
         </View>
       </View>
       <View style={styles.voucherContent}>
@@ -88,13 +100,7 @@ const PersonalVoucher = ({ navigation }) => {
                 ? styles.actionButtonUnused
                 : styles.actionButtonUsed,
             ]}
-            onPress={() =>
-              console.log(
-                item.status === "unused"
-                  ? "Dùng ngay mã: " + item.id
-                  : "Voucher đã dùng/đã hết hạn"
-              )
-            }
+            onPress={() => handleToHome(item)}
           >
             <Text style={styles.actionButtonText}>
               {item.status === "unused"
@@ -189,7 +195,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "transparent",
   },
   activeTab: {
-    borderBottomColor: "#EE4D2D",
+    borderBottomColor: "#007AFF",
   },
   tabText: {
     fontSize: 14,
@@ -197,7 +203,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   activeTabText: {
-    color: "#EE4D2D",
+    color: "#007AFF",
     fontWeight: "bold",
   },
   voucherItem: {
@@ -282,7 +288,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   actionButtonUnused: {
-    backgroundColor: "#EE4D2D",
+    backgroundColor: "#46BFE0",
   },
   actionButtonUsed: {
     backgroundColor: "#CCCCCC",

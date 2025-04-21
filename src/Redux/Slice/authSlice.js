@@ -17,7 +17,7 @@ const initValue = {
     firstName: "Lâm",
     lastName: "Tiến Dưỡng ",
     email: "lamtiendung11082002@gmail.com",
-    phoneNumber: "0982474802",
+    phone: "0982474802",
     country: "+84",
   },
   infoUser: null,
@@ -32,10 +32,14 @@ export const fetchUserInfo = createAsyncThunk(
   "auth/fetchUserInfo",
   async (_, { getState, rejectWithValue }) => {
     try {
+      const state = getState();
+      const accessToken = state.auth.accessToken;
+
       const response = await fetch(`${API_BASE_URL}/api/user/info`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
@@ -55,13 +59,30 @@ export const updateUserInfo = createAsyncThunk(
       if (!accessToken) {
         throw new Error("Không có token để gọi API");
       }
+
+      const formData = new FormData();
+      formData.append("firstName", userInfo.firstName);
+      formData.append("lastName", userInfo.lastName);
+      formData.append("email", userInfo.email);
+      formData.append("phone", userInfo.phone);
+
+      // Nếu bạn muốn upload hình ảnh từ bộ nhớ (image là URI hoặc file object)
+      // if (userInfo.image) {
+      //   formData.append("image", {
+      //     uri: userInfo.image.uri,       // ví dụ: "file:///data/user/0/..."
+      //     name: userInfo.image.name || "avatar.jpg",
+      //     type: userInfo.image.type || "image/jpeg",
+      //   });
+      // }
+
       const response = await fetch(`${API_BASE_URL}/api/user/update`, {
-        method: "PUT",
+        method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
+          // Không cần "Content-Type": multipart/form-data
+          // Fetch sẽ tự thêm boundary khi dùng FormData
         },
-        body: JSON.stringify(userInfo),
+        body: formData,
       });
 
       const data = await response.json();
@@ -71,6 +92,7 @@ export const updateUserInfo = createAsyncThunk(
     }
   }
 );
+
 
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
@@ -158,6 +180,11 @@ const authSlice = createSlice({
         state.registerLoading = false;
         state.registerSuccess = true;
       })
+      .addCase(updateUserInfo.fulfilled, (state, action) => {
+        state.infoUser = action.payload 
+      })
+      .addCase(updateUserInfo.rejected, (state, action) => {
+        state.error = action.payload || "Cập nhật thông tin thất bại"})
       .addCase(registerUser.rejected, (state, action) => {
         state.registerLoading = false;
         state.registerError = action.payload;

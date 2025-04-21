@@ -1,59 +1,47 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useAppSelector } from "../../Redux/hook";
+import { useFocusEffect } from "@react-navigation/native";
+import { useAppDispatch, useAppSelector } from "../../Redux/hook";
+import { fetchUserInfo } from "../../Redux/Slice/authSlice";
 
 const Profile = ({ navigation }) => {
-  const { isLoggedIn } = useAppSelector((state) => state.auth);
-
-  // Dữ liệu người dùng mặc định khi đã đăng nhập
-  const [userData, setUserData] = useState({
-    name: "John Smith",
-    email: "johnsmith@gmail.com",
-    phone: "+225 698698966",
-    avatar:
-      "https://media.istockphoto.com/id/1587604256/vi/anh/ch%C3%A2n-dung-lu%E1%BA%ADt-s%C6%B0-v%C3%A0-ng%C6%B0%E1%BB%9Di-ph%E1%BB%A5-n%E1%BB%AF-da-%C4%91en-v%E1%BB%9Bi-m%C3%A1y-t%C3%ADnh-b%E1%BA%A3ng-n%E1%BB%A5-c%C6%B0%E1%BB%9Di-v%C3%A0-h%E1%BA%A1nh-ph%C3%BAc-t%E1%BA%A1i-n%C6%A1i-l%C3%A0m.jpg?s=612x612&w=0&k=20&c=0hnV6JuSMy8XAV25oJFzQeHPYysYe8cfHUyhgZlQYQc=",
-  });
-
-  // Dữ liệu giả khi chưa đăng nhập
+  const dispatch = useAppDispatch();
+  const { isLoggedIn, infoUser } = useAppSelector((state) => state.auth);
+  console.log(infoUser);
   const anonymousData = {
     name: "Ẩn danh",
     email: "email@anonym.com",
     phone: "+123456789",
     avatar:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2F8DoZLvVpkbPZs1z1dBzXKLvgRNwgUrstA&s", // Avatar mặc định của Facebook
-    // "https://images.unsplash.com/photo-1573547429441-d7ef62e04b63?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGFub255bW91c3xlbnwwfHwwfHx8MA%3D%3D", // Avatar mặc định của Facebook
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2F8DoZLvVpkbPZs1z1dBzXKLvgRNwgUrstA&s",
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchUserData = async () => {
-        try {
-          const storedData = await AsyncStorage.getItem("userProfile");
-          if (storedData) {
-            const parsedData = JSON.parse(storedData);
-            setUserData((prevData) => ({
-              ...prevData,
-              ...parsedData,
-            }));
-          } else {
-            await AsyncStorage.setItem("userProfile", JSON.stringify(userData));
-          }
-        } catch (error) {
-          console.error("Lỗi khi lấy dữ liệu người dùng:", error);
-        }
-      };
+  // Avatar fallback nếu chưa có từ API
+  const defaultAvatar =
+    "https://media.istockphoto.com/id/1587604256/vi/anh/ch%C3%A2n-dung-lu%E1%BA%ADt-s%C6%B0-v%C3%A0-ng%C6%B0%E1%BB%9Di-ph%E1%BB%A5-n%E1%BB%AF-da-%C4%91en-v%E1%BB%9Bi-m%C3%A1y-t%C3%ADnh-b%E1%BA%A3ng-n%E1%BB%A5-c%C6%B0%E1%BB%9Di-v%C3%A0-h%E1%BA%A1nh-ph%C3%BAc-t%E1%BA%A1i-n%C6%A1i-l%C3%A0m.jpg?s=612x612&w=0&k=20&c=0hnV6JuSMy8XAV25oJFzQeHPYysYe8cfHUyhgZlQYQc=";
 
-      if (isLoggedIn) {
-        fetchUserData();
+  useEffect(() => {
+      dispatch(fetchUserInfo());
+    }, [isLoggedIn, dispatch]);
+  const displayData = isLoggedIn
+    ? {
+        firstName: infoUser?.firstName || "No name",
+        lastName: infoUser?.lastName || "",
+        email: infoUser?.email || "No email",
+        phone: infoUser?.phone || "No phone",
+        image: infoUser?.image || defaultAvatar,
       }
-    }, [isLoggedIn])
-  );
+    : anonymousData;
 
   const handleToEditProfile = () => {
-    navigation.navigate("EditProfile", { userData });
+    navigation.navigate("EditProfile", { userData: displayData });
   };
 
   const handleToRewardMember = () => {
@@ -72,61 +60,37 @@ const Profile = ({ navigation }) => {
     navigation.navigate("LoginScreen");
   };
 
-  // Dữ liệu hiển thị dựa trên trạng thái đăng nhập
-  const displayData = isLoggedIn ? userData : anonymousData;
-
   return (
     <View style={styles.container}>
-      {/* Ảnh nền */}
       <View style={styles.topContainer}>
-        <Image
-          source={{
-            uri: displayData.avatar,
-          }}
-          style={styles.profileImage}
-        />
+        <Image source={{ uri: displayData.image }} style={styles.profileImage} />
       </View>
 
-      {/* Card chứa thông tin cá nhân */}
       <View style={styles.profileCard}>
-        {/* Chỉ hiển thị nút chỉnh sửa nếu đã đăng nhập */}
         {isLoggedIn && (
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={handleToEditProfile}
-          >
+          <TouchableOpacity style={styles.editButton} onPress={handleToEditProfile}>
             <Ionicons name="pencil" size={26} color="white" />
           </TouchableOpacity>
         )}
-        <Text style={styles.userName}>{displayData.name}</Text>
+        <Text style={styles.userName}>{displayData.firstName} {displayData.lastName}</Text>
         <Text style={styles.userEmail}>{displayData.email}</Text>
         <Text style={styles.userPhone}>{displayData.phone}</Text>
       </View>
 
-      {/* Các tùy chọn bên dưới */}
       <View style={styles.optionsContainer}>
         {isLoggedIn ? (
           <>
-            <TouchableOpacity
-              style={styles.optionItem}
-              onPress={handleToSettingsScreen}
-            >
+            <TouchableOpacity style={styles.optionItem} onPress={handleToSettingsScreen}>
               <Text style={styles.optionText}>Cài đặt</Text>
               <Ionicons name="chevron-forward" size={20} color="#0090FF" />
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.optionItem}
-              onPress={handleToRewardMember}
-            >
+            <TouchableOpacity style={styles.optionItem} onPress={handleToRewardMember}>
               <Text style={styles.optionText}>Phần thưởng và Thành viên</Text>
               <Ionicons name="chevron-forward" size={20} color="#0090FF" />
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.optionItem}
-              onPress={handleToPersonalVoucher}
-            >
+            <TouchableOpacity style={styles.optionItem} onPress={handleToPersonalVoucher}>
               <Text style={styles.optionText}>Voucher của bạn</Text>
               <Ionicons name="chevron-forward" size={20} color="#0090FF" />
             </TouchableOpacity>
@@ -237,7 +201,7 @@ const styles = StyleSheet.create({
     fontWeight: "400",
   },
   loginButton: {
-    marginTop: "80",
+    marginTop: 80,
     backgroundColor: "#00F598",
     padding: 15,
     borderRadius: 10,

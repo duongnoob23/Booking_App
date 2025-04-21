@@ -8,5 +8,7 @@ export const formatPrice = (price) => {
     .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
   // Kết hợp phần nguyên, thập phân và đơn vị VNĐ
-  return `${formattedInteger},${decimalPart} VNĐ`;
+  return decimalPart === "0"
+  ? `${formattedInteger} VNĐ`
+  : `${formattedInteger},${decimalPart} VNĐ`;
 };

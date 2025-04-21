@@ -83,19 +83,23 @@ const Discount = ({ navigation, route }) => {
             style={styles.discountCodes__item}
             onPress={() => handleChooseSale(item)}
           >
-            <Ionicons
-              name="gift-outline"
-              size={45}
-              color="#007BFF"
-              style={styles.discountCodes__itemIcon}
-            />
+            <View style={styles.iconContainer}>
+                      <View
+                        style={[
+                          styles.voucherIconContainer,
+                          { backgroundColor: item.iconBackground || "#ccc" },
+                        ]}
+                      >
+                        <Text style={styles.voucherIcon}>S</Text>
+                      </View>
+                    </View>
             <View style={styles.discountCodes__itemContent}>
               <Text style={styles.discountCodes__itemTitle}>
                 {item?.description}
               </Text>
               <Text style={styles.discountCodes__itemCode}>{item?.code}</Text>
               <Text style={styles.discountCodes__itemExpiry}>
-                Số tiền đặt phòng thấp nhất{" "}
+                Số tiền đặt phòng thấp nhất:{" "}
                 {formatPrice(item?.minBookingAmount)}
               </Text>
               <Text style={styles.discountCodes__itemExpiry}>
@@ -130,6 +134,27 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: 20,
     paddingVertical: 10,
+  },
+  iconContainer: {
+    width: 80,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFF",
+  },
+  voucherIconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#FFF",
+    borderStyle: "dashed",
+  },
+  voucherIcon: {
+    fontSize: 30,
+    color: "#FFF",
+    fontWeight: "bold",
   },
   discountCodes__itemIcon: {
     marginRight: 10,
