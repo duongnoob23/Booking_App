@@ -24,7 +24,7 @@ const OrderFood = ({ navigation, route }) => {
   });
 
   useEffect(() => {
-    if (categories?.length > 0 && !selectedCategory.type) {
+    if (categories) {
       setSelectedCategory({
         id: categories[0].id,
         type: categories[0].name,
@@ -42,7 +42,8 @@ const OrderFood = ({ navigation, route }) => {
   );
   const { bookingPayload } = useAppSelector((state) => state.hotel);
   const listRoom = bookingPayload?.roomRequestList;
-
+  console.log(bookingPayload.roomRequestList);
+  console.log(bookingPayload);
   // const categories = Object.keys(serviceList).map((key, index) => ({
   //   id: index + 1,
   //   name: key,
@@ -160,44 +161,6 @@ const OrderFood = ({ navigation, route }) => {
     });
   };
 
-  // Xử lý giảm số lượng
-  // const handleDecreaseQuantity = (uniqueId, serviceId) => {
-  //   setServiceQuantities((prev) => {
-  //     const existingRoom = prev.find((item) => item.uniqueId === uniqueId);
-  //     if (existingRoom) {
-  //       const existingService = existingRoom.serviceIds.find(
-  //         (s) => s.id === serviceId
-  //       );
-  //       if (existingService && existingService.quantity > 0) {
-  //         if (existingService.quantity === 1) {
-  //           const updatedServiceIds = existingRoom.serviceIds.filter(
-  //             (s) => s.id !== serviceId
-  //           );
-  //           if (updatedServiceIds.length === 0) {
-  //             return prev.filter((item) => item.uniqueId !== uniqueId);
-  //           }
-  //           return prev.map((item) =>
-  //             item.uniqueId === uniqueId
-  //               ? { ...item, serviceIds: updatedServiceIds }
-  //               : item
-  //           );
-  //         }
-  //         return prev.map((item) =>
-  //           item.uniqueId === uniqueId
-  //             ? {
-  //                 ...item,
-  //                 serviceIds: item.serviceIds.map((s) =>
-  //                   s.id === serviceId ? { ...s, quantity: s.quantity - 1 } : s
-  //                 ),
-  //               }
-  //             : item
-  //         );
-  //       }
-  //     }
-  //     return prev;
-  //   });
-  // };
-
   // khi giảm đến 0 thì logic nhảy lên số lớn nhất vì lucs đó serviceQUantities ko còn quản lí nũa mà bị BookingPayload quản lí
   const handleDecreaseQuantity = (uniqueId, serviceId) => {
     setServiceQuantities((prev) => {
@@ -311,11 +274,12 @@ const OrderFood = ({ navigation, route }) => {
     let time = service?.time || "";
     let note = service?.note || "";
 
+    console.log(item);
     return (
       <View style={styles.roomWrapper}>
         <View style={styles.roomInfo}>
           <Text style={styles.roomLabel}>Tên Phòng</Text>
-          <Text style={styles.roomValue}>{item.uniqueId}</Text>
+          <Text style={styles.roomValue}>{item.roomName}</Text>
         </View>
         <View style={styles.roomInfo}>
           <Text style={styles.roomLabel}>Số lượng</Text>
@@ -370,53 +334,6 @@ const OrderFood = ({ navigation, route }) => {
       </View>
     );
   };
-
-  // const allowedRooms =
-  //   listRoom?.filter((room) =>
-  //     item.roomChoseServiceList?.some(
-  //       (serviceRoom) =>
-  //         serviceRoom.roomId === parseInt(room.uniqueId.split("_")[1])
-  //     )
-  //   ) || [];
-
-  // Render món ăn/dịch vụ
-  // const renderFoodItem = ({ item }) => (
-
-  //   <View style={styles.foodItemContainer}>
-  //     <TouchableOpacity
-  //       style={styles.foodItem}
-  //       onPress={() => handleToFoodDetails()}
-  //     >
-  //       <Image source={{ uri: imageTest }} style={styles.foodImage} />
-  //       <View style={styles.foodInfo}>
-  //         <Text style={styles.foodName}>{item.name}</Text>
-  //         <Text style={styles.description}>{item.description}</Text>
-  //         <View style={styles.priceContainer}>
-  //           <Ionicons name={"cash-outline"} size={20} />
-  //           <Text style={styles.price}>{item.price} </Text>
-  //           <Text>VNĐ</Text>
-  //         </View>
-  //       </View>
-  //       <TouchableOpacity
-  //         style={styles.addButton}
-  //         onPress={() => handleToggleRoomList(item.id)}
-  //       >
-  //         <Text style={styles.addButtonText}>
-  //           {expandedServices[item.id] ? "Thu gọn" : "Thêm"}
-  //         </Text>
-  //       </TouchableOpacity>
-  //     </TouchableOpacity>
-  //     {expandedServices[item.id] && (
-  //       <FlatList
-  //         data={listRoom}
-  //         renderItem={(props) => renderRoomItem(props, item.id)}
-  //         keyExtractor={(item) => item.uniqueId}
-  //         style={styles.roomList}
-  //         showsVerticalScrollIndicator={false}
-  //       />
-  //     )}
-  //   </View>
-  // );
 
   const renderFoodItem = ({ item }) => {
     // Lọc listRoom dựa trên roomChoseServiceList
@@ -473,44 +390,6 @@ const OrderFood = ({ navigation, route }) => {
   }
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => handleBack()}>
-          <Ionicons name="chevron-back-outline" size={28} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Đồ ăn</Text>
-      </View>
-
-      {/* <View style={styles.bodySection1}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={styles.list}>
-            {categories?.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.item}
-                onPress={() =>
-                  setSelectedCategory({ id: item.id, type: item.name })
-                }
-              >
-                <View
-                  style={[
-                    styles.itemIcon,
-                    selectedCategory.id === item.id ? styles.selectFood : "",
-                  ]}
-                >
-                  <Ionicons
-                    name={"add-outline"}
-                    size={28}
-                    color={
-                      selectedCategory.id === item.id ? "white" : "#B7C9D4"
-                    }
-                  />
-                </View>
-                <Text style={styles.itemText}>{item.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </ScrollView>
-      </View> */}
       <View style={styles.bodySection1}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.list}>
@@ -549,35 +428,6 @@ const OrderFood = ({ navigation, route }) => {
       />
 
       <View style={styles.footer}>
-        {/* <View>
-          <Text style={styles.footerCount}>
-            Tổng số:{" "}
-            {serviceQuantities.reduce(
-              (sum, room) =>
-                sum +
-                room.serviceIds.reduce(
-                  (roomSum, service) => roomSum + service.quantity,
-                  0
-                ),
-              0
-            )}
-          </Text>
-          <Text style={styles.footerPrice}>
-            Tổng giá:{" "}
-            {serviceQuantities.reduce(
-              (sum, room) =>
-                sum +
-                room.serviceIds.reduce((roomSum, service) => {
-                  const serviceData = foodItems.find(
-                    (s) => s.id === service.id
-                  );
-                  return roomSum + (serviceData?.price || 0) * service.quantity;
-                }, 0),
-              0
-            )}
-            VNĐ
-          </Text>
-        </View> */}
         <TouchableOpacity
           style={styles.confirmButton}
           onPress={handleConfirmOrder}

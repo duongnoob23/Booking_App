@@ -110,6 +110,7 @@ const HotelRoomList = ({ navigation, route }) => {
               children: inforFilter.children,
               price: room ? room.price : 0,
               serviceList: existingRoom ? existingRoom.serviceList : [],
+              roomName: room.roomName,
             };
           });
       });
@@ -165,7 +166,11 @@ const HotelRoomList = ({ navigation, route }) => {
   if (loadingHotelRoomList) {
     return <SkeletonHotelRoomList />;
   }
+
+  console.log(">>> full ảnh", item);
+
   const RoomItem = ({ room }) => {
+    // console.log(room.serviceEntityList);
     return (
       <View style={styles.card}>
         {/* Hình ảnh phòng */}
@@ -233,15 +238,22 @@ const HotelRoomList = ({ navigation, route }) => {
           ))}
         </View>
         {/* Khuyến mãi */}
-        <View style={styles.promotion}>
-          <View style={styles.promotionView}>
-            <Ionicons
-              name="bookmarks-outline"
-              size={15}
-              color="#191D39"
-              style={styles.iconPolicy}
-            />
-            <Text style={styles.promotionText}>{room.promotion.name}</Text>
+        <View style={styles.groupPromotion}>
+          <View style={styles.promotion}>
+            <View style={styles.promotionView}>
+              <Ionicons
+                name="bookmarks-outline"
+                size={15}
+                color="#191D39"
+                style={styles.iconPolicy}
+              />
+              <Text style={styles.promotionText}>{room.promotion.name}</Text>
+            </View>
+          </View>
+          <View style={styles.discountBadge}>
+            <Text style={styles.discountText}>
+              Giảm {room.promotion.discountValue}
+            </Text>
           </View>
         </View>
 
@@ -249,11 +261,6 @@ const HotelRoomList = ({ navigation, route }) => {
         {/* Giá */}
         <View style={styles.priceContainer}>
           <View style={styles.priceWrapper}>
-            <View style={styles.discountBadge}>
-              <Text style={styles.discountText}>
-                Giảm {room.promotion.discountValue}
-              </Text>
-            </View>
             <View style={styles.discountedPriceView}>
               <Text style={styles.discountedPrice}>
                 {room.price.toLocaleString()}đ
@@ -327,74 +334,37 @@ const HotelRoomList = ({ navigation, route }) => {
           hasSelectedRooms && styles.listContainerPlus,
         ]}
       >
-        <View style={styles.header}>
-          <ImageBackground
-            source={{
-              uri: `${item.imageUrl}`,
-            }}
-            style={styles.header__image}
-          >
-            <View style={styles.header__overlay}>
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Ionicons name="arrow-back" size={24} color="#fff" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Text style={styles.header__title}>{item.hotelName}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.header__icon__start}>
-                <Ionicons name="share-outline" size={24} color="#fff" />
-              </TouchableOpacity>
+        <View style={styles.header__overlay}>
+          <View style={styles.header__overlay__image}>
+            <Image
+              source={{
+                uri: `${item.imageUrl}`,
+              }}
+              style={styles.rateDetail__photo}
+            />
+          </View>
+          <View style={styles.header__overlay__content}>
+            <View>
+              <Text style={styles.header__title}>{item.hotelName}</Text>
             </View>
-
-            <View style={styles.header__info}>
-              <View style={styles.header__rating}>
-                <View style={styles.header__rating__group}>
-                  <View>
-                    <Icon
-                      style={styles.iconStart}
-                      name="star"
-                      size={24}
-                      color="#EBA731"
-                    />
-                  </View>
-                  <View>
-                    <Text style={styles.header__rating__score}>
-                      {hotelDetail && hotelDetail?.review.rating}
-                    </Text>
-                  </View>
-                </View>
-                <Text style={styles.header__rating__text}>
-                  {hotelDetail && hotelDetail.review.sumReview} Người đã thích
-                </Text>
-              </View>
-              <View style={styles.header__location}>
-                <View>
-                  <Icon name="map-marker" size={16} color="white" />
-                </View>
-                <View style={styles.header__location__text}>
-                  <Text style={{ color: "white" }}>
-                    {hotelDetail && hotelDetail.review.location}
-                  </Text>
-                </View>
-              </View>
+            <View style={styles.header__label}>
+              <Text style={styles.header__desc}>
+                {hotelDetail && hotelDetail.review.rating}
+              </Text>
+              <Text style={styles.header__desc}>
+                {hotelDetail && hotelDetail.review.location}
+              </Text>
             </View>
-          </ImageBackground>
+          </View>
         </View>
-        {/* <SkeletonHotelRoomList /> */}
+        <View style={styles.header}></View>
         {hotelRoomList?.map((room) => (
           <RoomItem key={room.roomId} room={room} />
         ))}
       </ScrollView>
 
-      {/* {hasSelectedRooms && <View style={styles.marginForBookNowButton}></View>} */}
       {hasSelectedRooms && (
-        <View
-          style={styles.bookNowButton}
-          onPress={() => {
-            // Xử lý đặt phòng ở đây, ví dụ: navigation.navigate("BookingScreen", { roomNumber });
-            // console.log("Đặt phòng:", roomNumber);
-          }}
-        >
+        <View style={styles.bookNowButton} onPress={() => {}}>
           <TouchableOpacity
             style={styles.bookNowButtonTextWapper}
             onPress={() => handleToOrderFood()}
@@ -503,7 +473,9 @@ const styles = StyleSheet.create({
     color: "#424242", // Xám đậm
     marginBottom: 2,
   },
-
+  groupPromotion: {
+    flexDirection: "row",
+  },
   promotion: {
     marginBottom: 8,
     backgroundColor: "#FCDB36",
@@ -511,6 +483,7 @@ const styles = StyleSheet.create({
     padding: 5,
     paddingHorizontal: 10,
     borderRadius: 5,
+    marginRight: 5,
   },
   promotionView: {
     flexDirection: "row",
@@ -562,7 +535,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingVertical: 5,
     paddingHorizontal: 8,
-    alignSelf: "flex-end",
+    alignSelf: "flex-start",
     marginBottom: 5,
   },
   discountText: {
@@ -608,24 +581,38 @@ const styles = StyleSheet.create({
     textShadowRadius: 5,
   },
   header__overlay: {
+    width: "100%",
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
+    alignSelf: "center",
     //     padding: 20,
-    paddingHorizontal: 5,
-    paddingVertical: 30,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: "#DFDFDF",
   },
   header__icon__start: {
     marginLeft: "auto",
   },
+  header__label: {
+    flexDirection: "row",
+  },
   header__title: {
+    textAlign: "center",
     fontSize: 24,
     fontWeight: "bold",
-    color: "#fff",
+    color: "black",
     marginLeft: 0,
-    textShadowColor: "rgba(0, 0, 0, 0.75)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 5,
+    // textShadowColor: "rgba(0, 0, 0, 0.75)",
+    // textShadowOffset: { width: 1, height: 1 },
+    // textShadowRadius: 5,
+  },
+  header__desc: {
+    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "400",
+    color: "black",
+    marginLeft: 5,
   },
   header__info: {
     flexDirection: "row",
@@ -752,5 +739,15 @@ const styles = StyleSheet.create({
   },
   backR: {
     backgroundColor: "red",
+  },
+  rateDetail__photo: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+  },
+  header__overlay__content: {
+    marginLeft: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
   },
 });

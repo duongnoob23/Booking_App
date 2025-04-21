@@ -284,15 +284,6 @@ const OrderConfirmScreen = ({ navigation }) => {
             </View>
             <Text style={styles.paymentText}>ZaloPay</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.paymentOption}
-            onPress={() => setPaymentMethod("ATM")}
-          >
-            <View style={styles.radioCircle}>
-              {paymentMethod === "ATM" && <View style={styles.selectedRadio} />}
-            </View>
-            <Text style={styles.paymentText}>ATM</Text>
-          </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.button} onPress={handlePayment}>

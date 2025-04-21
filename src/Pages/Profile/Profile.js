@@ -19,9 +19,9 @@ const Profile = ({ navigation }) => {
 
   // Dữ liệu giả khi chưa đăng nhập
   const anonymousData = {
-    name: "Ẩn danh",
-    email: "email@anonym.com",
-    phone: "+123456789",
+    name: "Bạn chưa đăng nhập",
+    email: "",
+    phone: "",
     avatar:
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2F8DoZLvVpkbPZs1z1dBzXKLvgRNwgUrstA&s", // Avatar mặc định của Facebook
     // "https://images.unsplash.com/photo-1573547429441-d7ef62e04b63?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGFub255bW91c3xlbnwwfHwwfHx8MA%3D%3D", // Avatar mặc định của Facebook
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   userName: {
-    fontSize: 30,
+    fontSize: 26,
     fontWeight: "bold",
     marginTop: 10,
   },

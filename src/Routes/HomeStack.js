@@ -43,7 +43,8 @@ const HomeStackNavigator = () => {
         name="OrderFood"
         component={OrderFood}
         options={{
-          headerShown: false,
+          headerShown: true,
+          title: "Dịch vụ",
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
         }}
       />
@@ -51,7 +52,8 @@ const HomeStackNavigator = () => {
         name="FoodDetails"
         component={FoodDetails}
         options={{
-          headerShown: false,
+          headerShown: true,
+          title: "Chi tiết món ăn",
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
         }}
       />
@@ -59,7 +61,8 @@ const HomeStackNavigator = () => {
         name="FoodCart"
         component={FoodCart}
         options={{
-          headerShown: false,
+          headerShown: true,
+          title: "Giỏ hàng ",
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
         }}
       />
@@ -115,10 +118,12 @@ const HomeStackNavigator = () => {
         name="HotelRoomList"
         component={HotelRoomList}
         options={{
-          headerShown: false,
+          headerShown: true,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Danh sách phòng",
         }}
       />
+
       <Stack.Screen
         name="InfoConfirm"
         component={InfoConfirmScreen}
@@ -141,7 +146,6 @@ const HomeStackNavigator = () => {
         name="LoginScreen"
         component={LoginScreen}
         options={{
-          title: " Chi tiết đơn đặt ",
           headerShown: false,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
         }}
@@ -150,8 +154,7 @@ const HomeStackNavigator = () => {
         name="RegisterScreen"
         component={RegisterScreen}
         options={{
-          title: " Chi tiết đơn đặt ",
-          headerShown: true,
+          headerShown: false,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
         }}
       />

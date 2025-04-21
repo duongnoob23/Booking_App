@@ -70,14 +70,13 @@ const LoginScreen = ({ navigation, route }) => {
         // dispatch(loginSuccess(data.data)); isLoggedIn = true auto
         console.log("Đăng nhập thành công!");
         // Alert.alert("Đăng nhập thành công!", `JWT: ${data.data.accessToken}`);
-        Alert.alert("Đăng nhập thành công!");
 
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0, // Màn hình đầu tiên trong stack
-            routes: [{ name: "Profile" }], // Chỉ giữ Profile trong stack
-          })
-        );
+        // navigation.dispatch(
+        //   CommonActions.reset({
+        //     index: 0, // Màn hình đầu tiên trong stack
+        //     routes: [{ name: "Profile" }], // Chỉ giữ Profile trong stack
+        //   })
+        // );
         // navigation.navigate("Login");
         if (route?.params?.preScreen === "InfoConfirm") {
           navigation.navigate("InfoConfirm");
@@ -86,6 +85,8 @@ const LoginScreen = ({ navigation, route }) => {
         } else {
           navigation.navigate("Home");
         }
+
+        Alert.alert("Đăng nhập thành công!");
       } else {
         Alert.alert("Lỗi xác thực với backend!");
       }

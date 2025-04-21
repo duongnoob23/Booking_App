@@ -14,6 +14,7 @@ import {
   fetchUserInfo,
   updateUserInfo,
   updateInforUserChange,
+  updateInforUser,
 } from "../../Redux/Slice/authSlice";
 import { fetchBookingRoom } from "../../Redux/Slice/hotelSlice";
 import SkeletonInfoConfirm from "../../Components/Skeleton/Auth/SkeletonInfoConfirm";
@@ -28,58 +29,19 @@ const InfoConfirmScreen = ({ navigation }) => {
 
   const dispatch = useAppDispatch();
 
-  const { isLoggedIn, infoUser, loadingInfoUser, error, inforUserChange } =
-    useAppSelector((state) => state.auth);
+  const {
+    isLoggedIn,
+    infoUser,
+    loadingInfoUser,
+    error,
+    inforUserChange,
+    accessToken,
+  } = useAppSelector((state) => state.auth);
 
   const { bookingPayload, listUniqueIdBookingRoom } = useAppSelector(
     (state) => state.hotel
   );
-  // console.log(">>> 135 >>> bookingPayload", bookingPayload);
-  // console.log("--------------------------------------------------------");
-
-  // const printServiceLists = (data) => {
-  //   data.roomRequestList.forEach((room, index) => {
-  //     console.log(`Phòng ${index + 1} (uniqueId: ${room.uniqueId}):`);
-  //     if (room.serviceList && room.serviceList.length > 0) {
-  //       room.serviceList.forEach((service, serviceIndex) => {
-  //         console.log(
-  //           `  Dịch vụ ${serviceIndex + 1}: ID = ${service.id}, Số lượng = ${
-  //             service.quantity
-  //           }, Thời gian = "${service.time || ""}", Ghi chú = "${
-  //             service.note || ""
-  //           }"`
-  //         );
-  //       });
-  //     } else {
-  //       console.log("  Không có dịch vụ nào.");
-  //     }
-  //   });
-  // };
-  // const printRoomRequestList = (bookingPayload) => {
-  //   if (
-  //     !bookingPayload ||
-  //     !bookingPayload.roomRequestList ||
-  //     bookingPayload.roomRequestList.length === 0
-  //   ) {
-  //     console.log("roomRequestList is empty or undefined");
-  //     return;
-  //   }
-
-  //   console.log("=== roomRequestList ===");
-  //   bookingPayload.roomRequestList.forEach((room, index) => {
-  //     const roomProps = Object.keys(room)
-  //       .filter((key) => key !== "serviceList")
-  //       .map((key) => `${key}=${JSON.stringify(room[key])}`)
-  //       .join(", ");
-  //     console.log(`Room ${index + 1}: ${roomProps || "No properties"}`);
-  //   });
-  // };
-
-  // // printRoomRequestList(bookingPayload);
-  // printServiceLists(bookingPayload);
-  // console.log("--------------------------------------------------------");
-
-  // Gọi hàm với biến test
+  console.log("infoUser", infoUser);
 
   const [infomation, setInfomation] = useState({
     firstName: " ",
@@ -99,7 +61,7 @@ const InfoConfirmScreen = ({ navigation }) => {
 
   useEffect(() => {
     dispatch(fetchUserInfo());
-  }, [isLoggedIn, dispatch]);
+  }, [isLoggedIn, accessToken, dispatch]);
 
   useEffect(() => {
     if (isLoggedIn && infoUser) {
@@ -168,6 +130,7 @@ const InfoConfirmScreen = ({ navigation }) => {
         return; // Dừng lại nếu validate thất bại
       }
     }
+    dispatch(updateInforUser(infomation));
     dispatch(updateInforUserChange(infomation));
     dispatch(fetchBookingRoom());
     navigation.navigate("OrderConfirm");
@@ -184,113 +147,156 @@ const InfoConfirmScreen = ({ navigation }) => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
     >
       <View style={styles.container}>
-        <Text style={styles.title}>THÔNG TIN CÁ NHÂN</Text>
+        {isLoggedIn && (
+          <>
+            <Text style={styles.title}>THÔNG TIN CÁ NHÂN</Text>
 
-        <View
-          style={[styles.inputContainer, errors.firstName && styles.inputError]}
-        >
-          <Ionicons
-            name="person-outline"
-            size={20}
-            color="#007AFF"
-            style={styles.icon}
-          />
-          <TextInput
-            style={styles.input}
-            value={infomation.firstName}
-            // value={"TIEN DUONG"}
-            onChangeText={(value) => onChangeInfomation(value, "firstName")}
-            placeholder="Họ *"
-            placeholderTextColor="#999"
-            editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
-          />
-          {errors.firstName ? (
-            <Text style={styles.errorText}>{errors.firstName}</Text>
-          ) : null}
-        </View>
+            {/* <View
+              style={[
+                styles.inputContainer,
+                errors.firstName && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="person-outline"
+                size={20}
+                color="#007AFF"
+                style={styles.icon}
+              />
+              <TextInput
+                style={styles.input}
+                value={infomation.firstName}
+                // value={"TIEN DUONG"}
+                onChangeText={(value) => onChangeInfomation(value, "firstName")}
+                placeholder="Họ *"
+                placeholderTextColor="#999"
+                editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
+              />
+              {errors.firstName ? (
+                <Text style={styles.errorText}>{errors.firstName}</Text>
+              ) : null}
+            </View> */}
 
-        <View
-          style={[styles.inputContainer, errors.lastName && styles.inputError]}
-        >
-          <Ionicons
-            name="person-outline"
-            size={20}
-            color="#007AFF"
-            style={styles.icon}
-          />
-          <TextInput
-            style={styles.input}
-            value={infomation.lastName}
-            // value={"LAM"}
-            onChangeText={(value) => onChangeInfomation(value, "lastName")}
-            placeholder="Tên *"
-            placeholderTextColor="#999"
-            editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
-          />
-          {errors.lastName ? (
-            <Text style={styles.errorText}>{errors.lastName}</Text>
-          ) : null}
-        </View>
+            <View
+              style={[
+                styles.inputContainer,
+                errors.firstName && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="person-outline"
+                size={20}
+                color="#007AFF"
+                style={styles.icon}
+              />
+              <TextInput
+                style={styles.input}
+                value={infomation.firstName}
+                // value={"LAM"}
+                onChangeText={(value) => onChangeInfomation(value, "firstName")}
+                placeholder="Họ *"
+                placeholderTextColor="#999"
+                editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
+              />
+              {errors.firstName ? (
+                <Text style={styles.errorText}>{errors.firstName}</Text>
+              ) : null}
+            </View>
 
-        <View
-          style={[styles.inputContainer, errors.email && styles.inputError]}
-        >
-          <Ionicons
-            name="mail-outline"
-            size={20}
-            color="#007AFF"
-            style={styles.icon}
-          />
-          <TextInput
-            style={styles.input}
-            value={infomation.email}
-            // value={"admin@gmail.com"}
-            onChangeText={(value) => onChangeInfomation(value, "email")}
-            placeholder="Email *"
-            placeholderTextColor="#999"
-            keyboardType="email-address"
-            editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
-          />
-          {errors.email ? (
-            <Text style={styles.errorText}>{errors.email}</Text>
-          ) : null}
-        </View>
+            <View
+              style={[
+                styles.inputContainer,
+                errors.lastName && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="person-outline"
+                size={20}
+                color="#007AFF"
+                style={styles.icon}
+              />
+              <TextInput
+                style={styles.input}
+                value={infomation.lastName}
+                // value={"LAM"}
+                onChangeText={(value) => onChangeInfomation(value, "lastName")}
+                placeholder="Tên *"
+                placeholderTextColor="#999"
+                editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
+              />
+              {errors.lastName ? (
+                <Text style={styles.errorText}>{errors.lastName}</Text>
+              ) : null}
+            </View>
 
-        <View
-          style={[
-            styles.inputContainer,
-            errors.phoneNumber && styles.inputError,
-          ]}
-        >
-          <Ionicons
-            name="call-outline"
-            size={20}
-            color="#007AFF"
-            style={styles.icon}
-          />
-          <Text style={styles.phoneCode}>{infomation.phoneCountry}</Text>
-          <TextInput
-            style={[styles.input, { flex: 1 }]}
-            value={infomation.phoneNumber}
-            // value={"0982474802"}
-            onChangeText={(value) => onChangeInfomation(value, "phoneNumber")}
-            placeholder="Số điện thoại *"
-            placeholderTextColor="#999"
-            keyboardType="phone-pad"
-            editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
-          />
-          <Ionicons
-            name="checkmark-circle"
-            size={20}
-            color={
-              infomation.phoneNumber && !errors.phoneNumber ? "#00C853" : "#999"
-            }
-            style={styles.checkIcon}
-          />
-          {errors.phoneNumber ? (
-            <Text style={styles.errorText}>{errors.phoneNumber}</Text>
-          ) : null}
-        </View>
+            <View
+              style={[styles.inputContainer, errors.email && styles.inputError]}
+            >
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color="#007AFF"
+                style={styles.icon}
+              />
+              <TextInput
+                style={styles.input}
+                value={infomation.email}
+                // value={"admin@gmail.com"}
+                onChangeText={(value) => onChangeInfomation(value, "email")}
+                placeholder="Email *"
+                placeholderTextColor="#999"
+                keyboardType="email-address"
+                editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
+              />
+              {errors.email ? (
+                <Text style={styles.errorText}>{errors.email}</Text>
+              ) : null}
+            </View>
+
+            <View
+              style={[
+                styles.inputContainer,
+                errors.phoneNumber && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="call-outline"
+                size={20}
+                color="#007AFF"
+                style={styles.icon}
+              />
+              <TextInput
+                style={[styles.input]}
+                value={infomation.phoneCountry}
+              />
+              <TextInput
+                style={[styles.input, { flex: 1 }]}
+                value={infomation.phoneNumber}
+                // value={"0982474802"}
+                onChangeText={(value) =>
+                  onChangeInfomation(value, "phoneNumber")
+                }
+                placeholder="Số điện thoại *"
+                placeholderTextColor="#999"
+                keyboardType="phone-pad"
+                editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
+              />
+              {/* <Ionicons
+                name="checkmark-circle"
+                size={20}
+                color={
+                  infomation.phoneNumber && !errors.phoneNumber
+                    ? "#00C853"
+                    : "#999"
+                }
+                style={styles.checkIcon}
+              /> */}
+              {errors.phoneNumber ? (
+                <Text style={styles.errorText}>{errors.phoneNumber}</Text>
+              ) : null}
+            </View>
+          </>
+        )}
 
         {isLoggedIn && (
           <TouchableOpacity style={[styles.button]} onPress={handleInfoConfirm}>
@@ -298,8 +304,13 @@ const InfoConfirmScreen = ({ navigation }) => {
           </TouchableOpacity>
         )}
         {!isLoggedIn && (
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Đăng nhập tài khoản</Text>
+          <TouchableOpacity
+            style={styles.wrapperLoginButton}
+            onPress={handleLogin}
+          >
+            <View style={styles.loginButton}>
+              <Text style={styles.loginButtonText}>Đăng nhập tài khoản</Text>
+            </View>
           </TouchableOpacity>
         )}
       </View>
@@ -324,9 +335,16 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     textAlign: "center",
   },
+  wrapperLoginButton: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "oranage",
+  },
   loginButton: {
     backgroundColor: "#00F598",
     paddingVertical: 12,
+    paddingHorizontal: 80,
     borderRadius: 14,
     alignItems: "center",
     marginBottom: 20,
@@ -351,7 +369,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   input: {
-    flex: 1,
     fontSize: 16,
     color: "#000",
     paddingVertical: 10,

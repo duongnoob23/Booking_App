@@ -210,11 +210,10 @@ const ShopCart = ({ navigation, route }) => {
 
   const handleConfirmOrder = () => {
     dispatch(addServiceToRoom(serviceQuantities));
-    const roomRequestList = bookingPayload?.roomRequestList || [];
-    const { cartItems } = convertToCartItems(roomRequestList);
-    dispatch(fetchCart({ cartItems, roomMapping }));
-    setExpandedServices({});
-    navigation.navigate("OrderPayment");
+
+    setExpandedServices([]);
+
+    navigation.navigate("InfoConfirm");
   };
 
   // Toggle mở rộng/thu gọn dịch vụ
@@ -332,7 +331,7 @@ const ShopCart = ({ navigation, route }) => {
         {/* Phòng */}
         <View style={styles.roomInfo}>
           <Text style={styles.roomLabel}>Phòng</Text>
-          <Text style={styles.roomValue}>{uniqueId}</Text>
+          <Text style={styles.roomValue}>{room?.roomName}</Text>
         </View>
         {/* Số lượng */}
         <View style={styles.roomInfo}>
@@ -470,12 +469,12 @@ const ShopCart = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back-outline" size={36} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Giỏ Hàng</Text>
-      </View>
+      </View> */}
 
       {/* Danh sách dịch vụ */}
       <FlatList

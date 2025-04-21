@@ -40,6 +40,7 @@ export const fetchUserInfo = createAsyncThunk(
       });
 
       const data = await response.json();
+      console.log("fetchUserInfo", data.data);
       return data.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -131,6 +132,9 @@ const authSlice = createSlice({
       state.registerError = null;
       state.registerSuccess = false;
     },
+    updateInforUser(state, action) {
+      state.infoUser = action.payload;
+    },
   },
   extraReducers: (builder) => {
     // Xử lý fetchUserInfo
@@ -174,5 +178,6 @@ export const {
   updateInforUserChange,
   clearInforUserChange,
   resetRegisterState,
+  updateInforUser,
 } = authSlice.actions;
 export default authSlice.reducer;
