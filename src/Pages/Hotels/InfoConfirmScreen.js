@@ -35,49 +35,49 @@ const InfoConfirmScreen = ({ navigation }) => {
     (state) => state.hotel
   );
   // console.log(">>> 135 >>> bookingPayload", bookingPayload);
-  console.log("--------------------------------------------------------");
+  // console.log("--------------------------------------------------------");
 
-  const printServiceLists = (data) => {
-    data.roomRequestList.forEach((room, index) => {
-      console.log(`Phòng ${index + 1} (uniqueId: ${room.uniqueId}):`);
-      if (room.serviceList && room.serviceList.length > 0) {
-        room.serviceList.forEach((service, serviceIndex) => {
-          console.log(
-            `  Dịch vụ ${serviceIndex + 1}: ID = ${service.id}, Số lượng = ${
-              service.quantity
-            }, Thời gian = "${service.time || ""}", Ghi chú = "${
-              service.note || ""
-            }"`
-          );
-        });
-      } else {
-        console.log("  Không có dịch vụ nào.");
-      }
-    });
-  };
-  const printRoomRequestList = (bookingPayload) => {
-    if (
-      !bookingPayload ||
-      !bookingPayload.roomRequestList ||
-      bookingPayload.roomRequestList.length === 0
-    ) {
-      console.log("roomRequestList is empty or undefined");
-      return;
-    }
+  // const printServiceLists = (data) => {
+  //   data.roomRequestList.forEach((room, index) => {
+  //     console.log(`Phòng ${index + 1} (uniqueId: ${room.uniqueId}):`);
+  //     if (room.serviceList && room.serviceList.length > 0) {
+  //       room.serviceList.forEach((service, serviceIndex) => {
+  //         console.log(
+  //           `  Dịch vụ ${serviceIndex + 1}: ID = ${service.id}, Số lượng = ${
+  //             service.quantity
+  //           }, Thời gian = "${service.time || ""}", Ghi chú = "${
+  //             service.note || ""
+  //           }"`
+  //         );
+  //       });
+  //     } else {
+  //       console.log("  Không có dịch vụ nào.");
+  //     }
+  //   });
+  // };
+  // const printRoomRequestList = (bookingPayload) => {
+  //   if (
+  //     !bookingPayload ||
+  //     !bookingPayload.roomRequestList ||
+  //     bookingPayload.roomRequestList.length === 0
+  //   ) {
+  //     console.log("roomRequestList is empty or undefined");
+  //     return;
+  //   }
 
-    console.log("=== roomRequestList ===");
-    bookingPayload.roomRequestList.forEach((room, index) => {
-      const roomProps = Object.keys(room)
-        .filter((key) => key !== "serviceList")
-        .map((key) => `${key}=${JSON.stringify(room[key])}`)
-        .join(", ");
-      console.log(`Room ${index + 1}: ${roomProps || "No properties"}`);
-    });
-  };
+  //   console.log("=== roomRequestList ===");
+  //   bookingPayload.roomRequestList.forEach((room, index) => {
+  //     const roomProps = Object.keys(room)
+  //       .filter((key) => key !== "serviceList")
+  //       .map((key) => `${key}=${JSON.stringify(room[key])}`)
+  //       .join(", ");
+  //     console.log(`Room ${index + 1}: ${roomProps || "No properties"}`);
+  //   });
+  // };
 
-  // printRoomRequestList(bookingPayload);
-  printServiceLists(bookingPayload);
-  console.log("--------------------------------------------------------");
+  // // printRoomRequestList(bookingPayload);
+  // printServiceLists(bookingPayload);
+  // console.log("--------------------------------------------------------");
 
   // Gọi hàm với biến test
 
@@ -104,10 +104,10 @@ const InfoConfirmScreen = ({ navigation }) => {
   useEffect(() => {
     if (isLoggedIn && infoUser) {
       const newInfomation = {
-        firstName: infoUser.firstName || "",
-        lastName: infoUser.lastName || "",
-        email: infoUser.email || "",
-        phoneNumber: infoUser.phone || "",
+        firstName: infoUser.firstName || "Lâm",
+        lastName: infoUser.lastName || "Tiến Dưỡng",
+        email: infoUser.email || "admin@gmail.com",
+        phoneNumber: infoUser.phone || "0982474802",
         phoneCountry: "+84",
       };
       setInfomation(newInfomation);

@@ -8,6 +8,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import LinearGradient from "react-native-linear-gradient";
@@ -24,8 +25,9 @@ import { API_BASE_URL } from "../../Constant/Constant";
 import {
   fetchBookingStatus,
   fetchHotelList,
-  fetchNotificationList,
 } from "../../Redux/Slice/hotelSlice";
+import { CommonActions } from "@react-navigation/native";
+import { fetchListNotification } from "../../Redux/Slice/notificationSlice";
 /* 
 {"data": 
 {"accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQzMTgyOTA3LCJleHAiOjE3NDMyNjkzMDd9.QPIwLj0wTe5y1n98COb4H8SeWYk11w3FQpe31BunkqA", 
@@ -64,12 +66,18 @@ const LoginScreen = ({ navigation, route }) => {
         dispatch(loginSuccess(data?.data?.accessToken));
         dispatch(fetchHotelList());
         dispatch(fetchBookingStatus());
-        dispatch(fetchNotificationList());
+        dispatch(fetchListNotification());
         // dispatch(loginSuccess(data.data)); isLoggedIn = true auto
         console.log("Đăng nhập thành công!");
         // Alert.alert("Đăng nhập thành công!", `JWT: ${data.data.accessToken}`);
         Alert.alert("Đăng nhập thành công!");
 
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0, // Màn hình đầu tiên trong stack
+            routes: [{ name: "Profile" }], // Chỉ giữ Profile trong stack
+          })
+        );
         // navigation.navigate("Login");
         if (route?.params?.preScreen === "InfoConfirm") {
           navigation.navigate("InfoConfirm");
@@ -108,7 +116,7 @@ const LoginScreen = ({ navigation, route }) => {
   };
   const handleToPhoneLogin = () => {
     // navigation.navigate("PhoneLogin");
-    navigation.navigate("Count");
+    navigation.navigate("PhoneLogin");
     setEmail("");
     setPassword("");
   };
@@ -121,8 +129,8 @@ const LoginScreen = ({ navigation, route }) => {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
+      behavior={undefined} // Tắt hành vi tự động đẩy
+      keyboardVerticalOffset={0} // Không cần offset khi behavior là undefined
     >
       <View style={styles.container}>
         <View style={styles.wrapTitle}>
@@ -183,7 +191,7 @@ const LoginScreen = ({ navigation, route }) => {
             <Text style={styles.footerText}>Chưa có tài khoản? </Text>
             <Text
               style={styles.footerLink}
-              onPress={() => navigation.navigate("Register")}
+              onPress={() => navigation.navigate("RegisterScreen")}
             >
               Đăng ký
             </Text>

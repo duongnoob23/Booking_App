@@ -27,29 +27,7 @@ const RoomBooked = ({ navigation }) => {
 
   console.log("bookingDetailData 29 >>>", bookingDetailData);
   const dispatch = useAppDispatch();
-  // const bookings = bookingStatus?.BOOKED || [];
-  const bookings = [
-    {
-      bookingId: 46,
-      hotelName: "Heden Golf",
-      rating: 3.9,
-      feedbackSum: 85,
-      bookingDate: "19-04-2025",
-      bookingPrice: "5400000.00",
-      image:
-        "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1729241122/Room/nipyn0qgyoyhtgkadlyi.jpg",
-    },
-    {
-      bookingId: 48,
-      hotelName: "Heden Golf",
-      rating: 3.9,
-      feedbackSum: 85,
-      bookingDate: "19-04-2025",
-      bookingPrice: "20000.00",
-      image:
-        "https://res.cloudinary.com/dt7eo0hbq/image/upload/v1729241122/Room/nipyn0qgyoyhtgkadlyi.jpg",
-    },
-  ];
+  const bookings = bookingStatus?.BOOKED || [];
 
   const handleToBookingDetail = (item) => {
     // console.log("item.bookingId", item.bookingId);
@@ -112,20 +90,19 @@ const RoomBooked = ({ navigation }) => {
 
   return (
     <View style={styles.bookingHistoryScreen}>
-      {/* Danh sách đặt phòng */}
-
-      {/* {bookings.length > 0 ? ( */}
-      <FlatList
-        data={bookings}
-        renderItem={renderBookingItem}
-        keyExtractor={(item) => item.bookingId}
-        style={styles.bookingHistoryScreen__bookingList}
-      />
-      {/* ) : (
-        <View style={styles.RequireLogin}>
-          <Text style={styles.RequireLoginText}>Bạn không có phòng đã đặt</Text>
+      {bookings.length > 0 ? (
+        <FlatList
+          data={bookings}
+          renderItem={renderBookingItem}
+          keyExtractor={(item) => item.bookingId.toString()} // Đảm bảo key là string
+          style={styles.bookingHistoryScreen__bookingList}
+        />
+      ) : (
+        <View style={styles.emptyContainer}>
+          <Ionicons name="calendar-outline" size={50} color="#888888" />
+          <Text style={styles.emptyText}>Bạn chưa đặt phòng</Text>
         </View>
-      )} */}
+      )}
     </View>
   );
 };
@@ -310,5 +287,18 @@ const styles = StyleSheet.create({
   },
   activeText: {
     color: "white",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#888888",
+    textAlign: "center",
+    marginTop: 20,
   },
 });

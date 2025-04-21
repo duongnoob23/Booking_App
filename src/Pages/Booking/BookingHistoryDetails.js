@@ -120,6 +120,9 @@ const BookingHistoryDetails = ({ navigation }) => {
     console.log("heelo");
   };
 
+  const handleToBookingScreen = () => {
+    navigation.navigate("BookingScreen");
+  };
   return (
     <View style={styles.container}>
       <ScrollView showsHorizontalScrollIndicator={false}>
@@ -239,6 +242,7 @@ const BookingHistoryDetails = ({ navigation }) => {
         onClose={() => setOpenModal(false)}
         onConfirm={handleConfirmCancelled}
         bookingId={bookingDetailData?.bookingId}
+        handleToBookingScreen={handleToBookingScreen}
       />
     </View>
   );

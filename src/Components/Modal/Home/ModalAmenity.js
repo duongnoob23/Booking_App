@@ -8,29 +8,50 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAppDispatch, useAppSelector } from "../../../Redux/hook";
-import { updateFilter } from "../../../Redux/Slice/hotelSlice";
+import {
+  applyFilter,
+  updateFilter,
+  updateTempFilter,
+} from "../../../Redux/Slice/hotelSlice";
 const ModalAmenity = ({ onClose }) => {
-  const { amenityList, inforFilter } = useAppSelector((state) => state.hotel);
+  const { amenityList, tempFilter } = useAppSelector((state) => state.hotel);
   const amenitiesData = amenityList;
-  // console.log(amenityList);
-
   const dispatch = useAppDispatch();
 
   const [selectedAmenities, setSelectedAmenities] = useState(
-    inforFilter.amenityIds
+    tempFilter.amenityIds || []
   );
 
   // console.log(">>> 22 Modalamenity inforFilter:", inforFilter);
   // console.log(">>> 22 Modalamenity inforFilter:", inforFilter.amenityIds);
 
   const toggleAmenity = (id) => {
+    let updatedAmenities;
     if (selectedAmenities.includes(id)) {
-      setSelectedAmenities(
-        selectedAmenities.filter((amenityId) => amenityId !== id)
+      updatedAmenities = selectedAmenities.filter(
+        (amenityId) => amenityId !== id
       );
     } else {
-      setSelectedAmenities([...selectedAmenities, id]);
+      updatedAmenities = [...selectedAmenities, id];
     }
+    setSelectedAmenities(updatedAmenities);
+    dispatch(updateTempFilter({ amenityIds: updatedAmenities }));
+  };
+
+  const handleApply = () => {
+    // dispatch(updateFilter({ ...inforFilter, amenityIds: selectedAmenities }));
+
+    // console.log(inforFilter.amenityIds);
+    // onClose();
+
+    dispatch(applyFilter()); // Copy tempFilter vào inforFilter
+    onClose();
+    // try {
+    //   dispatch(applyFilter());
+    //   onClose();
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   const getIconForAmenity = (name) => {
@@ -46,13 +67,6 @@ const ModalAmenity = ({ onClose }) => {
       default:
         return "ellipse-outline";
     }
-  };
-
-  const handleApply = () => {
-    dispatch(updateFilter({ ...inforFilter, amenityIds: selectedAmenities }));
-
-    console.log(inforFilter.amenityIds);
-    onClose();
   };
 
   // Log để debug

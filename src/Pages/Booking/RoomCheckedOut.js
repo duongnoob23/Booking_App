@@ -15,7 +15,7 @@ import { useState } from "react";
 import { useAppSelector } from "../../Redux/hook";
 import { formatPrice } from "../../Utils/formarPrice";
 
-const RoomCheckedOut = () => {
+const RoomCheckedOut = ({ navigation }) => {
   const { accessToken, isLoggedIn } = useAppSelector((state) => state.auth);
   // if (!accessToken && !isLoggedIn) {
   //   return (
@@ -38,6 +38,11 @@ const RoomCheckedOut = () => {
       </View>
     );
   }
+
+  const handleReviewHotel = (item) => {
+    console.log(item);
+    navigation.navigate("RateApp", { item: item });
+  };
 
   const renderBookingItem = ({ item }) => (
     <View style={styles.bookingHistoryScreen__bookingItem}>
@@ -65,7 +70,10 @@ const RoomCheckedOut = () => {
         </View>
       </View>
       <View style={styles.bookingHistoryScreen__actionButtons}>
-        <TouchableOpacity style={styles.bookingHistoryScreen__rebookButton}>
+        <TouchableOpacity
+          style={styles.bookingHistoryScreen__rebookButton}
+          onPress={() => handleReviewHotel(item)}
+        >
           <Text style={styles.bookingHistoryScreen__rebookButtonText}>
             Đánh giá
           </Text>
@@ -76,19 +84,19 @@ const RoomCheckedOut = () => {
 
   return (
     <View style={styles.bookingHistoryScreen}>
-      {/* Danh sách đặt phòng */}
-      {/* {bookings.length > 0 ? ( */}
-      <FlatList
-        data={bookings}
-        renderItem={renderBookingItem}
-        keyExtractor={(item) => item.bookingId}
-        style={styles.bookingHistoryScreen__bookingList}
-      />
-      {/* ) : (
-        <View style={styles.RequireLogin}>
-          <Text style={styles.RequireLoginText}>Bạn không có phòng đã đặt</Text>
+      {bookings.length > 0 ? (
+        <FlatList
+          data={bookings}
+          renderItem={renderBookingItem}
+          keyExtractor={(item) => item.bookingId.toString()} // Đảm bảo key là string
+          style={styles.bookingHistoryScreen__bookingList}
+        />
+      ) : (
+        <View style={styles.emptyContainer}>
+          <Ionicons name="close-circle-outline" size={50} color="#888888" />
+          <Text style={styles.emptyText}>Bạn chưa hủy phòng</Text>
         </View>
-      )} */}
+      )}
     </View>
   );
 };
@@ -271,6 +279,19 @@ const styles = StyleSheet.create({
   },
   activeText: {
     color: "white",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#888888",
+    textAlign: "center",
+    marginTop: 20,
   },
 });
 

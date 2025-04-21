@@ -1,24 +1,94 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   Image,
-  TextInput,
   StyleSheet,
   TouchableOpacity,
-  navigation,
+  ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useAppSelector } from "../../Redux/hook";
 
-const RateDetails = ({ navigation }) => {
-  // const handleTo = () => {
-  //   navigation.navigate("");
-  // };
+const RateApp = ({ navigation, route }) => {
+  const username = route?.params?.name || "";
+  console.log(route.params);
+  const { reviewDetailsData, loadingReviewDetails } = useAppSelector(
+    (state) => state.hotel
+  );
+  console.log("reviewDetailsData", reviewDetailsData);
+
+  // State cho đánh giá và nhận xét
+  const [ratings, setRatings] = useState({});
+
+  useEffect(() => {
+    // Kiểm tra nếu reviewDetailsData tồn tại và không rỗng
+    if (reviewDetailsData) {
+      const initRatings = {
+        hotel: reviewDetailsData?.hotelPoint || 0,
+        room: reviewDetailsData?.roomPoint || 0,
+        location: reviewDetailsData?.locationPoint || 0,
+        service: reviewDetailsData?.servicePoint || 0,
+      };
+      setRatings(initRatings);
+    }
+  }, [reviewDetailsData]);
+
+  console.log("ratings", ratings);
+
+  // Hàm render sao (sửa lỗi: dùng TouchableOpacity thay vì View để có thể nhấn)
+  const renderStars = (criterion) => {
+    const rating = ratings[criterion];
+    const fullStars = Math.floor(rating);
+    const emptyStars = 5 - fullStars;
+    const stars = [];
+
+    // Thêm sao đầy
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(
+        <TouchableOpacity
+          style={styles.start}
+          key={`full-${i}`}
+          onPress={() => handleRating(criterion, i + 1)}
+        >
+          <Ionicons name="star" size={22} color="#FFD700" />
+        </TouchableOpacity>
+      );
+    }
+
+    // Thêm sao rỗng
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(
+        <TouchableOpacity
+          style={styles.start}
+          key={`empty-${i}`}
+          onPress={() => handleRating(criterion, fullStars + i + 1)}
+        >
+          <Ionicons name="star-outline" size={22} color="#CCCCCC" />
+        </TouchableOpacity>
+      );
+    }
+
+    return stars;
+  };
+
+  const handleTo = () => {
+    navigation.goBack();
+  };
+
+  if (loadingReviewDetails) {
+    return (
+      <View>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.rateDetail}>
+    <ScrollView style={styles.rateDetail}>
       {/* Header */}
       <View style={styles.rateDetail__header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleTo}>
           <Ionicons
             style={styles.iconBed}
             name="chevron-back-outline"
@@ -28,101 +98,75 @@ const RateDetails = ({ navigation }) => {
         </TouchableOpacity>
         <Text style={styles.rateDetail__headerTitle}>Chi tiết đánh giá</Text>
       </View>
-
+      <View style={styles.rateDetail__criterionTitle}>
+        <Text style={styles.rateDetail__headerTitleUser}>
+          Bình luận của: {username}
+        </Text>
+      </View>
       {/* Tiêu chí đánh giá */}
       <View style={styles.rateDetail__criteria}>
         <View style={styles.rateDetail__criterion}>
-          <Text style={styles.rateDetail__criterionLabel}>
-            Đánh giá khách sạn
-          </Text>
+          <View style={styles.rateDetail__criterionTitle}>
+            <Text style={styles.rateDetail__criterionLabel}>
+              Đánh giá khách sạn
+            </Text>
+          </View>
+          <View style={styles.rateDetail__stars}>{renderStars("hotel")}</View>
+        </View>
+        <View style={styles.rateDetail__criterion}>
+          <View style={styles.rateDetail__criterionTitle}>
+            <Text style={styles.rateDetail__criterionLabel}>
+              Đánh giá phòng
+            </Text>
+          </View>
+
+          <View style={styles.rateDetail__stars}>{renderStars("room")}</View>
+        </View>
+        <View style={styles.rateDetail__criterion}>
+          <View style={styles.rateDetail__criterionTitle}>
+            <Text style={styles.rateDetail__criterionLabel}>
+              Đánh giá địa điểm
+            </Text>
+          </View>
           <View style={styles.rateDetail__stars}>
-            {[...Array(5)].map((_, index) => (
-              <Ionicons key={index} name="star" size={20} color="orange" />
-            ))}
+            {renderStars("location")}
           </View>
         </View>
         <View style={styles.rateDetail__criterion}>
-          <Text style={styles.rateDetail__criterionLabel}>Đánh giá phòng</Text>
-          <View style={styles.rateDetail__stars}>
-            {[...Array(5)].map((_, index) => (
-              <Ionicons
-                key={index}
-                name="star-outline"
-                size={20}
-                color="#CCCCCC"
-              />
-            ))}
+          <View style={styles.rateDetail__criterionTitle}>
+            <Text style={styles.rateDetail__criterionLabel}>
+              Đánh giá dịch vụ
+            </Text>
           </View>
-        </View>
-        <View style={styles.rateDetail__criterion}>
-          <Text style={styles.rateDetail__criterionLabel}>
-            Đánh giá địa điểm
-          </Text>
-          <View style={styles.rateDetail__stars}>
-            {[...Array(5)].map((_, index) => (
-              <Ionicons
-                key={index}
-                name="star-outline"
-                size={20}
-                color="#CCCCCC"
-              />
-            ))}
-          </View>
-        </View>
-        <View style={styles.rateDetail__criterion}>
-          <Text style={styles.rateDetail__criterionLabel}>
-            Đánh giá dịch vụ
-          </Text>
-          <View style={styles.rateDetail__stars}>
-            {[...Array(5)].map((_, index) => (
-              <Ionicons
-                key={index}
-                name="star-outline"
-                size={20}
-                color="#CCCCCC"
-              />
-            ))}
-          </View>
+          <View style={styles.rateDetail__stars}>{renderStars("service")}</View>
         </View>
       </View>
-
       {/* Nhận xét */}
       <Text style={styles.rateDetail__commentLabel}>Nhận xét</Text>
-      <TextInput
-        style={styles.rateDetail__commentInput}
-        value="Khách sạn đẹp, đồ ăn tuyệt vời"
-        multiline
-      />
-
+      <Text style={styles.rateDetail__commentInput}>
+        {reviewDetailsData?.comment || "Chưa có nhận xét"}
+      </Text>
       {/* Hình ảnh */}
       <Text style={styles.rateDetail__photosLabel}>Ảnh</Text>
       <View style={styles.rateDetail__photos}>
-        <Image
-          source={{
-            uri: "https://media.istockphoto.com/id/1418701619/vi/anh/bi%E1%BB%83n-hi%E1%BB%87u-kh%C3%A1ch-s%E1%BA%A1n-tr%C3%AAn-m%E1%BA%B7t-ti%E1%BB%81n-t%C3%B2a-nh%C3%A0-trong-th%C3%A0nh-ph%E1%BB%91-%C4%91i-c%C3%B4ng-t%C3%A1c-v%C3%A0-du-l%E1%BB%8Bch.jpg?s=612x612&w=0&k=20&c=x6d_5RIXuQbFpfFYrtKcA4WnLI3HxTmcqy4naLNMA1I=",
-          }} // Thay bằng URL hình ảnh
-          style={styles.rateDetail__photo}
-        />
-        <Image
-          source={{
-            uri: "https://media.istockphoto.com/id/1154773904/vi/anh/ph%C3%B2ng-kh%C3%A1ch-s%E1%BA%A1n-tho%E1%BA%A3i-m%C3%A1i.jpg?s=612x612&w=0&k=20&c=4_WqMoGFrvX6GaaCeHsRHgoyWQ1Xu-Akz8PIBx50Bfo=",
-          }} // Thay bằng URL hình ảnh
-          style={styles.rateDetail__photo}
-        />
-        <Image
-          source={{
-            uri: "https://media.istockphoto.com/id/591821200/vi/anh/3d-k%E1%BA%BFt-xu%E1%BA%A5t-kh%C3%A1ch-s%E1%BA%A1n-sang-tr%E1%BB%8Dng-l%E1%BB%85-t%C3%A2n-v%C3%A0-ph%C3%B2ng-ch%E1%BB%9D.jpg?s=612x612&w=0&k=20&c=-RRMcBrwAb3L5hWy8J5NzSTTtvoPwTY196Vm6f5VsHo=",
-          }} // Thay bằng URL hình ảnh
-          style={styles.rateDetail__photo}
-        />
-        <Image
-          source={{
-            uri: "https://media.istockphoto.com/id/119926339/vi/anh/h%E1%BB%93-b%C6%A1i-resort.jpg?s=612x612&w=0&k=20&c=2gD2N3YByJLQYfk3f1z89qLdLqe1UBVCl_NesEyfTW0=",
-          }} // Thay bằng URL hình ảnh
-          style={styles.rateDetail__photo}
-        />
+        {reviewDetailsData?.image?.length > 0 ? (
+          reviewDetailsData.image.map((item, index) => (
+            <Image
+              key={index}
+              source={{
+                uri: item, // Sử dụng URL từ dữ liệu API
+              }}
+              style={styles.rateDetail__photo}
+            />
+          ))
+        ) : (
+          <Text>Chưa có ảnh</Text>
+        )}
       </View>
-    </View>
+      <TouchableOpacity style={styles.button}>
+        <Text style={styles.buttonText}>Xác nhận</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 };
 
@@ -138,11 +182,6 @@ const styles = StyleSheet.create({
     marginTop: 40,
     marginBottom: 20,
   },
-  rateDetail__headerBack: {
-    fontSize: 24,
-    color: "#00C4B4",
-    marginRight: 10,
-  },
   rateDetail__headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
@@ -152,17 +191,25 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   rateDetail__criterion: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: "column",
+    justifyContent: "space",
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 5,
+    borderBottomColor: "#E5E5E5",
+    borderBottomWidth: 1,
+  },
+  rateDetail__criterionTitle: {
+    alignSelf: "flex-start",
+    marginBottom: 5,
   },
   rateDetail__criterionLabel: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#000000",
   },
   rateDetail__stars: {
     flexDirection: "row",
+    marginTop: 5,
+    marginBottom: 8,
   },
   rateDetail__commentLabel: {
     fontSize: 14,
@@ -177,7 +224,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#000000",
     marginBottom: 20,
-    minHeight: 80,
+    minHeight: 40,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
   },
   rateDetail__photosLabel: {
     fontSize: 14,
@@ -196,8 +245,25 @@ const styles = StyleSheet.create({
     marginRight: 10,
     marginBottom: 10,
   },
+  button: {
+    width: "100%",
+    backgroundColor: "#00F598",
+    borderRadius: 10,
+    paddingVertical: 12,
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  buttonText: {
+    textAlign: "center",
+    color: "white",
+    fontSize: 16,
+  },
+  start: {},
+  rateDetail__headerTitleUser: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 });
 
-export default RateDetails;
-// tao list hình ảnh, render hình ảnh bẳng scroll view,
-// chỉnh lại css
+export default RateApp;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from "react-native";
 import { useAppSelector, useAppDispatch } from "../../../Redux/hook";
 import { updateFilter } from "../../../Redux/Slice/hotelSlice";
@@ -20,11 +20,19 @@ const ModalGuestsAndRooms = ({
   } = useAppSelector((state) => state.hotel);
 
   const dispatch = useAppDispatch();
-  const [tempValues, setTempValues] = useState({
-    adults: inforFilter.adults || 1,
-    children: inforFilter.children || 0,
-    roomNumber: inforFilter.roomNumber || 1,
-  });
+  const [tempValues, setTempValues] = useState({});
+
+  useEffect(() => {
+    const initValue = {
+      adults: inforFilter.adults || 1,
+      children: inforFilter.children || 0,
+      roomNumber: inforFilter.roomNumber || 1,
+    };
+    setTempValues(initValue);
+  }, []);
+
+  // console.log("temValue", tempValues);
+  // console.log("infoFilter", inforFilter);
 
   const increaseValue = (key) => {
     setTempValues((prev) => ({
@@ -51,6 +59,7 @@ const ModalGuestsAndRooms = ({
     //   children: tempValues.children,
     //   roomNumber: tempValues.roomNumber,
     // }));
+
     dispatch(
       updateFilter({
         ...inforFilter,
@@ -59,6 +68,16 @@ const ModalGuestsAndRooms = ({
         roomNumber: tempValues.roomNumber,
       })
     );
+    onClose("Modal_GuestsAndRooms", false);
+  };
+
+  const handleCloseModal = () => {
+    const initValue = {
+      adults: inforFilter.adults || 1,
+      children: inforFilter.children || 0,
+      roomNumber: inforFilter.roomNumber || 1,
+    };
+    setTempValues(initValue);
     onClose("Modal_GuestsAndRooms", false);
   };
 
@@ -132,7 +151,7 @@ const ModalGuestsAndRooms = ({
           <View style={styles.modalButtons}>
             <TouchableOpacity
               style={styles.modalButton}
-              onPress={() => onClose("Modal_GuestsAndRooms", false)}
+              onPress={() => handleCloseModal()}
             >
               <Text style={styles.modalButtonText}>Hủy</Text>
             </TouchableOpacity>

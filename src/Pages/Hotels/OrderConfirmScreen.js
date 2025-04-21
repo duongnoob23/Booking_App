@@ -22,6 +22,7 @@ import { fetchListPromotion } from "../../Redux/Slice/promotionSlice";
 import {
   fetchPaymentOrder,
   resetPaymentData,
+  updateCallPayment,
 } from "../../Redux/Slice/paymentSlice";
 
 const OrderConfirmScreen = ({ navigation }) => {
@@ -52,38 +53,8 @@ const OrderConfirmScreen = ({ navigation }) => {
   const listRoom = bookingData?.roomBookedList;
 
   useEffect(() => {
-    console.log("paymentData in OrderConfirm:", paymentData);
-    if (paymentData?.orderUrl) {
-      setShowWebView(true);
-    }
-  }, [paymentData]);
-
-  useEffect(() => {
     dispatch(fetchBookingRoom(bookingPayload));
   }, [bookingPayload?.roomRequestList, dispatch]);
-
-  // Xử lý deep link từ ZaloPay
-  useEffect(() => {
-    const handleDeepLink = (event) => {
-      const data = Linking.parse(event.url);
-      console.log("Deeplink received:", data);
-      if (data.path === "payment-result") {
-        const { order_id } = data.queryParams;
-        Alert.alert("Thanh toán thành công", `Mã đơn: ${order_id}`);
-        navigation.navigate("Home");
-      } else {
-        Alert.alert("Thanh toán thất bại", "Giao dịch không hoàn tất.");
-        resetPaymentState();
-      }
-    };
-
-    const subscription = Linking.addEventListener("url", handleDeepLink);
-    Linking.getInitialURL().then((url) => {
-      if (url) handleDeepLink({ url });
-    });
-
-    return () => subscription.remove();
-  }, []);
 
   const getUniqueServiceTypes = (serviceSelect) => {
     const serviceTypes = new Set(
@@ -171,70 +142,8 @@ const OrderConfirmScreen = ({ navigation }) => {
   );
 
   const handlePayment = () => {
-    // console.log("bookingPayload:", bookingPayload);
-    // if (!bookingPayload) {
-    //   Alert.alert("Lỗi", "Dữ liệu đặt phòng không hợp lệ.");
-    //   return;
-    // }
     navigation.navigate("PaymentScreen");
-    // dispatch(fetchPaymentOrder(bookingPayload));
-  };
-
-  const resetPaymentState = () => {
-    setShowWebView(false);
-    dispatch(resetPaymentData());
-  };
-
-  const parseRedirectParams = (url, fallbackTransId) => {
-    try {
-      const queryString = url.split("?")[1] || "";
-      const urlParams = new URLSearchParams(queryString);
-      const params = {
-        appTransId:
-          urlParams.get("apptransid") ||
-          urlParams.get("appTransId") ||
-          fallbackTransId,
-        message: urlParams.get("message") || "",
-      };
-      console.log("Parsed redirect params:", params);
-      return params;
-    } catch (error) {
-      console.error("Error parsing redirect URL:", error);
-      return {
-        appTransId: fallbackTransId,
-        message: "Invalid redirect URL",
-      };
-    }
-  };
-
-  const handleNavigationStateChange = (navState) => {
-    try {
-      const { url } = navState;
-      console.log("Navigation state changed, URL:", url);
-
-      if (!url || typeof url !== "string") {
-        console.log("URL không hợp lệ hoặc không tồn tại");
-        return;
-      }
-
-      // Chỉ xử lý deep link, không xử lý redirect trung gian từ ZaloPay
-      if (url.includes("myapp://")) {
-        console.log("ZaloPay deep link detected");
-        const params = parseRedirectParams(url, paymentData.appTransId);
-
-        if (params.appTransId) {
-          Alert.alert("Thanh toán thành công", `Mã đơn: ${params.appTransId}`);
-          navigation.navigate("Home");
-        } else {
-          Alert.alert("Lỗi", "Không tìm thấy mã giao dịch");
-          resetPaymentState();
-        }
-      }
-    } catch (error) {
-      console.error("Error in handleNavigationStateChange:", error);
-      Alert.alert("Lỗi", "Đã có lỗi xảy ra khi xử lý thanh toán.");
-      resetPaymentState();
-    }
+    dispatch(updateCallPayment(true));
   };
 
   if (loadingBookingRoom) {
@@ -243,7 +152,7 @@ const OrderConfirmScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.mainContainer}>
+      <ScrollView style={styles.mainContainer}>
         <View style={styles.headerSection}>
           <Text style={[styles.title, styles.titleCenter]}>
             Thông tin khách hàng
@@ -306,6 +215,7 @@ const OrderConfirmScreen = ({ navigation }) => {
         <View style={styles.roomsSection}>
           <Text style={styles.subTitle}>Phòng đặt</Text>
           <ScrollView showsVerticalScrollIndicator={false}>
+            {/* <ScrollView> */}
             {listRoom?.map((item, index) => (
               <View key={item.uniqueId}>{renderListRoom(item)}</View>
             ))}
@@ -358,39 +268,36 @@ const OrderConfirmScreen = ({ navigation }) => {
           </View>
           <View style={styles.br} />
         </View>
-
-        <View style={styles.footerSection}>
-          <View style={styles.br} />
-          <Text style={styles.subTitle}>Phương thức thanh toán</Text>
-          <View style={styles.infoSectionLast}>
-            <TouchableOpacity
-              style={styles.paymentOption}
-              onPress={() => setPaymentMethod("ZaloPay")}
-            >
-              <View style={styles.radioCircle}>
-                {paymentMethod === "ZaloPay" && (
-                  <View style={styles.selectedRadio} />
-                )}
-              </View>
-              <Text style={styles.paymentText}>ZaloPay</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.paymentOption}
-              onPress={() => setPaymentMethod("ATM")}
-            >
-              <View style={styles.radioCircle}>
-                {paymentMethod === "ATM" && (
-                  <View style={styles.selectedRadio} />
-                )}
-              </View>
-              <Text style={styles.paymentText}>ATM</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity style={styles.button} onPress={handlePayment}>
-            <Text style={styles.buttonText}>Xác nhận đặt phòng</Text>
+      </ScrollView>
+      <View style={styles.footerSection}>
+        <View style={styles.br} />
+        <Text style={styles.subTitle}>Phương thức thanh toán</Text>
+        <View style={styles.infoSectionLast}>
+          <TouchableOpacity
+            style={styles.paymentOption}
+            onPress={() => setPaymentMethod("ZaloPay")}
+          >
+            <View style={styles.radioCircle}>
+              {paymentMethod === "ZaloPay" && (
+                <View style={styles.selectedRadio} />
+              )}
+            </View>
+            <Text style={styles.paymentText}>ZaloPay</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.paymentOption}
+            onPress={() => setPaymentMethod("ATM")}
+          >
+            <View style={styles.radioCircle}>
+              {paymentMethod === "ATM" && <View style={styles.selectedRadio} />}
+            </View>
+            <Text style={styles.paymentText}>ATM</Text>
           </TouchableOpacity>
         </View>
+
+        <TouchableOpacity style={styles.button} onPress={handlePayment}>
+          <Text style={styles.buttonText}>Xác nhận đặt phòng</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -412,7 +319,7 @@ const styles = StyleSheet.create({
     // Phần đầu cố định, không cần flex cụ thể vì sẽ chiếm không gian tự nhiên
   },
   roomsSection: {
-    flex: 1, // Chiếm không gian còn lại để ScrollView có thể cuộn
+    // flex: 1, // Chiếm không gian còn lại để ScrollView có thể cuộn
     // marginVertical: 10,
   },
   footerSection: {

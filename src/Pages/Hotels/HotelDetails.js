@@ -69,7 +69,7 @@ const HotelDetails = ({ navigation, route }) => {
       adults: inforFilter.adults,
       children: inforFilter.children,
     };
-    console.log(inforFilter_);
+    // console.log(inforFilter_);
 
     const bookingPayload = {
       hotelId: hotelId,
@@ -81,7 +81,7 @@ const HotelDetails = ({ navigation, route }) => {
 
     dispatch(updateBookingPayload(bookingPayload));
 
-    console.log("id", hotelId);
+    // console.log("id", hotelId);
     dispatch(updateHotelDetailId(hotelId));
     dispatch(fetchHotelRoomList(inforFilter_));
 
@@ -115,7 +115,7 @@ const HotelDetails = ({ navigation, route }) => {
               state.index === 0 && styles.activeText,
             ]}
           >
-            Bảng giá (106)
+            Bảng giá
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -136,7 +136,7 @@ const HotelDetails = ({ navigation, route }) => {
               state.index === 1 && styles.activeText,
             ]}
           >
-            Ảnh (10)
+            Ảnh
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -158,7 +158,7 @@ const HotelDetails = ({ navigation, route }) => {
               state.index === 2 && styles.activeText,
             ]}
           >
-            Lần check (24)
+            Lần check
           </Text>
         </TouchableOpacity>
       </View>
@@ -189,9 +189,9 @@ const HotelDetails = ({ navigation, route }) => {
                 <Ionicons name="arrow-back" size={24} color="#fff" />
               </TouchableOpacity>
               <Text style={styles.header__title}>{item?.hotelName}</Text>
-              <TouchableOpacity style={styles.header__icon__start}>
+              {/* <TouchableOpacity style={styles.header__icon__start}>
                 <Ionicons name="share-outline" size={24} color="#fff" />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
 
             <View style={styles.header__info}>
@@ -241,17 +241,17 @@ const HotelDetails = ({ navigation, route }) => {
           <Tab.Screen
             name="Price"
             component={PriceScreen}
-            options={{ tabBarLabel: "Bảng giá (106)" }}
+            options={{ tabBarLabel: "Bảng giá" }}
           />
           <Tab.Screen
             name="Photo"
             component={PhotoScreen}
-            options={{ tabBarLabel: "Ảnh (10)" }}
+            options={{ tabBarLabel: "Ảnh" }}
           />
           <Tab.Screen
             name="Check"
             component={CheckScreen}
-            options={{ tabBarLabel: "Lần check (24)" }}
+            options={{ tabBarLabel: "Lần check" }}
           />
         </Tab.Navigator>
 
@@ -362,7 +362,8 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderWidth: 1,
     borderColor: "#0090FF",
-    paddingHorizontal: 15,
+    paddingHorizontal: 30,
+    // paddingVertical: 15,
   },
   header__tab__1: {
     borderTopLeftRadius: 15,

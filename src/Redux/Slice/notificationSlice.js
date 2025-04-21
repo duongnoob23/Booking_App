@@ -1,70 +1,57 @@
-// import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { API_BASE_URL } from "../../Constant/Constant";
 
-// export const fetchNotificationList = createAsyncThunk(
-//   "notification/fetchNotificationList",
-//   async (_, { getState, rejectWithValue }) => {
-//     try {
-//       const state = getState();
-//       const accessToken = state?.auth?.accessToken;
+export const fetchListNotification = createAsyncThunk(
+  "notification/fetchListNotification",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const state = getState();
+      const accessToken = state.auth.accessToken;
+      console.log("accessToken in notification", accessToken);
+      // Kiểm tra accessToken
 
-//       // Log để debug
-//       console.log("AccessToken:", accessToken);
-//       if (!accessToken) {
-//         throw new Error("Access token is missing");
-//       }
+      const response = await fetch(`${API_BASE_URL}/api/notifications/user`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
-//       const response = await fetch(
-//         "http://192.168.50.61:9090/api/notifications/user",
-//         {
-//           method: "GET",
-//           headers: {
-//             "Content-Type": "application/json",
-//             Authorization: `Bearer ${accessToken}`,
-//           },
-//         }
-//       );
+      const data = await response.json();
+      // console.log("fetchListNotification response:", data);
 
-//       // Kiểm tra response
-//       if (!response.ok) {
-//         const errorData = await response.json();
-//         console.log("Error response:", errorData);
-//         throw new Error(`HTTP error! Status: ${response.status}`);
-//       }
+      return data;
+    } catch (error) {
+      console.error("error in fetchListNotification:", error.message);
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
-//       const data = await response.json();
-//       console.log("fetchNotificationList response:", data.data);
+const notificationSlice = createSlice({
+  name: "promotion",
+  initialState: {
+    loadingNotification: false,
+    error: null,
+    listNotification: [],
+  },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchListNotification.pending, (state) => {
+        state.loadingNotification = true;
+        state.error = null;
+      })
+      .addCase(fetchListNotification.fulfilled, (state, action) => {
+        state.loadingNotification = false;
+        state.listNotification = action.payload;
+      })
+      .addCase(fetchListNotification.rejected, (state, action) => {
+        state.loadingNotification = false;
+        state.error = action.error.message;
+      });
+  },
+});
 
-//       return data.data; // Trả về dữ liệu từ API
-//     } catch (error) {
-//       console.error("Error in fetchNotificationList:", error.message);
-//       return rejectWithValue(error.message);
-//     }
-//   }
-// );
-
-// const notificationSlice = createSlice({
-//   name: "notification", // Sửa tên slice từ "promotion" thành "notification"
-//   initialState: {
-//     loadingNotification: false,
-//     notificationList: [],
-//     error: null,
-//   },
-//   reducers: {},
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(fetchNotificationList.pending, (state) => {
-//         state.loadingNotification = true;
-//         state.error = null;
-//       })
-//       .addCase(fetchNotificationList.fulfilled, (state, action) => {
-//         state.loadingNotification = false;
-//         state.notificationList = action.payload;
-//       })
-//       .addCase(fetchNotificationList.rejected, (state, action) => {
-//         state.loadingNotification = false;
-//         state.error = action.payload; // Sử dụng action.payload để lấy lỗi
-//       });
-//   },
-// });
-
-// export default notificationSlice.reducer;
+export default notificationSlice.reducer;

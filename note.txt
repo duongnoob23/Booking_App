@@ -500,3 +500,12 @@ lỗi này là khi ta cố tình thay đổi giá trị của một biến khi k
 
 
 --------------------------Giải thích luông chạy của quá trình booking một cách chi tiết -----
+
+
+
+
+
+
+-----------------------------------Lỗi bàn phím bị đẩy lên trong expo go-------------------------------
+trong file app.json thêm phần sau vào android 
+"softwareKeyboardLayoutMode": "pan",

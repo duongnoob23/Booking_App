@@ -13,10 +13,20 @@ import { WebView } from "react-native-webview";
 import PaymentButton from "./PaymentButton";
 import * as Linking from "expo-linking";
 import paymentApi from "./paymentApi";
+import { useAppDispatch, useAppSelector } from "../../Redux/hook";
+import {
+  fetchPaymentOrder,
+  updateCallPayment,
+} from "../../Redux/Slice/paymentSlice";
 
 const { width, height } = Dimensions.get("window");
 
 const PaymentScreen = ({ navigation }) => {
+  const { bookingPayload } = useAppSelector((state) => state.hotel);
+  const { paymentData, callPayment } = useAppSelector((state) => state.payment);
+
+  const dispatch = useAppDispatch();
+  console.log("bookingPayload in PaymentScreen", bookingPayload);
   useEffect(() => {
     const handleDeepLink = (event) => {
       const data = Linking.parse(event.url);
@@ -39,6 +49,13 @@ const PaymentScreen = ({ navigation }) => {
 
     return () => subscription.remove();
   }, []);
+
+  useEffect(() => {
+    if (callPayment) {
+      handlePayment();
+      dispatch(updateCallPayment(false));
+    }
+  }, [callPayment]);
   const [paymentUrl, setPaymentUrl] = useState(null);
   const [appTransId, setAppTransId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -63,15 +80,13 @@ const PaymentScreen = ({ navigation }) => {
   const handlePayment = async () => {
     setIsLoading(true);
     try {
-      const response = await paymentApi.createPayment("1", 100000);
-      console.log("Payment response:", response);
-
-      if (!response?.data.orderUrl) {
-        throw new Error("Không nhận được dữ liệu thanh toán từ server");
-      }
-
-      const orderUrl = response.data.orderUrl;
-      const transId = response.data.appTransId;
+      dispatch(fetchPaymentOrder(bookingPayload));
+      console.log("paymentData >>> 79", paymentData);
+      console.log(">>> run dispatch");
+      // const orderUrl = response.data.orderUrl;
+      // const transId = response.data.appTransId;
+      const orderUrl = paymentData?.orderUrl;
+      const transId = paymentData.appTransId;
       console.log("Order URL:", orderUrl);
       console.log("App Trans ID:", transId);
       setPaymentUrl(orderUrl);
@@ -89,6 +104,7 @@ const PaymentScreen = ({ navigation }) => {
     console.log("Resetting state");
     setPaymentUrl(null);
     setAppTransId(null);
+    navigation.navigate("OrderConfirm");
   };
 
   const parseRedirectParams = (url, fallbackTransId) => {
@@ -269,9 +285,7 @@ const PaymentScreen = ({ navigation }) => {
     <View style={styles.container}>
       {isLoading && <ActivityIndicator size="large" color="#00C4B4" />}
 
-      {!paymentUrl ? (
-        <PaymentButton onPress={handlePayment} disabled={isLoading} />
-      ) : (
+      {paymentUrl && (
         <View style={styles.webviewWrapper}>
           <WebView
             source={{ uri: paymentUrl }}

@@ -1,112 +1,119 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppSelector } from "../../Redux/hook";
 
 const NotificationsScreen = () => {
   const { accessToken, isLoggedIn } = useAppSelector((state) => state.auth);
-  const { notificationList } = useAppSelector((state) => state.notification);
+  const { listNotification } = useAppSelector((state) => state.notification);
+  const { loadingHotelRoomList } = useAppSelector((state) => state.hotel);
+  // const notifications = [
+  //   {
+  //     createdAt: null,
+  //     id: 2,
+  //     message: "Chúc mừng bạn đã đặt phòng thành công.",
+  //     title: "Đặt phòng thành công!!",
+  //     type: "BOOKING",
+  //   },
+  //   {
+  //     createdAt: null,
+  //     id: 3,
+  //     message:
+  //       "Bạn có voucher SUMMER25 sẽ hết hạn vào ngày mai hãy sử dụng trước lúc hết hạn.",
+  //     title: "Mã khuyến mãi sắp hết hạn.",
+  //     type: "BOOKING",
+  //   },
+  //   {
+  //     createdAt: null,
+  //     id: 4,
+  //     message: "Vui lòng check in sau 14:00 trước 23:00",
+  //     title: "Ngày mai bạn có lịch checkin lúc 14:00",
+  //     type: "BOOKING",
+  //   },
+  //   {
+  //     createdAt: null,
+  //     id: 5,
+  //     message: "Vui lòng check in sau 14:00 trước 23:00",
+  //     title: "Ngày mai bạn có lịch checkout lúc 12:00",
+  //     type: "BOOKING",
+  //   },
+  // ];
+  const notifications = listNotification;
+  // Map loại thông báo với icon và màu sắc
+  const getNotificationIcon = (type) => {
+    switch (type?.toUpperCase()) {
+      case "BOOKING":
+        return { icon: "checkmark-circle", color: "#2563EB" };
+      default:
+        return { icon: "notifications", color: "#6B7280" };
+    }
+  };
 
-  // console.log("notification list 10", notificationList);
-
-  const notifications = [
-    {
-      id: "1",
-      type: "booking",
-      title: "Đặt phòng",
-      content: "Bạn có lịch check-in tại Khách sạn ABC",
-      time: "10 tháng 3 năm 2019",
-      note: "Hủy chương trình khuyến mãi tuyệt vời ...",
-      icon: "checkmark-circle-outline",
-      iconColor: "#007BFF",
-    },
-    {
-      id: "2",
-      type: "discount",
-      title: "Giảm giá",
-      content: "Giảm giá 10%. Tất cả các thanh toán",
-      time: "Từ 18 tháng 3 năm 2019 ... đến 18 tháng 4",
-      note: "",
-      icon: "pricetag-outline",
-      iconColor: "#FF9800",
-    },
-    {
-      id: "3",
-      type: "checkout",
-      title: "Trả phòng",
-      content: "Bạn sẽ check-out khỏi Khách sạn ABC",
-      time: "10 tháng 3 năm 2019 - 20:30",
-      note: "Hãy đảm bảo bạn đã thu dọn đồ đặc đi ...",
-      icon: "arrow-redo-outline",
-      iconColor: "#E91E63",
-    },
-    {
-      id: "4",
-      type: "suggestion",
-      title: "Gợi ý",
-      content: "Bạn cần thay thế não về kỳ nghỉ...",
-      time: "",
-      note: "",
-      icon: "star-outline",
-      iconColor: "#FFC107",
-    },
-  ];
-
-  if (!accessToken && !isLoggedIn) {
+  // Render từng thông báo
+  const renderNotification = ({ item }) => {
+    const { icon, color } = getNotificationIcon(item?.type);
     return (
-      <View style={styles.RequireLogin}>
-        <Text style={styles.RequireLoginText}>
-          Bạn cần đăng nhập để xem thông báo
+      <TouchableOpacity style={styles.notificationCard} activeOpacity={0.7}>
+        <View style={styles.notificationIconContainer}>
+          <Ionicons name={icon} size={36} color={color} />
+        </View>
+        <View style={styles.notificationContent}>
+          {item?.title && (
+            <Text style={styles.notificationTitle}>{item.title}</Text>
+          )}
+          {item?.message && (
+            <Text style={styles.notificationMessage}>{item.message}</Text>
+          )}
+          {item?.createdAt && (
+            <Text style={styles.notificationTime}>
+              {new Date(item.createdAt).toLocaleString("vi-VN", {
+                dateStyle: "short",
+                timeStyle: "short",
+              })}
+            </Text>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  // Giao diện khi chưa đăng nhập
+  if (!accessToken || !isLoggedIn) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Ionicons name="log-in-outline" size={48} color="#6B7280" />
+        <Text style={styles.emptyText}>
+          Vui lòng đăng nhập để xem thông báo
         </Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.notifications}>
-      {/* Header */}
-      {/* <View style={styles.notifications__header}>
-        <TouchableOpacity>
-          <Ionicons
-            name="chevron-back-outline"
-            size={24}
-            color="black"
-            style={styles.notifications__headerBack}
-          />
-        </TouchableOpacity>
-        <Text style={styles.notifications__headerTitle}>Thông báo</Text>
-        <TouchableOpacity>
-          <Text style={styles.notifications__headerDelete}>XÓA</Text>
-        </TouchableOpacity>
-      </View> */}
-
-      {/* Danh sách thông báo */}
-      {notifications.length > 0 ? (
-        notifications.map((item) => (
-          <View key={item.id} style={styles.notifications__item}>
-            <Ionicons
-              name={item.icon}
-              size={40}
-              color={item.iconColor}
-              style={styles.notifications__itemIcon}
-            />
-            <View style={styles.notifications__itemContent}>
-              <Text style={styles.notifications__itemTitle}>{item.title}</Text>
-              <Text style={styles.notifications__itemText}>{item.content}</Text>
-              {item.time ? (
-                <Text style={[styles.notifications__itemTime]}>
-                  {item.time}
-                </Text>
-              ) : null}
-              <Text style={styles.notifications__itemNote}>{item.note}</Text>
-            </View>
-          </View>
-        ))
+    <View style={styles.container}>
+      <Text style={styles.headerTitle}>Thông báo</Text>
+      {notifications?.length > 0 ? (
+        <FlatList
+          data={notifications}
+          renderItem={renderNotification}
+          keyExtractor={(item) => item?.id?.toString()}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
+        />
       ) : (
-        <View style={styles.RequireLogin}>
-          <Text style={styles.RequireLoginText}>
-            Bạn không có thông báo nào
-          </Text>
+        <View style={styles.emptyContainer}>
+          <Ionicons
+            name="notifications-off-outline"
+            size={48}
+            color="#6B7280"
+          />
+          <Text style={styles.emptyText}>Bạn chưa có thông báo nào</Text>
         </View>
       )}
     </View>
@@ -114,61 +121,73 @@ const NotificationsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  notifications: {
+  container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#F3F4F6",
+    paddingHorizontal: 16,
+    paddingTop: 24,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#1F2937",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  listContainer: {
+    paddingBottom: 20,
+  },
+  notificationCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+    borderLeftWidth: 4,
+    borderLeftColor: "#2563EB",
+  },
+  notificationIconContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+    transform: [{ scale: 1 }],
+  },
+  notificationContent: {
+    flex: 1,
+  },
+  notificationTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1F2937",
+    marginBottom: 4,
+  },
+  notificationMessage: {
+    fontSize: 14,
+    color: "#4B5563",
+    lineHeight: 20,
+  },
+  notificationTime: {
+    fontSize: 12,
+    color: "#F59E0B",
+    marginTop: 4,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 20,
   },
-  notifications__header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 40,
-    marginBottom: 20,
-  },
-  notifications__headerBack: {},
-  notifications__headerTitle: {
-    marginLeft: 30,
-    fontSize: 24,
-    fontWeight: "450",
-    color: "#000000",
-  },
-  notifications__headerDelete: {
+  emptyText: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#007BFF",
-  },
-  notifications__item: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 20,
-    paddingVertical: 10,
-  },
-  notifications__itemIcon: {
-    marginRight: 10,
-  },
-  notifications__itemContent: {
-    flex: 1,
-  },
-  notifications__itemTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#000000",
-    marginBottom: 5,
-  },
-  notifications__itemText: {
-    fontSize: 14,
-    color: "black",
-    marginBottom: 5,
-  },
-  notifications__itemTime: {
-    fontSize: 12,
-    color: "orange",
-  },
-  notifications__itemNote: {
-    fontSize: 14,
-    color: "black",
-    marginBottom: 5,
+    color: "#6B7280",
+    textAlign: "center",
+    marginTop: 12,
   },
 });
 

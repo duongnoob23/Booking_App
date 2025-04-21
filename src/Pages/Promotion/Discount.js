@@ -1,14 +1,7 @@
 import React, { useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  navigation,
-} from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { useLayoutEffect } from "react";
 import { useAppSelector, useAppDispatch } from "../../Redux/hook";
 import { fetchListPromotion } from "../../Redux/Slice/promotionSlice";
 import { formatPrice } from "../../Utils/formarPrice";
@@ -16,8 +9,8 @@ import {
   fetchBookingRoom,
   updateBookingPayload,
 } from "../../Redux/Slice/hotelSlice";
-
 import cloneDeep from "lodash/cloneDeep";
+
 const Discount = ({ navigation, route }) => {
   const prePage = route?.params?.prePage || "";
   console.log(">>> prePage", route.params);
@@ -31,26 +24,6 @@ const Discount = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
 
   console.log("24 DS>>>>>>>>>>>>>>>>>>>>>>>>>>>>", listPromotion);
-  // const test = [
-  //   {
-  //     code: "SUMMER25",
-  //     description: "Giảm giá 25% với những hóa đơn trên 2 triệu đồng.",
-  //     discountValue: 25,
-  //     expirationDate: "30-04-2025 17:40:08",
-  //     id: 1,
-  //     minBookingAmount: 200000,
-  //     validFromDate: "04-04-2025 17:40:54",
-  //   },
-  //   {
-  //     code: "WELCOME100",
-  //     description: "Giảm ngay 100.000đ với hóa đơn đầu tiên",
-  //     discountValue: 100000,
-  //     expirationDate: "27-04-2025 17:42:36",
-  //     id: 2,
-  //     minBookingAmount: 0,
-  //     validFromDate: "04-04-2025 17:43:01",
-  //   },
-  // ];
 
   const handleFetchListPromotion = () => {
     const code = "";
@@ -79,49 +52,30 @@ const Discount = ({ navigation, route }) => {
 
   console.log("accessToken isLoggedIn", accessToken, isLoggedIn);
 
+  // Chưa đăng nhập
   if (!accessToken && !isLoggedIn) {
     return (
-      <View style={styles.RequireLogin}>
-        <Text style={styles.RequireLoginText}>
+      <View style={styles.emptyContainer}>
+        <Ionicons name="log-in-outline" size={48} color="#6B7280" />
+        <Text style={styles.emptyText}>
           Bạn cần đăng nhập để xem mã giảm giá
         </Text>
       </View>
     );
   }
 
-  console.log(discountItems);
-  if (accessToken && isLoggedIn && !discountItems) {
-    return (
-      <View style={styles.RequireLogin}>
-        <Text style={styles.RequireLoginText}>Bạn chưa có mã giảm giá nào</Text>
-      </View>
-    );
-  }
-
+  // Đang tải
   if (loadingPromotion) {
     return (
-      <View>
-        <Text>loading....</Text>
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>Đang tải...</Text>
       </View>
     );
   }
 
+  // Giao diện chính
   return (
     <View style={styles.discountCodes}>
-      {/* Header */}
-      {/* <View style={styles.discountCodes__header}>
-        <TouchableOpacity
-          style={styles.discountButton}
-          onPress={() => handleFetchListPromotion()}
-        >
-          <Text style={styles.discountCodes__headerHistory}>Fetch</Text>
-        </TouchableOpacity>
-      </View> */}
-
-      {/* Danh sách mã giảm giá */}
-      {/* <TouchableOpacity onPress={() => handleFetchListPromotion()}>
-        <Text>Fetch</Text>
-      </TouchableOpacity> */}
       {discountItems.length > 0 ? (
         discountItems.map((item) => (
           <TouchableOpacity
@@ -140,7 +94,6 @@ const Discount = ({ navigation, route }) => {
                 {item?.description}
               </Text>
               <Text style={styles.discountCodes__itemCode}>{item?.code}</Text>
-
               <Text style={styles.discountCodes__itemExpiry}>
                 Số tiền đặt phòng thấp nhất{" "}
                 {formatPrice(item?.minBookingAmount)}
@@ -152,10 +105,13 @@ const Discount = ({ navigation, route }) => {
           </TouchableOpacity>
         ))
       ) : (
-        <View style={styles.RequireLogin}>
-          <Text style={styles.RequireLoginText}>
-            Bạn chưa có mã giảm giá nào
-          </Text>
+        <View style={styles.emptyContainer}>
+          <Ionicons
+            name="notifications-off-outline"
+            size={50}
+            color="#888888"
+          />
+          <Text style={styles.emptyText}>Bạn chưa có mã giảm giá nào</Text>
         </View>
       )}
     </View>
@@ -168,32 +124,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     paddingHorizontal: 20,
     paddingTop: 20,
-  },
-  discountCodes__header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 40,
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  discountCodes__headerBack: {},
-  discountCodes__headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#000000",
-  },
-  discountButton: {
-    backgroundColor: "gray",
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 5,
-  },
-  discountCodes__headerHistory: {
-    fontSize: 14,
-    fontWeight: "400",
-    color: "white",
-    textAlign: "Center",
   },
   discountCodes__item: {
     flexDirection: "row",
@@ -221,6 +151,20 @@ const styles = StyleSheet.create({
   discountCodes__itemExpiry: {
     fontSize: 14,
     color: "#888888",
+  },
+  // Styles mới cho giao diện thông báo
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#888888",
+    textAlign: "center",
+    marginTop: 20,
   },
 });
 

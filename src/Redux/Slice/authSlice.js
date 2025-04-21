@@ -22,6 +22,10 @@ const initValue = {
   },
   infoUser: null,
   inforUserChange: null,
+
+  registerLoading: false, // Thêm trạng thái loading cho đăng ký
+  registerError: null, // Thêm trạng thái lỗi cho đăng ký
+  registerSuccess: false, // Thêm trạng thái thành công cho đăng ký
 };
 
 export const fetchUserInfo = createAsyncThunk(
@@ -68,6 +72,30 @@ export const updateUserInfo = createAsyncThunk(
   }
 );
 
+export const registerUser = createAsyncThunk(
+  "auth/registerUser",
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        return rejectWithValue(data.message || "Đăng ký thất bại");
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message || "Có lỗi xảy ra khi đăng ký");
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState: initValue,
@@ -98,6 +126,11 @@ const authSlice = createSlice({
     clearInforUserChange(state) {
       state.inforUserChange = null;
     },
+    resetRegisterState(state) {
+      state.registerLoading = false;
+      state.registerError = null;
+      state.registerSuccess = false;
+    },
   },
   extraReducers: (builder) => {
     // Xử lý fetchUserInfo
@@ -114,6 +147,21 @@ const authSlice = createSlice({
       .addCase(fetchUserInfo.rejected, (state, action) => {
         state.loadingInfoUser = false;
         state.error = action.error.message;
+      })
+      // Xử lý registerUser
+      .addCase(registerUser.pending, (state) => {
+        state.registerLoading = true;
+        state.registerError = null;
+        state.registerSuccess = false;
+      })
+      .addCase(registerUser.fulfilled, (state) => {
+        state.registerLoading = false;
+        state.registerSuccess = true;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.registerLoading = false;
+        state.registerError = action.payload;
+        state.registerSuccess = false;
       });
   },
 });
@@ -125,5 +173,6 @@ export const {
   logout,
   updateInforUserChange,
   clearInforUserChange,
+  resetRegisterState,
 } = authSlice.actions;
 export default authSlice.reducer;

@@ -8,21 +8,28 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAppDispatch, useAppSelector } from "../../../Redux/hook";
-import { updateFilter } from "../../../Redux/Slice/hotelSlice";
+import {
+  updateFilter,
+  updateTempFilter,
+  applyFilter,
+} from "../../../Redux/Slice/hotelSlice";
 const ModalSort = ({ onClose }) => {
-  const { sortList, inforFilter } = useAppSelector((state) => state.hotel);
+  const { sortList, inforFilter, tempFilter } = useAppSelector(
+    (state) => state.hotel
+  );
   const sortData = sortList;
   //   console.log(sortList);
 
   const dispatch = useAppDispatch();
 
-  const [selectedSorts, setSelectedSorts] = useState(inforFilter.sortById);
+  const [selectedSorts, setSelectedSorts] = useState(tempFilter.sortById);
 
   //   console.log(">>> 22 Modalamenity inforFilter:", inforFilter);
   //   console.log(">>> 22 Modalamenity inforFilter:", inforFilter.sortById);
 
   const toggleSort = (id) => {
     setSelectedSorts(id);
+    dispatch(updateTempFilter({ sortById: id }));
   };
 
   const getIconForSort = (name) => {
@@ -41,9 +48,14 @@ const ModalSort = ({ onClose }) => {
   };
 
   const handleApply = () => {
-    dispatch(updateFilter({ ...inforFilter, sortById: selectedSorts }));
-    console.log(inforFilter.sortById);
+    // try {
+    dispatch(applyFilter());
+    // dispatch(updateFilter({ ...inforFilter, sortById: selectedSorts }));
+    // console.log(inforFilter.sortById);
     onClose();
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   return (
