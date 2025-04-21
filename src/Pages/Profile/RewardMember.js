@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -7,74 +7,49 @@ import {
   TouchableOpacity,
 } from "react-native";
 import Color from "color";
-
-const RANKS = [
-  {
-    name: "Đồng",
-    color: "#d3a652",
-    minOrders: 0,
-    minSpending: 0,
-  },
-  {
-    name: "Bạc",
-    color: "#677486",
-    minOrders: 5,
-    minSpending: 1000000,
-  },
-  {
-    name: "Vàng",
-    color: "#f3b238d6",
-    minOrders: 15,
-    minSpending: 5000000,
-  },
-  {
-    name: "Bạch Kim",
-    color: "#6fd1d6",
-    minOrders: 30,
-    minSpending: 10000000,
-  },
-];
-
-const user = {
-  name: "John",
-  Orders: 15,
-  Spend: 5000000,
-};
-
-const transactions = [
-  { id: "1", type: "earned", points: 500, date: "2025-04-15" },
-  { id: "2", type: "converted", points: 1000, cash: 2, date: "2025-04-14" },
-  { id: "3", type: "earned", points: 200, date: "2025-04-13" },
-];
-
-const VOUCHERS = [
-  {
-    id: "1",
-    title: "Giảm 20% đơn từ 1.5Tr",
-    condition: "Đơn tối thiểu ₫1.500K",
-    expiry: "HSD: 15.03.2025",
-    status: "unused",
-    iconBackground: "#00A4E8",
-  },
-  {
-    id: "2",
-    title: "Giảm 100K đơn đầu tiên",
-    condition: "Không giới hạn giá trị",
-    expiry: "HSD: 12.03.2025",
-    status: "unused",
-    iconBackground: "#EE4D2D",
-  },
-  {
-    id: "3",
-    title: "Giảm 50K với Mastercard",
-    condition: "Thanh toán qua Mastercard",
-    expiry: "HSD: 13.03.2025",
-    status: "unused",
-    iconBackground: "#EE4D2D",
-  },
-];
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchSystemVouchers,
+  fetchRanks,
+  saveVoucher,
+  clearVoucherStatus,
+} from "../../Redux/Slice/voucherSlice"; // Thay bằng đường dẫn thực tế
 
 const RewardMember = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const { accessToken, isLoggedIn } = useSelector((state) => state.auth);
+  const {
+    systemVouchers,
+    myVouchers,
+    ranks,
+    user,
+    loading,
+    error,
+    successSave,
+  } = useSelector((state) => state.voucher);
+  const [activeTab, setActiveTab] = useState("Overview");
+
+  // Gọi API khi component mount
+  useEffect(() => {
+    if (isLoggedIn && accessToken) {
+      dispatch(fetchSystemVouchers());
+      dispatch(fetchRanks());
+    }
+  }, [dispatch, isLoggedIn, accessToken]);
+
+  // Xử lý thông báo khi lưu voucher
+  useEffect(() => {
+    if (successSave) {
+      alert(successSave); // Có thể thay bằng ToastAndroid hoặc thư viện khác
+      dispatch(clearVoucherStatus());
+    }
+    if (error) {
+      alert(error);
+      dispatch(clearVoucherStatus());
+    }
+  }, [successSave, error, dispatch]);
+
+  // Ẩn/hiện tabBar
   useLayoutEffect(() => {
     navigation.getParent().setOptions({ tabBarStyle: { display: "none" } });
     return () => {
@@ -82,21 +57,23 @@ const RewardMember = ({ navigation }) => {
     };
   }, [navigation]);
 
-  const [activeTab, setActiveTab] = useState("Overview");
+  // Tính toán userRank
+  const userRank = useMemo(
+    () =>
+      [...ranks]
+        .reverse()
+        .find(
+          (rank) =>
+            user.Orders >= rank.minOrders && user.Spend >= rank.minSpending
+        ) || ranks[0] || { name: "Đồng", color: "#d3a652", minOrders: 0, minSpending: 0 },
+    [ranks, user]
+  );
 
-  const userRank =
-    [...RANKS]
-      .reverse()
-      .find(
-        (rank) =>
-          user.Orders >= rank.minOrders && user.Spend >= rank.minSpending
-      ) || RANKS[0];
-
-  const currentRankIndex = RANKS.findIndex(
+  const currentRankIndex = ranks.findIndex(
     (rank) => rank.name === userRank.name
   );
 
-  const nextRank = RANKS[currentRankIndex + 1];
+  const nextRank = ranks[currentRankIndex + 1];
   let progressOrders = 100;
   let progressSpend = 100;
   if (nextRank) {
@@ -104,8 +81,21 @@ const RewardMember = ({ navigation }) => {
     progressSpend = Math.min((user.Spend / nextRank.minSpending) * 100, 100);
   }
 
-  const handleToVoucherDetail = () => {
-    navigation.navigate("VoucherDetail");
+  // Tạo danh sách ID của myVouchers để kiểm tra
+  const myVouchersIds = useMemo(() => {
+    return [
+      ...myVouchers.unused,
+      ...myVouchers.used,
+      ...myVouchers.expired,
+    ].map((voucher) => voucher.id);
+  }, [myVouchers]);
+
+  const handleToVoucherDetail = (voucher) => {
+    navigation.navigate("VoucherDetail", { voucher });
+  };
+
+  const handleSaveVoucher = (voucherId) => {
+    dispatch(saveVoucher(voucherId));
   };
 
   const renderRank = ({ item }) => (
@@ -118,69 +108,54 @@ const RewardMember = ({ navigation }) => {
     >
       <Text style={[styles.rankName, { color: item.color }]}>{item.name}</Text>
       <Text style={styles.rankCondition}>
-        {`Đơn hàng ≥ ${
-          item.minOrders
-        } | Chi tiêu ≥ ${item.minSpending.toLocaleString()} VNĐ`}
+        {`Đơn hàng ≥ ${item.minOrders} | Chi tiêu ≥ ${item.minSpending.toLocaleString()} VND`}
       </Text>
+      <Text style={styles.description}>{item.description}</Text>
     </View>
   );
 
-  const renderVoucher = ({ item }) => (
-    <TouchableOpacity
-      style={styles.voucherItem}
-      onPress={() => handleToVoucherDetail()}
-    >
-      <View style={styles.iconContainer}>
-        <View
-          style={[
-            styles.voucherIconContainer,
-            { backgroundColor: item.iconBackground },
-          ]}
-        >
-          <Text style={styles.voucherIcon}>S</Text>
+  const renderVoucher = ({ item }) => {
+    const isSaved = myVouchersIds.includes(String(item.id)); // Kiểm tra coupon đã lưu
+
+    return (
+      <TouchableOpacity
+        style={styles.voucherItem}
+        onPress={() => handleToVoucherDetail(item)}
+      >
+        <View style={styles.iconContainer}>
+          <View
+            style={[
+              styles.voucherIconContainer,
+              { backgroundColor: item.iconBackground || "#ccc" },
+            ]}
+          >
+            <Text style={styles.voucherIcon}>S</Text>
+          </View>
         </View>
-      </View>
-      <View style={styles.voucherContent}>
-        <View style={styles.voucherContentLeft}>
-          <Text style={styles.voucherTitle}>{item.title}</Text>
-          {item.condition ? (
-            <Text style={styles.voucherCondition}>{item.condition}</Text>
-          ) : null}
-          <Text style={styles.voucherExpiry}>{item.expiry}</Text>
-          <View style={styles.voucherActions}>
-            <TouchableOpacity>
-              <Text style={styles.conditionText}>Điều kiện</Text>
+        <View style={styles.voucherContent}>
+          <View style={styles.voucherContentLeft}>
+            <Text style={styles.voucherTitle}>{item.description}</Text>
+            <Text style={styles.voucherExpiry}>{item.code}</Text>
+            <Text style={styles.voucherExpiry}>{item.expirationDate}</Text>
+          </View>
+          <View style={styles.voucherContentRight}>
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                isSaved ? styles.actionButtonSaved : styles.actionButtonNormal,
+              ]}
+              onPress={() => !isSaved && handleSaveVoucher(item.id)}
+              disabled={isSaved}
+            >
+              <Text style={styles.actionButtonText}>
+                {isSaved ? "Đã lưu" : "Lưu"}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.voucherContentRight}>
-          <TouchableOpacity
-            style={[
-              styles.actionButton,
-              item.status === "unused"
-                ? styles.actionButtonUnused
-                : styles.actionButtonUsed,
-            ]}
-            onPress={() =>
-              console.log(
-                item.status === "unused"
-                  ? "Dùng ngay mã: " + item.id
-                  : "Voucher đã dùng/đã hết hạn"
-              )
-            }
-          >
-            <Text style={styles.actionButtonText}>
-              {item.status === "unused"
-                ? "Dùng ngay"
-                : item.status === "used"
-                ? "Đã dùng"
-                : "Hết hạn"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   const renderOverview = () => (
     <View style={styles.overviewContainer}>
@@ -194,7 +169,7 @@ const RewardMember = ({ navigation }) => {
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
-            alignItems: "center",
+            alignItems: "center -between",
           }}
         >
           <Text style={styles.pointsLabel}>Thứ hạng</Text>
@@ -220,7 +195,7 @@ const RewardMember = ({ navigation }) => {
                   styles.progressFill,
                   {
                     width: `${progressOrders}%`,
-                    backgroundColor: Color(userRank.color).lighten(0.3).hex(),
+                    backgroundColor: Color(userRank.color).lighten(0.5).hex(),
                   },
                 ]}
               />
@@ -230,10 +205,8 @@ const RewardMember = ({ navigation }) => {
           <View style={styles.progressBox}>
             <Text style={styles.progressTitle}>Chi tiêu</Text>
             <Text style={styles.progressStatus}>
-              {user.Spend.toLocaleString()} VNĐ /
-              {nextRank?.minSpending.toLocaleString() ||
-                user.Spend.toLocaleString()}{" "}
-              VNĐ
+              {user.Spend.toLocaleString()} /
+              {nextRank?.minSpending.toLocaleString() || user.Spend.toLocaleString()}
             </Text>
             <View style={styles.progressBar}>
               <View
@@ -241,7 +214,7 @@ const RewardMember = ({ navigation }) => {
                   styles.progressFill,
                   {
                     width: `${progressSpend}%`,
-                    backgroundColor: Color(userRank.color).lighten(0.3).hex(),
+                    backgroundColor: Color(userRank.color).lighten(0.5).hex(),
                   },
                 ]}
               />
@@ -257,14 +230,30 @@ const RewardMember = ({ navigation }) => {
       <View style={styles.voucherSection}>
         <Text style={styles.sectionTitle}>Ưu đãi từ hệ thống</Text>
         <FlatList
-          data={VOUCHERS}
+          data={systemVouchers}
           renderItem={renderVoucher}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.voucherList}
         />
       </View>
     </View>
   );
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Đang tải...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text>Lỗi: {error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -292,9 +281,10 @@ const RewardMember = ({ navigation }) => {
       {activeTab === "Rating" && (
         <View style={styles.ranksContainer}>
           <FlatList
-            data={RANKS}
+            data={ranks}
             renderItem={renderRank}
             keyExtractor={(item) => item.name}
+            contentContainerStyle={styles.ranksList}
           />
         </View>
       )}
@@ -302,12 +292,18 @@ const RewardMember = ({ navigation }) => {
   );
 };
 
-export default RewardMember;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F5F5F5",
+  },
+  userInfo: {
+    padding: 16,
+  },
+  userName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#333",
   },
   tabContainer: {
     flexDirection: "row",
@@ -436,18 +432,14 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     paddingRight: 12,
+    flexDirection: "row",
   },
-  voucherLabelContainer: {
-    backgroundColor: "#00A4E8",
-    alignSelf: "flex-start",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
+  voucherContentLeft: {
+    width: "70%",
   },
-  voucherLabel: {
-    fontSize: 10,
-    color: "#FFF",
-    fontWeight: "bold",
+  voucherContentRight: {
+    justifyContent: "center",
+    alignItems: "center",
   },
   voucherTitle: {
     fontSize: 16,
@@ -455,36 +447,20 @@ const styles = StyleSheet.create({
     color: "#333",
     marginTop: 4,
   },
-  voucherCondition: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 2,
-  },
   voucherExpiry: {
     fontSize: 12,
     color: "#666",
     marginTop: 2,
-  },
-  voucherActions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 8,
-  },
-  conditionText: {
-    fontSize: 12,
-    color: "#00A4E8",
-    fontWeight: "500",
   },
   actionButton: {
     borderRadius: 4,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
-  actionButtonUnused: {
+  actionButtonNormal: {
     backgroundColor: "#EE4D2D",
   },
-  actionButtonUsed: {
+  actionButtonSaved: {
     backgroundColor: "#CCCCCC",
   },
   actionButtonText: {
@@ -499,6 +475,9 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     elevation: 2,
+  },
+  ranksList: {
+    paddingBottom: 16,
   },
   rankItem: {
     padding: 16,
@@ -518,18 +497,11 @@ const styles = StyleSheet.create({
     color: "#666",
     marginTop: 4,
   },
-
-  voucherContent: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingRight: 12,
-    flexDirection: "row",
-  },
-  voucherContentLeft: {
-    width: "70%",
-  },
-  voucherContentRight: {
-    justifyContent: "center",
-    alignItems: "center",
+  description: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 4,
   },
 });
+
+export default RewardMember;

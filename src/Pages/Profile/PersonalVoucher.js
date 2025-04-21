@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,92 +6,52 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
-
-const VOUCHERS = {
-  unused: [
-    {
-      id: "1",
-      title: "Đơn bất kỳ từ 0Đ Tối đa 15K",
-      condition: "",
-      expiry: "HSD: 16.01.2025",
-      status: "unused",
-      iconBackground: "#00A4E8",
-    },
-    {
-      id: "2",
-      title: "Hoàn 10% Xu",
-      condition: "Đơn tối thiểu ₫300K Hoàn tối đa ₫50K",
-      expiry: "Có hiệu lực từ: 17.01.2025",
-      status: "unused",
-      iconBackground: "#EE4D2D",
-    },
-    {
-      id: "3",
-      title: "Hoàn 10% Xu",
-      condition: "Đơn tối thiểu ₫1Tr Hoàn tối đa ₫200K",
-      expiry: "Có hiệu lực từ: 17.01.2025",
-      status: "unused",
-      iconBackground: "#EE4D2D",
-    },
-    {
-      id: "4",
-      title: "Hoàn 10% Xu",
-      condition: "Đơn tối thiểu ₫500K Hoàn tối đa ₫100K",
-      expiry: "Có hiệu lực từ: 17.01.2025",
-      status: "unused",
-      iconBackground: "#EE4D2D",
-    },
-  ],
-  used: [
-    {
-      id: "5",
-      title: "Giảm 20K đơn từ 100K",
-      condition: "Đơn tối thiểu ₫100K",
-      expiry: "HSD: 10.04.2025",
-      status: "used",
-      iconBackground: "#EE4D2D",
-    },
-    {
-      id: "6",
-      title: "Hoàn 5% Xu",
-      condition: "Đơn tối thiểu ₫200K Hoàn tối đa ₫30K",
-      expiry: "HSD: 12.04.2025",
-      status: "used",
-      iconBackground: "#00A4E8",
-    },
-  ],
-  expired: [
-    {
-      id: "7",
-      title: "Giảm 50K đơn từ 300K",
-      condition: "Đơn tối thiểu ₫300K",
-      expiry: "HSD: 15.03.2025",
-      status: "expired",
-      iconBackground: "#EE4D2D",
-    },
-    {
-      id: "8",
-      title: "Hoàn 15% Xu",
-      condition: "Đơn tối thiểu ₫500K Hoàn tối đa ₫80K",
-      expiry: "HSD: 10.03.2025",
-      status: "expired",
-      iconBackground: "#00A4E8",
-    },
-  ],
-};
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMyVouchers, clearVoucherStatus } from "../../Redux/Slice/voucherSlice"; // Thay bằng đường dẫn thực tế
 
 const PersonalVoucher = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const { accessToken, isLoggedIn } = useSelector((state) => state.auth);
+  const { myVouchers, loading, error } = useSelector((state) => state.voucher);
+  const [activeTab, setActiveTab] = useState("unused");
+
+  // Gọi API khi component mount
+  useEffect(() => {
+    if (isLoggedIn && accessToken) {
+      dispatch(fetchMyVouchers());
+    }
+  }, [dispatch, isLoggedIn, accessToken]);
+
+  // Xử lý thông báo lỗi
+  useEffect(() => {
+    if (error) {
+      alert(error);
+      dispatch(clearVoucherStatus());
+    }
+  }, [error, dispatch]);
+
+  // Ẩn/hiện tabBar
   useLayoutEffect(() => {
     navigation.getParent().setOptions({ tabBarStyle: { display: "none" } });
     return () => {
       navigation.getParent().setOptions({ tabBarStyle: { display: "flex" } });
     };
   }, [navigation]);
-  const [activeTab, setActiveTab] = useState("unused");
+
+  const handleToVoucherDetail = (voucher) => {
+    navigation.navigate("VoucherDetail", { voucher });
+  };
+
+  const voucherData =
+    activeTab === "unused"
+      ? myVouchers.unused
+      : activeTab === "used"
+      ? myVouchers.used
+      : myVouchers.expired;
 
   const renderVoucher = ({ item }) => (
     <TouchableOpacity
-      onPress={() => handleToVoucherDetail()}
+      onPress={() => handleToVoucherDetail(item)}
       style={[
         styles.voucherItem,
         activeTab === "expired" && styles.expiredVoucher,
@@ -115,9 +75,9 @@ const PersonalVoucher = ({ navigation }) => {
           ) : null}
           <Text style={styles.voucherExpiry}>{item.expiry}</Text>
           <View style={styles.voucherActions}>
-            <TouchableOpacity>
+            {/* <TouchableOpacity>
               <Text style={styles.conditionText}>Điều kiện</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
         <View style={styles.voucherContentRight}>
@@ -149,16 +109,21 @@ const PersonalVoucher = ({ navigation }) => {
     </TouchableOpacity>
   );
 
-  const handleToVoucherDetail = () => {
-    navigation.navigate("VoucherDetail");
-  };
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Đang tải...</Text>
+      </View>
+    );
+  }
 
-  const voucherData =
-    activeTab === "unused"
-      ? VOUCHERS.unused
-      : activeTab === "used"
-      ? VOUCHERS.used
-      : VOUCHERS.expired;
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text>Lỗi: {error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -283,18 +248,6 @@ const styles = StyleSheet.create({
   voucherContentRight: {
     justifyContent: "center",
     alignItems: "center",
-  },
-  voucherLabelContainer: {
-    backgroundColor: "#00A4E8",
-    alignSelf: "flex-start",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  voucherLabel: {
-    fontSize: 10,
-    color: "#FFF",
-    fontWeight: "bold",
   },
   voucherTitle: {
     fontSize: 16,
