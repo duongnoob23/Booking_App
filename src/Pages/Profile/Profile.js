@@ -3,11 +3,12 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useAppSelector } from "../../Redux/hook";
+import { useAppDispatch, useAppSelector } from "../../Redux/hook";
+import { setPrePage } from "../../Redux/Slice/authSlice";
 
 const Profile = ({ navigation }) => {
   const { isLoggedIn } = useAppSelector((state) => state.auth);
-
+  const dispatch = useAppDispatch();
   // Dữ liệu người dùng mặc định khi đã đăng nhập
   const [userData, setUserData] = useState({
     name: "John Smith",
@@ -69,9 +70,13 @@ const Profile = ({ navigation }) => {
   };
 
   const handleLogin = () => {
-    navigation.navigate("LoginScreen");
+    navigation.navigate("LoginScreen", { prePage: "Profile" });
   };
 
+  const handleLogout = () => {
+    dispatch(setPrePage("Profile"));
+    navigation.navigate("LoginScreen");
+  };
   // Dữ liệu hiển thị dựa trên trạng thái đăng nhập
   const displayData = isLoggedIn ? userData : anonymousData;
 
@@ -133,7 +138,7 @@ const Profile = ({ navigation }) => {
 
             <TouchableOpacity
               style={styles.logoutButton}
-              onPress={() => navigation.navigate("LoginScreen")}
+              onPress={() => handleLogout()}
             >
               <Text style={styles.logoutText}>Đăng xuất</Text>
             </TouchableOpacity>

@@ -26,6 +26,8 @@ const initValue = {
   registerLoading: false, // Thêm trạng thái loading cho đăng ký
   registerError: null, // Thêm trạng thái lỗi cho đăng ký
   registerSuccess: false, // Thêm trạng thái thành công cho đăng ký
+
+  prePage: null,
 };
 
 export const fetchUserInfo = createAsyncThunk(
@@ -139,6 +141,12 @@ const authSlice = createSlice({
       state.registerError = null;
       state.registerSuccess = false;
     },
+    setPrePage(state, action) {
+      state.prePage = action.payload; // Action để thiết lập prePage
+    },
+    clearPrePage(state) {
+      state.prePage = null; // Action để xóa prePage
+    },
   },
   extraReducers: (builder) => {
     // Xử lý fetchUserInfo
@@ -183,5 +191,7 @@ export const {
   clearInforUserChange,
   resetRegisterState,
   updateInforUser,
+  setPrePage,
+  clearPrePage,
 } = authSlice.actions;
 export default authSlice.reducer;

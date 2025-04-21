@@ -8,12 +8,9 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
-  Button,
 } from "react-native";
 import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { WebView } from "react-native-webview";
-import * as Linking from "expo-linking";
 import getServiceIcon from "../../Components/Icon/getServiceIcon";
 import { fetchBookingRoom } from "../../Redux/Slice/hotelSlice";
 import SkeletonOrderConfirm from "../../Components/Skeleton/Hotels/SkeletonOrderConfirm";
@@ -22,7 +19,6 @@ import { fetchListPromotion } from "../../Redux/Slice/promotionSlice";
 import {
   fetchPaymentOrder,
   resetPaymentData,
-  updateCallPayment,
 } from "../../Redux/Slice/paymentSlice";
 import ReusableModal from "../../Components/Modal/FlexibleModal/ReusableModal";
 
@@ -35,18 +31,18 @@ const OrderConfirmScreen = ({ navigation }) => {
   }, [navigation]);
 
   const [paymentMethod, setPaymentMethod] = useState("ZaloPay");
-  const [showWebView, setShowWebView] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState("confirm");
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
 
-  const { userInfor, inforUserChange, infoUser } = useAppSelector(
-    (state) => state.auth
-  );
-  const { serviceList } = useAppSelector((state) => state.service);
+  const { inforUserChange, infoUser } = useAppSelector((state) => state.auth);
   const {
     bookingData,
     bookingPayload,
     listUniqueIdBookingRoom,
     loadingBookingRoom,
-    roomNumberFake,
   } = useAppSelector((state) => state.hotel);
   const { paymentData, loadingPayment, error } = useAppSelector(
     (state) => state.payment
@@ -54,14 +50,9 @@ const OrderConfirmScreen = ({ navigation }) => {
 
   console.log(">>>>> check dataa");
   console.log(bookingData);
-  console.log(bookingPayload);
+  // console.log(bookingPayload);
   const dispatch = useAppDispatch();
   const listRoom = bookingData?.roomBookedList;
-
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalType, setModalType] = useState("confirm");
-  const [modalTitle, setModalTitle] = useState("");
-  const [modalMessage, setModalMessage] = useState("");
 
   const showModal = (type, title, message) => {
     setModalType(type);
@@ -70,6 +61,34 @@ const OrderConfirmScreen = ({ navigation }) => {
     setModalVisible(true);
   };
 
+  // Reset paymentData khi vào màn hình
+  useEffect(() => {
+    dispatch(resetPaymentData());
+    return () => {
+      dispatch(resetPaymentData());
+    };
+  }, [dispatch]);
+
+  // Theo dõi paymentData để điều hướng
+  useEffect(() => {
+    if (
+      paymentData &&
+      paymentData.orderUrl !== "" &&
+      paymentData.appTransId !== ""
+    ) {
+      console.log("Dữ liệu API trả về:", paymentData);
+      setIsLoading(false);
+      navigation.navigate("PaymentWebViewScreenQuan", {
+        orderUrl: paymentData.orderUrl,
+      });
+    } else if (!loadingPayment && error) {
+      console.error("Payment error:", error);
+      Alert.alert("Lỗi", error || "Lỗi tạo thanh toán");
+      setIsLoading(false);
+    }
+  }, [paymentData, loadingPayment, error, navigation]);
+
+  // Gọi fetchBookingRoom khi bookingPayload thay đổi
   useEffect(() => {
     dispatch(fetchBookingRoom(bookingPayload));
   }, [bookingPayload?.roomRequestList, dispatch]);
@@ -82,7 +101,7 @@ const OrderConfirmScreen = ({ navigation }) => {
   };
 
   const handleToOrderFood = () => {
-    navigation.navigate("OrderFood");
+    navigation.navigate("OrderFood", { prePage: "OrderConfirm" });
   };
 
   const handleToSale = () => {
@@ -91,6 +110,18 @@ const OrderConfirmScreen = ({ navigation }) => {
     const code = "";
     dispatch(fetchListPromotion({ code, totalPrice }));
     navigation.navigate("Discount", { prePage: "OrderConfirm" });
+  };
+
+  const handlePayment = async () => {
+    setIsLoading(true);
+    try {
+      await dispatch(fetchPaymentOrder(bookingPayload)).unwrap();
+      console.log("Dữ liệu gửi lên API:", bookingPayload);
+    } catch (error) {
+      console.error("Payment error:", error);
+      Alert.alert("Lỗi", error.message || "Lỗi tạo thanh toán");
+      setIsLoading(false);
+    }
   };
 
   const renderListRoom = (item) => (
@@ -127,11 +158,7 @@ const OrderConfirmScreen = ({ navigation }) => {
               </TouchableOpacity>
             ))
           ) : (
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("OrderFood", { prePage: "OrderConfirm" })
-              }
-            >
+            <TouchableOpacity onPress={handleToOrderFood}>
               <Ionicons name="add-outline" size={24} color="#007AFF" />
             </TouchableOpacity>
           )}
@@ -159,15 +186,9 @@ const OrderConfirmScreen = ({ navigation }) => {
     </View>
   );
 
-  const handlePayment = () => {
-    navigation.navigate("PaymentScreenQuan");
-    // dispatch(updateCallPayment(true));
-  };
-
   if (loadingBookingRoom) {
     return <SkeletonOrderConfirm />;
   }
-  // console.log("infoUserChange", inforUserChange);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -180,19 +201,19 @@ const OrderConfirmScreen = ({ navigation }) => {
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Tên</Text>
               <Text style={styles.infoValue}>
-                {inforUserChange && inforUserChange.lastName}
+                {(inforUserChange || infoUser)?.lastName}
               </Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Email</Text>
               <Text style={styles.infoValue}>
-                {inforUserChange && inforUserChange.email}
+                {(inforUserChange || infoUser)?.email}
               </Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Số điện thoại</Text>
               <Text style={styles.infoValue}>
-                +84 {inforUserChange && inforUserChange.phone}
+                +84 {(inforUserChange || infoUser)?.phone}
               </Text>
             </View>
           </View>
@@ -210,19 +231,19 @@ const OrderConfirmScreen = ({ navigation }) => {
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Vị trí khách sạn</Text>
-              <Text style={styles.infoValue}>{bookingData.hotelAddress}</Text>
+              <Text style={styles.infoValue}>{bookingData?.hotelAddress}</Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Tổng người lớn</Text>
-              <Text style={styles.infoValue}>{bookingData.totalAdults}</Text>
+              <Text style={styles.infoValue}>{bookingData?.totalAdults}</Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>CheckIn</Text>
-              <Text style={styles.infoValue}>{bookingData.checkIn}</Text>
+              <Text style={styles.infoValue}>{bookingData?.checkIn}</Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>CheckOut</Text>
-              <Text style={styles.infoValue}>{bookingData.checkOut}</Text>
+              <Text style={styles.infoValue}>{bookingData?.checkOut}</Text>
             </View>
           </View>
           <View style={styles.br} />
@@ -231,7 +252,6 @@ const OrderConfirmScreen = ({ navigation }) => {
         <View style={styles.roomsSection}>
           <Text style={styles.subTitle}>Phòng đặt</Text>
           <ScrollView showsVerticalScrollIndicator={false}>
-            {/* <ScrollView> */}
             {listRoom?.map((item, index) => (
               <View key={item.uniqueId}>{renderListRoom(item)}</View>
             ))}
@@ -243,13 +263,28 @@ const OrderConfirmScreen = ({ navigation }) => {
           <View style={styles.infoSection}>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Mã giảm giá</Text>
-              <TouchableOpacity
-                style={styles.wrapperInfoValueSale}
-                onPress={handleToSale}
-              >
-                <Ionicons name="bookmark-outline" size={18} color="#007AFF" />
-                <Text style={styles.infoValueSale}>couponCode</Text>
-              </TouchableOpacity>
+              {bookingData?.couponCode && (
+                <TouchableOpacity
+                  style={styles.wrapperInfoValueSale}
+                  onPress={handleToSale}
+                >
+                  <Ionicons name="bookmark-outline" size={18} color="#007AFF" />
+                  <Text style={styles.infoValueSale}>
+                    {bookingData?.couponCode}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              {!bookingData?.couponCode && (
+                <TouchableOpacity
+                  // style={styles.wrapperInfoValueSale}
+                  onPress={handleToSale}
+                >
+                  <Ionicons name="add-outline" size={18} color="#007AFF" />
+                  <Text style={styles.infoValueSale}>
+                    {bookingData?.couponCode}
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         </View>
@@ -260,25 +295,31 @@ const OrderConfirmScreen = ({ navigation }) => {
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Giá tiền phòng</Text>
               <Text style={styles.infoValue}>
-                {formatPrice(bookingData && bookingData?.totalPriceRoom)}
+                {formatPrice(bookingData?.totalPriceRoom)}
               </Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabelSale}>Giá tiền dịch vụ</Text>
               <Text style={styles.infoValue}>
-                {formatPrice(bookingData && bookingData?.totalPriceService)}
+                {formatPrice(bookingData?.totalPriceService)}
               </Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Mã giảm giá</Text>
               <Text style={styles.infoValue}>
-                {formatPrice(bookingData && bookingData?.priceCoupon)}
+                {formatPrice(bookingData?.priceCoupon)}
+              </Text>
+            </View>
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>Giá tiền cọc </Text>
+              <Text style={styles.infoValue}>
+                {formatPrice(bookingData?.priceDeposit)}
               </Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Giá cuối cùng</Text>
               <Text style={styles.infoValue}>
-                {formatPrice(bookingData && bookingData?.finalPrice)}
+                {formatPrice(bookingData?.finalPrice)}
               </Text>
             </View>
           </View>
@@ -302,18 +343,21 @@ const OrderConfirmScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* <TouchableOpacity style={styles.button} onPress={handlePayment}> */}
         <TouchableOpacity
-          style={styles.button}
+          style={[
+            styles.button,
+            (isLoading || loadingPayment) && styles.buttonDisabled,
+          ]}
           onPress={() =>
-            showModal(
-              "confirm",
-              "Xác nhận ",
-              "Bạn có chắc chắn muốn thanh toán hóa đơn này không?"
-            )
+            showModal("confirm", "Xác nhận", ` ${bookingData?.policyPayment} `)
           }
+          disabled={isLoading || loadingPayment}
         >
-          <Text style={styles.buttonText}>Xác nhận đặt phòng</Text>
+          <Text style={styles.buttonText}>
+            {isLoading || loadingPayment
+              ? "Đang xử lý..."
+              : "Xác nhận đặt phòng"}
+          </Text>
         </TouchableOpacity>
       </View>
 

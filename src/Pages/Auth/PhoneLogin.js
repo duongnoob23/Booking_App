@@ -12,24 +12,30 @@ import { auth, app } from "../../../config/firebaseConfig";
 import { getAuth, signInWithPhoneNumber } from "firebase/auth";
 import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
 import { API_BASE_URL } from "../../Constant/Constant";
-import { loginSuccess } from "../../Redux/Slice/authSlice";
+import {
+  loginSuccess,
+  setPrePage,
+  clearPrePage,
+} from "../../Redux/Slice/authSlice";
 import {
   fetchBookingStatus,
   fetchHotelList,
 } from "../../Redux/Slice/hotelSlice";
 import { fetchListNotification } from "../../Redux/Slice/notificationSlice";
-import { useAppDispatch } from "../../Redux/hook";
+import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import { CommonActions } from "@react-navigation/native";
+
 const PhoneLogin = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [confirm, setConfirm] = useState(null);
   const [code, setCode] = useState("");
   const recaptchaVerifier = useRef(null);
   const dispatch = useAppDispatch();
+  const { prePage } = useAppSelector((state) => state.auth);
+
   // Gửi OTP
   const sendOTP = async () => {
     try {
-      // Đảm bảo số điện thoại bắt đầu bằng mã quốc gia (ví dụ: +84 cho Việt Nam)
       if (!phoneNumber.startsWith("+")) {
         Alert.alert(
           "Lỗi",
@@ -44,7 +50,7 @@ const PhoneLogin = ({ navigation }) => {
         phoneNumber,
         recaptchaVerifier.current
       );
-      console.log(">>> ", confirmation);
+      console.log(">>> confirmation", confirmation);
       setConfirm(confirmation);
       Alert.alert("OTP đã được gửi!");
     } catch (error) {
@@ -61,9 +67,8 @@ const PhoneLogin = ({ navigation }) => {
       }
 
       const userCredential = await confirm.confirm(code);
-      const idToken = await userCredential.user.getIdToken(); // Lấy ID Token từ Firebase
+      const idToken = await userCredential.user.getIdToken();
 
-      // Gửi ID Token đến backend để xác thực
       const response = await fetch(`${API_BASE_URL}/api/auth/firebase`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -73,21 +78,28 @@ const PhoneLogin = ({ navigation }) => {
       const data = await response.json();
       console.log(">>> data", data);
       if (data.data && data.data.accessToken) {
-        Alert.alert("Đăng nhập thành công!");
-
-        dispatch(loginSuccess(data?.data?.accessToken));
+        dispatch(loginSuccess(data.data.accessToken));
         dispatch(fetchHotelList());
         dispatch(fetchBookingStatus());
         dispatch(fetchListNotification());
-        // Điều hướng đến màn hình chính hoặc lưu token vào state/storage nếu cần
-        // navigation.navigate("Home");
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0, // Màn hình đầu tiên trong stack
-            routes: [{ name: "Profile" }], // Chỉ giữ Profile trong stack
-          })
-        );
-        navigation.navigate("Home");
+
+        // Xác định màn hình đích dựa trên prePage
+        const targetScreen = prePage === "InfoConfirm" ? "InfoConfirm" : "Home";
+
+        // Reset stack để xóa các màn hình đăng nhập
+        if (prePage) {
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{ name: "Profile" }],
+            })
+          );
+        }
+        navigation.navigate(`${targetScreen}`);
+        // Xóa prePage sau khi điều hướng
+        dispatch(clearPrePage());
+
+        Alert.alert("Đăng nhập thành công!");
       } else {
         Alert.alert(
           "Lỗi xác thực với backend!",
@@ -114,8 +126,6 @@ const PhoneLogin = ({ navigation }) => {
         <Text style={styles.title}>Đăng nhập với số điện thoại</Text>
       </View>
       <View style={styles.whiteFrame}>
-        {/* Tiêu đề */}
-        {/* Ô input Phone */}
         {!confirm ? (
           <>
             <View style={[styles.inputContainer, styles.inputContainerFirst]}>
@@ -152,20 +162,18 @@ const PhoneLogin = ({ navigation }) => {
           </>
         )}
 
-        {/* Nút Đăng nhập */}
         <Text
           style={styles.forgotPassword}
           onPress={() => navigation.navigate("ForgotPassword")}
         >
           Quên mật khẩu?
         </Text>
-        {/* Nút đăng nhập bằng Google và Email */}
         <View>
           <Text style={styles.textOr}>Hoặc đăng nhập bằng</Text>
         </View>
         <View style={styles.socialButtons}>
           <TouchableOpacity
-            onPress={() => handleToLogin()}
+            onPress={handleToLogin}
             style={[styles.socialButton, { backgroundColor: "#3b5998" }]}
           >
             <Text style={styles.socialButtonText}>EMAIL</Text>

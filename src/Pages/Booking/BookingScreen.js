@@ -19,7 +19,7 @@ import RoomCheckedOut from "./RoomCheckedOut";
 import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import { fetchBookingStatus } from "../../Redux/Slice/hotelSlice";
 
-const BookingScreen = () => {
+const BookingScreen = ({ navigation }) => {
   const { bookingStatus, loadingBookingStatus } = useAppSelector(
     (state) => state.hotel
   );
@@ -46,7 +46,15 @@ const BookingScreen = () => {
     if (accessToken && isLoggedIn) {
       dispatch(fetchBookingStatus());
     }
-  }, [dispatch, accessToken, isLoggedIn]); // Thêm accessToken và isLoggedIn vào dependency array để gọi lại API nếu trạng thái đăng nhập thay đổi
+    // Thêm sự kiện focus
+    const unsubscribe = navigation.addListener("focus", () => {
+      if (accessToken && isLoggedIn) {
+        dispatch(fetchBookingStatus());
+      }
+    });
+    // Cleanup listener khi component unmount
+    return unsubscribe;
+  }, [dispatch, accessToken, isLoggedIn, navigation]); // Thêm accessToken và isLoggedIn vào dependency array để gọi lại API nếu trạng thái đăng nhập thay đổi
 
   // Kiểm tra chưa đăng nhập
   if (!accessToken && !isLoggedIn) {
@@ -169,7 +177,7 @@ const BookingScreen = () => {
 
       <Tab.Navigator
         tabBar={(props) => <CustomTabBar {...props} />}
-        initialRouteName="Booking"
+        initialRouteName="Booked"
       >
         <Tab.Screen
           name="Booked"

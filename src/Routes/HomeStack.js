@@ -22,6 +22,9 @@ import PaymentResultScreenQuan from "../Pages/Payment/PaymentResultScreenQuan";
 import PaymentWebViewScreenQuan from "../Pages/Payment/PaymentWebViewScreenQuan";
 import PaymentScreenQuan from "../Pages/Payment/PaymentScreenQuan";
 import TestModal from "../Components/Modal/FlexibleModal/TestModal";
+import AllCommentsScreen from "../Pages/Hotels/AllCommentsScreen";
+import AllComments from "../Pages/Hotels/AllComment";
+import PhoneLogin from "../Pages/Auth/PhoneLogin";
 const Stack = createNativeStackNavigator();
 
 const HomeStackNavigator = () => {
@@ -203,6 +206,24 @@ const HomeStackNavigator = () => {
         component={TestModal}
         options={{
           headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Test Modal",
+        }}
+      />
+      <Stack.Screen
+        name="AllComments"
+        component={AllComments}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Test Modal",
+        }}
+      />
+      <Stack.Screen
+        name="PhoneLogin"
+        component={PhoneLogin}
+        options={{
+          headerShown: false,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
           title: "Test Modal",
         }}

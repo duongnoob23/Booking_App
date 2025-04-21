@@ -13,6 +13,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import {
   fetchUserInfo,
+  setPrePage,
   updateInforUserChange,
 } from "../../Redux/Slice/authSlice";
 import {
@@ -123,6 +124,7 @@ const InfoConfirmScreen = ({ navigation }) => {
   };
 
   const handleLogin = () => {
+    dispatch(setPrePage("InfoConfirm"));
     navigation.navigate("LoginScreen", { preScreen: "InfoConfirm" });
   };
 
