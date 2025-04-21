@@ -26,8 +26,8 @@ const OrderFood = ({ navigation, route }) => {
   useEffect(() => {
     if (categories) {
       setSelectedCategory({
-        id: categories[0].id,
-        type: categories[0].name,
+        id: categories[0]?.id,
+        type: categories[0]?.name,
       });
     }
   }, [categories]);
@@ -58,7 +58,7 @@ const OrderFood = ({ navigation, route }) => {
         .map((room) => ({
           uniqueId: room.uniqueId,
           serviceIds: room.serviceList.map((service) => ({
-            id: service.id,
+            id: service?.id,
             quantity: service.quantity,
             time: service.time || "",
             note: service.note || "",
@@ -106,7 +106,7 @@ const OrderFood = ({ navigation, route }) => {
       } else {
         room.serviceIds.forEach((service, serviceIndex) => {
           console.log(
-            `  Service ${serviceIndex + 1}: id=${service.id}, quantity=${
+            `  Service ${serviceIndex + 1}: id=${service?.id}, quantity=${
               service.quantity
             }, time="${service.time}", note="${service.note}"`
           );
@@ -125,7 +125,7 @@ const OrderFood = ({ navigation, route }) => {
       const existRoom = prev.find((r) => r.uniqueId === uniqueId);
       if (existRoom) {
         const existService = existRoom.serviceIds.find(
-          (s) => s.id === serviceId
+          (s) => s?.id === serviceId
         );
         if (existService) {
           return prev.map((r) =>
@@ -133,7 +133,7 @@ const OrderFood = ({ navigation, route }) => {
               ? {
                   ...r,
                   serviceIds: r.serviceIds.map((s) =>
-                    s.id === serviceId ? { ...s, quantity: s.quantity + 1 } : s
+                    s?.id === serviceId ? { ...s, quantity: s.quantity + 1 } : s
                   ),
                 }
               : r
@@ -167,13 +167,13 @@ const OrderFood = ({ navigation, route }) => {
       const existingRoom = prev.find((item) => item.uniqueId === uniqueId);
       if (existingRoom) {
         const existingService = existingRoom.serviceIds.find(
-          (s) => s.id === serviceId
+          (s) => s?.id === serviceId
         );
         if (existingService) {
           if (existingService.quantity <= 1) {
             // Xóa dịch vụ nếu quantity về 0
             const updatedServiceIds = existingRoom.serviceIds.filter(
-              (s) => s.id !== serviceId
+              (s) => s?.id !== serviceId
             );
             if (updatedServiceIds.length === 0) {
               // Xóa phòng nếu không còn dịch vụ
@@ -203,7 +203,7 @@ const OrderFood = ({ navigation, route }) => {
               ? {
                   ...item,
                   serviceIds: item.serviceIds.map((s) =>
-                    s.id === serviceId ? { ...s, quantity: s.quantity - 1 } : s
+                    s?.id === serviceId ? { ...s, quantity: s.quantity - 1 } : s
                   ),
                 }
               : item
@@ -267,7 +267,7 @@ const OrderFood = ({ navigation, route }) => {
     const roomQuantities = serviceQuantities.find(
       (q) => q.uniqueId === item.uniqueId
     );
-    const service = roomQuantities?.serviceIds.find((s) => s.id === serviceId);
+    const service = roomQuantities?.serviceIds.find((s) => s?.id === serviceId);
 
     // Lấy số lượng từ serviceQuantities, nếu không có thì lấy từ bookingPayload
     let quantity = service?.quantity || 0;
@@ -362,17 +362,17 @@ const OrderFood = ({ navigation, route }) => {
           </View>
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => handleToggleRoomList(item.id)}
+            onPress={() => handleToggleRoomList(item?.id)}
           >
             <Text style={styles.addButtonText}>
-              {expandedServices[item.id] ? "Thu gọn" : "Thêm"}
+              {expandedServices[item?.id] ? "Thu gọn" : "Thêm"}
             </Text>
           </TouchableOpacity>
         </TouchableOpacity>
-        {expandedServices[item.id] && (
+        {expandedServices[item?.id] && (
           <FlatList
             data={allowedRooms}
-            renderItem={(props) => renderRoomItem(props, item.id)}
+            renderItem={(props) => renderRoomItem(props, item?.id)}
             keyExtractor={(item) => item.uniqueId}
             style={styles.roomList}
             showsVerticalScrollIndicator={false}
@@ -395,22 +395,22 @@ const OrderFood = ({ navigation, route }) => {
           <View style={styles.list}>
             {categories?.map((item) => (
               <TouchableOpacity
-                key={item.id}
+                key={item?.id}
                 style={styles.item}
                 onPress={() =>
-                  setSelectedCategory({ id: item.id, type: item.name })
+                  setSelectedCategory({ id: item?.id, type: item.name })
                 }
               >
                 <View
                   style={[
                     styles.itemIcon,
-                    selectedCategory.id === item.id ? styles.selectFood : "",
+                    selectedCategory?.id === item?.id ? styles.selectFood : "",
                   ]}
                 >
                   {getServiceIconOrderFood(
                     item.name,
                     28,
-                    selectedCategory.id === item.id ? "white" : "#B7C9D4"
+                    selectedCategory?.id === item?.id ? "white" : "#B7C9D4"
                   )}
                 </View>
                 <Text style={styles.itemText}>{item.name}</Text>
@@ -422,7 +422,7 @@ const OrderFood = ({ navigation, route }) => {
       <FlatList
         data={foodItems}
         renderItem={renderFoodItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item?.id}
         style={styles.foodList}
         showsVerticalScrollIndicator={false}
       />
@@ -637,7 +637,3 @@ const styles = StyleSheet.create({
 });
 
 export default OrderFood;
-// / xử lý logic chỉnh quantity thì chỉnh data trong mảng
-// logic ấn thêm thì món ăn sẽ thêm vào danh sách giỏ hàng
-// uniqueId:1,serviceIds: [{id:29,quanitty:1} , {id:30,quantity:2} , {id:31,quantity:5} ]
-// uniqueId:2,serviceIds:  [{id:29,quanitty:2} , {id:30,quantity:3} , {id:31,quantity:1} ]

@@ -17,8 +17,11 @@ import OrderConfirmScreen from "../Pages/Hotels/OrderConfirmScreen";
 import LoginScreen from "../Pages/Auth/LoginScreen";
 import RegisterScreen from "../Pages/Auth/RegisterScreen";
 import Discount from "../Pages/Promotion/Discount";
-import PaymentScreen from "../Pages/Payment/PaymentScreen";
-import PaymentResultScreen from "../Pages/Payment/PaymentResultScreen";
+
+import PaymentResultScreenQuan from "../Pages/Payment/PaymentResultScreenQuan";
+import PaymentWebViewScreenQuan from "../Pages/Payment/PaymentWebViewScreenQuan";
+import PaymentScreenQuan from "../Pages/Payment/PaymentScreenQuan";
+import TestModal from "../Components/Modal/FlexibleModal/TestModal";
 const Stack = createNativeStackNavigator();
 
 const HomeStackNavigator = () => {
@@ -167,20 +170,41 @@ const HomeStackNavigator = () => {
           title: "Mã giảm giá ",
         }}
       />
+
       <Stack.Screen
-        name="PaymentScreen"
-        component={PaymentScreen}
+        name="PaymentResultScreenQuan"
+        component={PaymentResultScreenQuan}
         options={{
           headerShown: false,
-          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          tabBarVisible: false, // Ẩn thanh tab dưới
+          title: "Kết quả thanh toán",
         }}
       />
       <Stack.Screen
-        name="PaymentResultScreen"
-        component={PaymentResultScreen}
+        name="PaymentWebViewScreenQuan"
+        component={PaymentWebViewScreenQuan}
         options={{
-          headerShown: false,
+          headerShown: true,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Web view zalo",
+        }}
+      />
+      <Stack.Screen
+        name="PaymentScreenQuan"
+        component={PaymentScreenQuan}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Web view zalo",
+        }}
+      />
+      <Stack.Screen
+        name="TestModal"
+        component={TestModal}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Test Modal",
         }}
       />
     </Stack.Navigator>

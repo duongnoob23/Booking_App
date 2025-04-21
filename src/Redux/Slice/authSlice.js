@@ -32,10 +32,15 @@ export const fetchUserInfo = createAsyncThunk(
   "auth/fetchUserInfo",
   async (_, { getState, rejectWithValue }) => {
     try {
+      const { accessToken } = getState().auth;
+      if (!accessToken) {
+        throw new Error("Không có token để gọi API");
+      }
       const response = await fetch(`${API_BASE_URL}/api/user/info`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
@@ -133,7 +138,7 @@ const authSlice = createSlice({
       state.registerSuccess = false;
     },
     updateInforUser(state, action) {
-      state.infoUser = action.payload;
+      state.infoUser = [...state.infoUser, action.payload];
     },
   },
   extraReducers: (builder) => {

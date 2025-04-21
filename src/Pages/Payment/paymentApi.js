@@ -1,30 +1,51 @@
-import axios from "axios";
-import { API_BASE_URL1 } from "../../Constant/Constant";
+import { API_BASE_URL } from "../../Constant/Constant";
 
 const paymentApi = {
-  async createPayment(orderId, amount) {
+  async createPayment(orderId, amount, paymentType) {
     try {
-      const request = JSON.stringify({ orderID: orderId ?? "1", amount });
-      console.log("REQUEST", request);
-      const response = await fetch(
-        `${API_BASE_URL1}/api/payment/create_order`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ orderId: "1", amount: 100000 }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/payment/create_order`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderId,
+          amount,
+          paymentType,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Không thể tạo thanh toán");
+      }
 
       const data = await response.json();
-      console.log(">>>> data", data);
       return data; // Trả về { order_url, ... }
     } catch (error) {
       console.log("Error creating payment:", error);
-      throw new Error(
-        error.response?.data?.message || "Không thể tạo thanh toán"
-      );
+      throw new Error(error.message || "Không thể tạo thanh toán");
+    }
+  },
+
+  async checkPaymentStatus(appTransId) {
+    try {
+      const url = new URL(`${API_BASE_URL}/api/payment/status`);
+      url.searchParams.append("appTransId", appTransId);
+
+      const response = await fetch(url.toString(), {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Không thể kiểm tra trạng thái");
+      }
+
+      const data = await response.json();
+      return data.data; // Trả về { appTransId, status, message }
+    } catch (error) {
+      throw new Error(error.message || "Không thể kiểm tra trạng thái");
     }
   },
 };

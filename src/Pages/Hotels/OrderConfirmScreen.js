@@ -24,6 +24,7 @@ import {
   resetPaymentData,
   updateCallPayment,
 } from "../../Redux/Slice/paymentSlice";
+import ReusableModal from "../../Components/Modal/FlexibleModal/ReusableModal";
 
 const OrderConfirmScreen = ({ navigation }) => {
   useLayoutEffect(() => {
@@ -36,7 +37,9 @@ const OrderConfirmScreen = ({ navigation }) => {
   const [paymentMethod, setPaymentMethod] = useState("ZaloPay");
   const [showWebView, setShowWebView] = useState(false);
 
-  const { userInfor, inforUserChange } = useAppSelector((state) => state.auth);
+  const { userInfor, inforUserChange, infoUser } = useAppSelector(
+    (state) => state.auth
+  );
   const { serviceList } = useAppSelector((state) => state.service);
   const {
     bookingData,
@@ -49,8 +52,23 @@ const OrderConfirmScreen = ({ navigation }) => {
     (state) => state.payment
   );
 
+  console.log(">>>>> check dataa");
+  console.log(bookingData);
+  console.log(bookingPayload);
   const dispatch = useAppDispatch();
   const listRoom = bookingData?.roomBookedList;
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState("confirm");
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+
+  const showModal = (type, title, message) => {
+    setModalType(type);
+    setModalTitle(title);
+    setModalMessage(message);
+    setModalVisible(true);
+  };
 
   useEffect(() => {
     dispatch(fetchBookingRoom(bookingPayload));
@@ -142,8 +160,8 @@ const OrderConfirmScreen = ({ navigation }) => {
   );
 
   const handlePayment = () => {
-    navigation.navigate("PaymentScreen");
-    dispatch(updateCallPayment(true));
+    navigation.navigate("PaymentScreenQuan");
+    // dispatch(updateCallPayment(true));
   };
 
   if (loadingBookingRoom) {
@@ -161,22 +179,17 @@ const OrderConfirmScreen = ({ navigation }) => {
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Tên</Text>
               <Text style={styles.infoValue}>
-                {(inforUserChange && inforUserChange.lastName) ||
-                  userInfor.lastName}
+                {infoUser && infoUser.lastName}
               </Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Email</Text>
-              <Text style={styles.infoValue}>
-                {(inforUserChange && inforUserChange.email) || userInfor.email}
-              </Text>
+              <Text style={styles.infoValue}>{infoUser && infoUser.email}</Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Số điện thoại</Text>
               <Text style={styles.infoValue}>
-                {userInfor.country}{" "}
-                {(inforUserChange && inforUserChange.phoneNumber) ||
-                  userInfor.phoneNumber}
+                {userInfor.country} {infoUser && infoUser.phoneNumber}
               </Text>
             </View>
           </View>
@@ -286,10 +299,36 @@ const OrderConfirmScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={handlePayment}>
+        {/* <TouchableOpacity style={styles.button} onPress={handlePayment}> */}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() =>
+            showModal(
+              "confirm",
+              "Xác nhận ",
+              "Bạn có chắc chắn muốn thanh toán hóa đơn này không?"
+            )
+          }
+        >
           <Text style={styles.buttonText}>Xác nhận đặt phòng</Text>
         </TouchableOpacity>
       </View>
+
+      <ReusableModal
+        visible={modalVisible}
+        type={modalType}
+        title={modalTitle}
+        message={modalMessage}
+        confirmText={modalType === "confirm" ? "Xác nhận" : "OK"}
+        cancelText="Hủy"
+        onConfirm={() => {
+          setModalVisible(false);
+          handlePayment();
+        }}
+        onCancel={() => {
+          setModalVisible(false);
+        }}
+      />
     </SafeAreaView>
   );
 };

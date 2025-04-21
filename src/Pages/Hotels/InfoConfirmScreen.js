@@ -60,16 +60,18 @@ const InfoConfirmScreen = ({ navigation }) => {
   });
 
   useEffect(() => {
-    dispatch(fetchUserInfo());
+    if (!infoUser) {
+      dispatch(fetchUserInfo());
+    }
   }, [isLoggedIn, accessToken, dispatch]);
 
   useEffect(() => {
     if (isLoggedIn && infoUser) {
       const newInfomation = {
-        firstName: infoUser.firstName || "Lâm",
-        lastName: infoUser.lastName || "Tiến Dưỡng",
-        email: infoUser.email || "admin@gmail.com",
-        phoneNumber: infoUser.phone || "0982474802",
+        firstName: infoUser.firstName || "",
+        lastName: infoUser.lastName || "",
+        email: infoUser.email || "",
+        phoneNumber: infoUser.phone || "",
         phoneCountry: "+84",
       };
       setInfomation(newInfomation);
@@ -130,8 +132,8 @@ const InfoConfirmScreen = ({ navigation }) => {
         return; // Dừng lại nếu validate thất bại
       }
     }
-    dispatch(updateInforUser(infomation));
-    dispatch(updateInforUserChange(infomation));
+    // dispatch(updateInforUser(infomation));
+    // dispatch(updateInforUserChange(infomation));
     dispatch(fetchBookingRoom());
     navigation.navigate("OrderConfirm");
   };

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Button, Image } from "react-native";
-import paymentApi from "./paymentApi";
+import paymentApi from "../Payment/paymentApi";
 
-const PaymentResultScreen = ({ route, navigation }) => {
+const PaymentResultScreenQuan = ({ route, navigation }) => {
   const {
     appTransId,
     status,
@@ -42,7 +42,7 @@ const PaymentResultScreen = ({ route, navigation }) => {
   }, [appTransId]);
 
   const handleBackToHome = () => {
-    navigation.navigate("Payment");
+    navigation.navigate("Home");
   };
 
   if (isLoading) {
@@ -89,7 +89,11 @@ const PaymentResultScreen = ({ route, navigation }) => {
       </Text>
       <Text style={styles.details}>Phương thức thanh toán: {pmcid}</Text>
       <Text style={styles.details}>Thông tin: {resultMessage}</Text>
-      <Button title="Quay lại" onPress={handleBackToHome} color="#00C4B4" />
+      <Button
+        title="Trở về trang Home"
+        onPress={handleBackToHome}
+        color="#00C4B4"
+      />
     </View>
   );
 };
@@ -126,4 +130,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PaymentResultScreen;
+export default PaymentResultScreenQuan;

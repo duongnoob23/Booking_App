@@ -11,7 +11,6 @@ import {
   ScrollView,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import LinearGradient from "react-native-linear-gradient";
 import { auth } from "../../../config/firebaseConfig";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useAppDispatch, useAppSelector } from "../../Redux/hook";
@@ -20,6 +19,7 @@ import {
   loginSuccess,
   loginFailure,
   logout,
+  fetchUserInfo,
 } from "../../Redux/Slice/authSlice";
 import { API_BASE_URL } from "../../Constant/Constant";
 import {
@@ -28,6 +28,7 @@ import {
 } from "../../Redux/Slice/hotelSlice";
 import { CommonActions } from "@react-navigation/native";
 import { fetchListNotification } from "../../Redux/Slice/notificationSlice";
+import { registerForPushNotificationsAsync } from "../../Utils/notificationsQuan";
 /* 
 {"data": 
 {"accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQzMTgyOTA3LCJleHAiOjE3NDMyNjkzMDd9.QPIwLj0wTe5y1n98COb4H8SeWYk11w3FQpe31BunkqA", 
@@ -67,17 +68,20 @@ const LoginScreen = ({ navigation, route }) => {
         dispatch(fetchHotelList());
         dispatch(fetchBookingStatus());
         dispatch(fetchListNotification());
+        dispatch(fetchUserInfo());
         // dispatch(loginSuccess(data.data)); isLoggedIn = true auto
         console.log("Đăng nhập thành công!");
         // Alert.alert("Đăng nhập thành công!", `JWT: ${data.data.accessToken}`);
 
-        // navigation.dispatch(
-        //   CommonActions.reset({
-        //     index: 0, // Màn hình đầu tiên trong stack
-        //     routes: [{ name: "Profile" }], // Chỉ giữ Profile trong stack
-        //   })
-        // );
-        // navigation.navigate("Login");
+        // const deviceToken = await registerForPushNotificationsAsync();
+        // console.log("Device os:", Platform.OS);
+        // if (deviceToken) {
+        //   await registerDevice(
+        //     deviceToken,
+        //     Platform.OS === "ios" ? "IOS" : "ANDROID"
+        //   );
+        // }
+
         if (route?.params?.preScreen === "InfoConfirm") {
           navigation.navigate("InfoConfirm");
         } else if (route?.params?.preScreen === "profile") {

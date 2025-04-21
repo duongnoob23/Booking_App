@@ -46,11 +46,7 @@ const RateApp = ({ navigation, route }) => {
     // Thêm sao đầy
     for (let i = 0; i < fullStars; i++) {
       stars.push(
-        <TouchableOpacity
-          style={styles.start}
-          key={`full-${i}`}
-          onPress={() => handleRating(criterion, i + 1)}
-        >
+        <TouchableOpacity style={styles.start} key={`full-${i}`}>
           <Ionicons name="star" size={22} color="#FFD700" />
         </TouchableOpacity>
       );
@@ -59,11 +55,7 @@ const RateApp = ({ navigation, route }) => {
     // Thêm sao rỗng
     for (let i = 0; i < emptyStars; i++) {
       stars.push(
-        <TouchableOpacity
-          style={styles.start}
-          key={`empty-${i}`}
-          onPress={() => handleRating(criterion, fullStars + i + 1)}
-        >
+        <TouchableOpacity style={styles.start} key={`empty-${i}`}>
           <Ionicons name="star-outline" size={22} color="#CCCCCC" />
         </TouchableOpacity>
       );
@@ -163,9 +155,9 @@ const RateApp = ({ navigation, route }) => {
           <Text>Chưa có ảnh</Text>
         )}
       </View>
-      <TouchableOpacity style={styles.button}>
+      {/* <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Xác nhận</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </ScrollView>
   );
 };

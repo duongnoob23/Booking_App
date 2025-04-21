@@ -35,6 +35,8 @@ import { skeletonLoading } from "../../Redux/Slice/hotelSlice";
 import { updateFilter } from "../../Redux/Slice/hotelSlice";
 import { fetchListService } from "../../Redux/Slice/serviceSlice";
 import { fetchUserInfo } from "../../Redux/Slice/authSlice";
+import ReusableModal from "../../Components/Modal/FlexibleModal/ReusableModal";
+import ModalBookingCancelled from "../../Components/Modal/Booking/ModalBookingCancelled";
 const HomeScreen = ({ navigation }) => {
   const {
     hotelHistorySearch,
@@ -47,6 +49,8 @@ const HomeScreen = ({ navigation }) => {
     inforFilter,
   } = useAppSelector((state) => state.hotel);
 
+  const { infoUser } = useAppSelector((state) => state.auth);
+  console.log("fetchUserInfo >>>", infoUser);
   const [open, setOpen] = useState({
     Modal_1: false,
     Modal_CheckIn: false,
@@ -59,6 +63,9 @@ const HomeScreen = ({ navigation }) => {
     left: 0,
     width: 0,
   });
+
+  const [modalVisible, setModalVisible] = useState(true);
+  const [modalType, setModalType] = useState("error");
 
   const continueSearch = hotelHistorySearch;
   // const [inforFilter, setInforFilter] = useState({
@@ -230,7 +237,7 @@ const HomeScreen = ({ navigation }) => {
 
   const handleToInfoConfirm = () => {
     // dispatch(fetchUserInfo());
-    navigation.navigate("RateApp");
+    navigation.navigate("TestModal");
   };
 
   const handleContinueSearch = (item) => {
@@ -257,9 +264,9 @@ const HomeScreen = ({ navigation }) => {
       {/* <Map /> */}
       <View style={styles.header}>
         <Text style={styles.title}>Tìm Phòng</Text>
-        {/* <TouchableOpacity onPress={() => handleToInfoConfirm()}>
+        <TouchableOpacity onPress={() => handleToInfoConfirm()}>
           <Icon name="filter" size={24} color="#007AFF" />
-        </TouchableOpacity> */}
+        </TouchableOpacity>
       </View>
       {/* Body */}
       <ScrollView style={styles.body} scrollEnabled={!open.Modal_1}>
