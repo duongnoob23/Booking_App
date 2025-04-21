@@ -72,6 +72,9 @@ const HotelDetails = ({ navigation, route }) => {
     // console.log(inforFilter_);
 
     const bookingPayload = {
+      customerName: "",
+      customerEmail: "",
+      customerPhone: "",
       hotelId: hotelId,
       checkInDate: inforFilter.checkin,
       checkOutDate: inforFilter.checkout,

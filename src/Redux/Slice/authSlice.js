@@ -114,7 +114,7 @@ const authSlice = createSlice({
       state.accessToken = action.payload;
       state.isLoggedIn = true;
       state.loading = false;
-      AsyncStorage.setItem("accessToken", action.payload); // Lưu token
+      AsyncStorage.setItem("accessToken", action.payload);
     },
     loginFailure(state, action) {
       state.loading = false;
@@ -122,13 +122,15 @@ const authSlice = createSlice({
     },
     logout(state) {
       state.accessToken = null;
-      state.user = null;
+      state.infoUser = null;
+      state.inforUserChange = null;
       state.isLoggedIn = false;
-      AsyncStorage.removeItem("accessToken"); // Xóa token
+      AsyncStorage.removeItem("accessToken");
     },
     updateInforUserChange(state, action) {
       state.inforUserChange = action.payload;
     },
+
     clearInforUserChange(state) {
       state.inforUserChange = null;
     },
@@ -136,9 +138,6 @@ const authSlice = createSlice({
       state.registerLoading = false;
       state.registerError = null;
       state.registerSuccess = false;
-    },
-    updateInforUser(state, action) {
-      state.infoUser = [...state.infoUser, action.payload];
     },
   },
   extraReducers: (builder) => {

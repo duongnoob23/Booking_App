@@ -7,16 +7,18 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import {
   fetchUserInfo,
-  updateUserInfo,
   updateInforUserChange,
-  updateInforUser,
 } from "../../Redux/Slice/authSlice";
-import { fetchBookingRoom } from "../../Redux/Slice/hotelSlice";
+import {
+  fetchBookingRoom,
+  updateBookingPayload,
+} from "../../Redux/Slice/hotelSlice";
 import SkeletonInfoConfirm from "../../Components/Skeleton/Auth/SkeletonInfoConfirm";
 
 const InfoConfirmScreen = ({ navigation }) => {
@@ -32,9 +34,9 @@ const InfoConfirmScreen = ({ navigation }) => {
   const {
     isLoggedIn,
     infoUser,
+    inforUserChange,
     loadingInfoUser,
     error,
-    inforUserChange,
     accessToken,
   } = useAppSelector((state) => state.auth);
 
@@ -42,16 +44,16 @@ const InfoConfirmScreen = ({ navigation }) => {
     (state) => state.hotel
   );
   console.log("infoUser", infoUser);
+  console.log("inforUserChange", inforUserChange);
 
   const [infomation, setInfomation] = useState({
-    firstName: " ",
+    firstName: "",
     lastName: "",
     email: "",
     phoneNumber: "",
     phoneCountry: "+84",
   });
 
-  // State để lưu lỗi validate
   const [errors, setErrors] = useState({
     firstName: "",
     lastName: "",
@@ -60,25 +62,25 @@ const InfoConfirmScreen = ({ navigation }) => {
   });
 
   useEffect(() => {
-    if (!infoUser) {
+    if (isLoggedIn && !infoUser) {
       dispatch(fetchUserInfo());
     }
   }, [isLoggedIn, accessToken, dispatch]);
 
   useEffect(() => {
     if (isLoggedIn && infoUser) {
-      const newInfomation = {
-        firstName: infoUser.firstName || "",
-        lastName: infoUser.lastName || "",
-        email: infoUser.email || "",
-        phoneNumber: infoUser.phone || "",
-        phoneCountry: "+84",
-      };
-      setInfomation(newInfomation);
+      // Ưu tiên inforUserChange nếu tồn tại, nếu không dùng infoUser
+      const source = inforUserChange || infoUser;
+      setInfomation({
+        firstName: source.firstName || "",
+        lastName: source.lastName || "",
+        email: source.email || "",
+        phoneNumber: source.phone || source.phoneNumber || "",
+        phoneCountry: source.phoneCountry || "+84",
+      });
     }
-  }, [infoUser]);
+  }, [infoUser, inforUserChange]);
 
-  // Hàm validate form
   const validateForm = () => {
     let valid = true;
     const newErrors = {
@@ -117,7 +119,6 @@ const InfoConfirmScreen = ({ navigation }) => {
 
   const onChangeInfomation = (value, name) => {
     setInfomation((prev) => ({ ...prev, [name]: value }));
-    // Xóa lỗi của trường khi người dùng bắt đầu nhập
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -125,17 +126,41 @@ const InfoConfirmScreen = ({ navigation }) => {
     navigation.navigate("LoginScreen", { preScreen: "InfoConfirm" });
   };
 
-  const handleInfoConfirm = () => {
+  const handleInfoConfirm = async () => {
     if (isLoggedIn) {
-      // Nếu đã đăng nhập, validate form
       if (!validateForm()) {
-        return; // Dừng lại nếu validate thất bại
+        return;
       }
+
+      try {
+        // Lưu thông tin chỉnh sửa cục bộ
+        dispatch(
+          updateInforUserChange({
+            firstName: infomation.firstName,
+            lastName: infomation.lastName,
+            email: infomation.email,
+            phone: infomation.phoneNumber,
+            phoneCountry: infomation.phoneCountry,
+          })
+        );
+        const bookingPayload_ = {
+          ...bookingPayload,
+          customerName: infomation.lastName,
+          customerEmail: infomation.email,
+          customerPhone: infomation.phoneNumber,
+        };
+        dispatch(updateBookingPayload(bookingPayload_));
+
+        // Gọi fetchBookingRoom và điều hướng
+        dispatch(fetchBookingRoom());
+        navigation.navigate("OrderConfirm");
+      } catch (error) {
+        console.error("Error:", error);
+        Alert.alert("Lỗi", error.message || "Xử lý thông tin thất bại");
+      }
+    } else {
+      handleLogin();
     }
-    // dispatch(updateInforUser(infomation));
-    // dispatch(updateInforUserChange(infomation));
-    dispatch(fetchBookingRoom());
-    navigation.navigate("OrderConfirm");
   };
 
   if (loadingInfoUser) {
@@ -153,32 +178,6 @@ const InfoConfirmScreen = ({ navigation }) => {
           <>
             <Text style={styles.title}>THÔNG TIN CÁ NHÂN</Text>
 
-            {/* <View
-              style={[
-                styles.inputContainer,
-                errors.firstName && styles.inputError,
-              ]}
-            >
-              <Ionicons
-                name="person-outline"
-                size={20}
-                color="#007AFF"
-                style={styles.icon}
-              />
-              <TextInput
-                style={styles.input}
-                value={infomation.firstName}
-                // value={"TIEN DUONG"}
-                onChangeText={(value) => onChangeInfomation(value, "firstName")}
-                placeholder="Họ *"
-                placeholderTextColor="#999"
-                editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
-              />
-              {errors.firstName ? (
-                <Text style={styles.errorText}>{errors.firstName}</Text>
-              ) : null}
-            </View> */}
-
             <View
               style={[
                 styles.inputContainer,
@@ -194,11 +193,10 @@ const InfoConfirmScreen = ({ navigation }) => {
               <TextInput
                 style={styles.input}
                 value={infomation.firstName}
-                // value={"LAM"}
                 onChangeText={(value) => onChangeInfomation(value, "firstName")}
                 placeholder="Họ *"
                 placeholderTextColor="#999"
-                editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
+                editable={isLoggedIn}
               />
               {errors.firstName ? (
                 <Text style={styles.errorText}>{errors.firstName}</Text>
@@ -220,11 +218,10 @@ const InfoConfirmScreen = ({ navigation }) => {
               <TextInput
                 style={styles.input}
                 value={infomation.lastName}
-                // value={"LAM"}
                 onChangeText={(value) => onChangeInfomation(value, "lastName")}
                 placeholder="Tên *"
                 placeholderTextColor="#999"
-                editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
+                editable={isLoggedIn}
               />
               {errors.lastName ? (
                 <Text style={styles.errorText}>{errors.lastName}</Text>
@@ -243,12 +240,11 @@ const InfoConfirmScreen = ({ navigation }) => {
               <TextInput
                 style={styles.input}
                 value={infomation.email}
-                // value={"admin@gmail.com"}
                 onChangeText={(value) => onChangeInfomation(value, "email")}
                 placeholder="Email *"
                 placeholderTextColor="#999"
                 keyboardType="email-address"
-                editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
+                editable={isLoggedIn}
               />
               {errors.email ? (
                 <Text style={styles.errorText}>{errors.email}</Text>
@@ -270,29 +266,19 @@ const InfoConfirmScreen = ({ navigation }) => {
               <TextInput
                 style={[styles.input]}
                 value={infomation.phoneCountry}
+                editable={false}
               />
               <TextInput
                 style={[styles.input, { flex: 1 }]}
                 value={infomation.phoneNumber}
-                // value={"0982474802"}
                 onChangeText={(value) =>
                   onChangeInfomation(value, "phoneNumber")
                 }
                 placeholder="Số điện thoại *"
                 placeholderTextColor="#999"
                 keyboardType="phone-pad"
-                editable={isLoggedIn} // Chỉ cho phép chỉnh sửa nếu đã đăng nhập
+                editable={isLoggedIn}
               />
-              {/* <Ionicons
-                name="checkmark-circle"
-                size={20}
-                color={
-                  infomation.phoneNumber && !errors.phoneNumber
-                    ? "#00C853"
-                    : "#999"
-                }
-                style={styles.checkIcon}
-              /> */}
               {errors.phoneNumber ? (
                 <Text style={styles.errorText}>{errors.phoneNumber}</Text>
               ) : null}
@@ -301,8 +287,14 @@ const InfoConfirmScreen = ({ navigation }) => {
         )}
 
         {isLoggedIn && (
-          <TouchableOpacity style={[styles.button]} onPress={handleInfoConfirm}>
-            <Text style={styles.buttonText}>Xác nhận thông tin</Text>
+          <TouchableOpacity
+            style={[styles.button, loadingInfoUser && styles.buttonDisabled]}
+            onPress={handleInfoConfirm}
+            disabled={loadingInfoUser}
+          >
+            <Text style={styles.buttonText}>
+              {loadingInfoUser ? "Đang xử lý..." : "Xác nhận thông tin"}
+            </Text>
           </TouchableOpacity>
         )}
         {!isLoggedIn && (

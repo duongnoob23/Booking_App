@@ -167,6 +167,7 @@ const OrderConfirmScreen = ({ navigation }) => {
   if (loadingBookingRoom) {
     return <SkeletonOrderConfirm />;
   }
+  // console.log("infoUserChange", inforUserChange);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -179,17 +180,19 @@ const OrderConfirmScreen = ({ navigation }) => {
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Tên</Text>
               <Text style={styles.infoValue}>
-                {infoUser && infoUser.lastName}
+                {inforUserChange && inforUserChange.lastName}
               </Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Email</Text>
-              <Text style={styles.infoValue}>{infoUser && infoUser.email}</Text>
+              <Text style={styles.infoValue}>
+                {inforUserChange && inforUserChange.email}
+              </Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Số điện thoại</Text>
               <Text style={styles.infoValue}>
-                {userInfor.country} {infoUser && infoUser.phoneNumber}
+                +84 {inforUserChange && inforUserChange.phone}
               </Text>
             </View>
           </View>

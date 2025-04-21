@@ -81,7 +81,6 @@ const PaymentScreenQuan = ({ navigation }) => {
       navigation.navigate("PaymentWebViewScreenQuan", {
         orderUrl: paymentData.orderUrl,
       });
-      dispatch(resetPaymentData());
     }
   }, [paymentData]);
 

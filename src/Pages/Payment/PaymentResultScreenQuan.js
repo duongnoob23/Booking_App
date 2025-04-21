@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Button, Image } from "react-native";
 import paymentApi from "../Payment/paymentApi";
+import { useAppDispatch } from "../../Redux/hook";
+import { resetPaymentData } from "../../Redux/Slice/paymentSlice";
 
 const PaymentResultScreenQuan = ({ route, navigation }) => {
   const {
@@ -16,7 +18,7 @@ const PaymentResultScreenQuan = ({ route, navigation }) => {
   } = route.params || {};
   const [isLoading, setIsLoading] = useState(true);
   const [resultMessage, setResultMessage] = useState(message || "");
-
+  const dispatch = useAppDispatch();
   useEffect(() => {
     const fetchPaymentStatus = async () => {
       try {
@@ -35,6 +37,7 @@ const PaymentResultScreenQuan = ({ route, navigation }) => {
 
     if (appTransId) {
       fetchPaymentStatus();
+      dispatch(resetPaymentData());
     } else {
       setResultMessage("Không tìm thấy mã giao dịch");
       setIsLoading(false);

@@ -10,6 +10,8 @@ export const fetchPaymentOrder = createAsyncThunk(
       const accessToken = state.auth.accessToken;
       const bookingPayload = state.hotel.bookingPayload;
       // Kiểm tra accessToken
+
+      console.log("--------------------------------------", bookingPayload);
       if (!accessToken) {
         return rejectWithValue(
           "User not logged in. Please login to proceed with payment."
