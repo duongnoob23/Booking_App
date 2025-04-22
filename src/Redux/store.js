@@ -7,6 +7,8 @@ import promotionReducer from "./Slice/promotionSlice";
 import paymentReducer from "./Slice/paymentSlice";
 import notificationReducer from "./Slice/notificationSlice";
 import bookingReducer from "./Slice/bookingSlice";
+import voucherReducer from "./Slice/voucherSlice";
+
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -17,5 +19,6 @@ export const store = configureStore({
     payment: paymentReducer,
     notification: notificationReducer,
     booking: bookingReducer,
+    voucher: voucherReducer,
   },
 });

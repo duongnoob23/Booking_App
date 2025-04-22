@@ -39,6 +39,7 @@ const LoginScreen = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const { prePage } = useAppSelector((state) => state.auth);
 
+  console.log(prePage);
   const sendTokenToBackend = async (idToken) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/firebase`, {
@@ -68,6 +69,8 @@ const LoginScreen = ({ navigation }) => {
             })
           );
         }
+
+        console.log(targetScreen);
 
         navigation.navigate(`${targetScreen}`);
         // Xóa prePage sau khi điều hướng

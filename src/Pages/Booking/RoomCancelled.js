@@ -94,7 +94,7 @@ const RoomCancelled = ({ navigation }) => {
       ) : (
         <View style={styles.emptyContainer}>
           <Ionicons name="calendar-outline" size={50} color="#888888" />
-          <Text style={styles.emptyText}>Bạn chưa có phòng đã trả</Text>
+          <Text style={styles.emptyText}>Bạn chưa hủy phòng</Text>
         </View>
       )}
     </View>

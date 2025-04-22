@@ -69,7 +69,10 @@ const RoomBooked = ({ navigation }) => {
             Thông tin
           </Text>
         </TouchableOpacity> */}
-        <TouchableOpacity style={styles.bookingHistoryScreen__rebookButton}>
+        <TouchableOpacity
+          style={styles.bookingHistoryScreen__rebookButton}
+          onPress={() => handleToBookingDetail(item)}
+        >
           <Text style={styles.bookingHistoryScreen__rebookButtonText}>
             Hoãn
           </Text>

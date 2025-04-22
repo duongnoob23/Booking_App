@@ -5,6 +5,7 @@ import DiscountHistoryExpired from "../Pages/Promotion/DiscountHistoryExpired";
 import DiscountHistoryUse from "../Pages/Promotion/DiscountHistoryUse";
 
 import { TouchableOpacity, Text } from "react-native";
+import Promotion from "../Pages/Promotion/PromotionScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -16,29 +17,21 @@ const PromotionStackNavigator = ({ navigation }) => {
       }}
     >
       <Stack.Screen
+        name="Promotion"
+        component={Promotion}
+        options={{
+          headerShown: true,
+          tabBarVisible: false, // Ẩn thanh tab dưới cùng
+          title: "Mã giảm giá ",
+        }}
+      />
+      <Stack.Screen
         name="Discount"
         component={Discount}
         options={{
           headerShown: true,
           tabBarVisible: false, // Ẩn thanh tab dưới cùng
           title: "Mã giảm giá ",
-          // headerRight: () => (
-          //   <TouchableOpacity
-          //     onPress={() => navigation.navigate("DiscountHistory")}
-          //     style={{ marginRight: 10 }}
-          //   >
-          //     <Text
-          //       style={{
-          //         fontSize: 20,
-          //         fontWeight: "400",
-          //         color: "#007BFF",
-          //         // backgroundColor: "red",
-          //       }}
-          //     >
-          //       Lịch sử
-          //     </Text>
-          //   </TouchableOpacity>
-          // ),
         }}
       />
       <Stack.Screen
