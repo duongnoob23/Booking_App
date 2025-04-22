@@ -32,6 +32,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b5196577-4400-4ac0-b32c-2f90fb070f09"
+      }
+    },
+    "owner": "taiquan872k3"
   }
 }

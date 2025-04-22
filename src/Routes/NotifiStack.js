@@ -12,28 +12,6 @@ const NotificationStackNavigator = ({ navigation }) => {
       <Stack.Screen
         name="Notification"
         component={NotificationsScreen}
-        options={{
-          headerShown: true,
-          tabBarVisible: false, // Ẩn thanh tab dưới cùng
-          title: "Thông báo",
-          // headerRight: () => (
-          //   <TouchableOpacity
-          //     onPress={() => navigation.navigate("DiscountHistory")}
-          //     style={{ marginRight: 10 }}
-          //   >
-          //     <Text
-          //       style={{
-          //         fontSize: 20,
-          //         fontWeight: "400",
-          //         color: "#007BFF",
-          //         // backgroundColor: "red",
-          //       }}
-          //     >
-          //       Xóa
-          //     </Text>
-          //   </TouchableOpacity>
-          // ),
-        }}
       />
     </Stack.Navigator>
   );

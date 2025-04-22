@@ -29,6 +29,7 @@ import {
 import { CommonActions } from "@react-navigation/native";
 import { fetchListNotification } from "../../Redux/Slice/notificationSlice";
 import { registerForPushNotificationsAsync } from "../../Utils/notificationsQuan";
+import { registerDevice } from "../../Redux/apiQuan";
 /* 
 {"data": 
 {"accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQzMTgyOTA3LCJleHAiOjE3NDMyNjkzMDd9.QPIwLj0wTe5y1n98COb4H8SeWYk11w3FQpe31BunkqA", 
@@ -64,6 +65,14 @@ const LoginScreen = ({ navigation, route }) => {
       const data = await response.json();
       console.log(">>> data", data);
       if (data?.data?.accessToken) {
+        const deviceToken = await registerForPushNotificationsAsync();
+        console.log('Device os:', Platform.OS);
+                if (deviceToken) {
+                    await registerDevice(
+                        deviceToken,
+                        Platform.OS === 'ios' ? 'IOS' : 'ANDROID'
+                    );
+                }
         dispatch(loginSuccess(data?.data?.accessToken));
         dispatch(fetchHotelList());
         dispatch(fetchBookingStatus());

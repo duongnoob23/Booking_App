@@ -26,8 +26,9 @@ export const registerDevice = async (deviceToken, deviceType) => {
 
 // Hàm fetchNotifications chuyển từ axios sang fetch
 export const fetchNotifications = async (page = 0, size = 20) => {
-  const jwtToken = await AsyncStorage.getItem("jwtToken");
-
+  const state = getState();
+  const accessToken = state.auth.accessToken;
+  console.log("jwtToken", accessToken);
   // Tạo URL với query params (page và size)
   const url = new URL(`${API_BASE_URL}/api/notifications/user`);
   url.searchParams.append("page", page);
@@ -36,7 +37,7 @@ export const fetchNotifications = async (page = 0, size = 20) => {
   return fetch(url.toString(), {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${jwtToken}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 };
