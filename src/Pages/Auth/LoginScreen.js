@@ -7,19 +7,16 @@ import {
   StyleSheet,
   Alert,
   KeyboardAvoidingView,
-  Platform,
-  ScrollView,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { auth } from "../../../config/firebaseConfig";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useAppDispatch, useAppSelector } from "../../Redux/hook";
 import {
-  loginStart,
   loginSuccess,
-  loginFailure,
-  logout,
   fetchUserInfo,
+  setPrePage,
+  clearPrePage,
 } from "../../Redux/Slice/authSlice";
 import { API_BASE_URL } from "../../Constant/Constant";
 import {
@@ -47,16 +44,16 @@ const LoginScreen = ({ navigation, route }) => {
       navigation.getParent().setOptions({ tabBarStyle: { display: "flex" } });
     };
   }, [navigation]);
-  console.log(">>> 34 LS >>> ", route?.params);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // const auth = getAuth();
   const dispatch = useAppDispatch();
-  const { accessToken, isLoggedIn } = useAppSelector((state) => state.auth);
+  const { prePage } = useAppSelector((state) => state.auth);
+
+  console.log(prePage);
   const sendTokenToBackend = async (idToken) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/firebase`, {
-        // const response = await fetch("https://api-booking-app-gbfsg5f0e4hwfzh0.japaneast-01.azurewebsites.net/api/auth/firebase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tokenId: idToken }),
@@ -81,30 +78,32 @@ const LoginScreen = ({ navigation, route }) => {
         dispatch(fetchBookingStatus());
         dispatch(fetchListNotification());
         dispatch(fetchUserInfo());
-        // dispatch(loginSuccess(data.data)); isLoggedIn = true auto
-        console.log("Đăng nhập thành công!");
-        // Alert.alert("Đăng nhập thành công!", `JWT: ${data.data.accessToken}`);
 
-        // const deviceToken = await registerForPushNotificationsAsync();
-        // console.log("Device os:", Platform.OS);
-        // if (deviceToken) {
-        //   await registerDevice(
-        //     deviceToken,
-        //     Platform.OS === "ios" ? "IOS" : "ANDROID"
-        //   );
-        // }
+        // Xác định màn hình đích dựa trên prePage
+        const targetScreen = prePage === "InfoConfirm" ? "InfoConfirm" : "Home";
 
-        if (route?.params?.preScreen === "InfoConfirm") {
-          navigation.navigate("InfoConfirm");
-        } else if (route?.params?.preScreen === "profile") {
-          navigation.navigate("profile");
-        } else {
-          navigation.navigate("Home");
+        // Reset stack để xóa các màn hình đăng nhập
+        if (prePage) {
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{ name: "Profile" }],
+            })
+          );
         }
+
+        console.log(targetScreen);
+
+        navigation.navigate(`${targetScreen}`);
+        // Xóa prePage sau khi điều hướng
+        dispatch(clearPrePage());
 
         Alert.alert("Đăng nhập thành công!");
       } else {
-        Alert.alert("Lỗi xác thực với backend!");
+        Alert.alert(
+          "Lỗi xác thực với backend!",
+          data.message || "Không nhận được token"
+        );
       }
     } catch (error) {
       Alert.alert("Lỗi gửi token!", error.message);
@@ -112,27 +111,22 @@ const LoginScreen = ({ navigation, route }) => {
     }
   };
 
-  console.log(">>> 65 LS >>>", accessToken, isLoggedIn);
   const handleEmailLogin = async () => {
-    console.log(">>>> run");
-
     try {
-      // dispatch(loginStart());
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password
       );
-      // console.log(userCredential);
-      const idToken = await userCredential.user.getIdToken(); // Lấy ID Token từ Firebase
+      const idToken = await userCredential.user.getIdToken();
       console.log("idToken->", idToken);
       sendTokenToBackend(idToken);
     } catch (error) {
       Alert.alert("Lỗi đăng nhập", error.message);
     }
   };
+
   const handleToPhoneLogin = () => {
-    // navigation.navigate("PhoneLogin");
     navigation.navigate("PhoneLogin");
     setEmail("");
     setPassword("");
@@ -143,15 +137,12 @@ const LoginScreen = ({ navigation, route }) => {
     setEmail("");
     setPassword("");
   };
+
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={undefined} // Tắt hành vi tự động đẩy
-      keyboardVerticalOffset={0} // Không cần offset khi behavior là undefined
-    >
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={undefined}>
       <View style={styles.container}>
         <View style={styles.wrapTitle}>
-          <Text style={styles.title}>Đăng nhập với Email </Text>
+          <Text style={styles.title}>Đăng nhập với Email</Text>
         </View>
         <View style={styles.whiteFrame}>
           <View style={[styles.inputContainer, styles.inputContainerFirst]}>
@@ -163,7 +154,6 @@ const LoginScreen = ({ navigation, route }) => {
               onChangeText={setEmail}
             />
           </View>
-          {/* Ô input Mật khẩu */}
           <View style={styles.inputContainer}>
             <Ionicons name="lock-closed-outline" size={20} color="#0090FF" />
             <TextInput
@@ -174,31 +164,27 @@ const LoginScreen = ({ navigation, route }) => {
               onChangeText={setPassword}
             />
           </View>
-          {/* ForgotPassword */}
-          {/* Quên mật khẩu */}
           <Text
             style={styles.forgotPassword}
             onPress={() => navigation.navigate("ForgotPassword")}
           >
             Quên mật khẩu?
           </Text>
-          {/* Nút Đăng nhập */}
           <TouchableOpacity style={styles.button} onPress={handleEmailLogin}>
             <Text style={styles.buttonText}>Đăng nhập</Text>
           </TouchableOpacity>
-          {/* Nút đăng nhập bằng Google và Facebook */}
           <View>
             <Text style={styles.textOr}>Hoặc đăng nhập bằng</Text>
           </View>
           <View style={styles.socialButtons}>
             <TouchableOpacity
-              onPress={() => handleToPhoneLogin()}
+              onPress={handleToPhoneLogin}
               style={[styles.socialButton, { backgroundColor: "#3b5998" }]}
             >
-              <Text style={styles.socialButtonText}>Số Điện Thoại </Text>
+              <Text style={styles.socialButtonText}>Số Điện Thoại</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => handleToGoogleLogin()}
+              onPress={handleToGoogleLogin}
               style={[styles.socialButton, { backgroundColor: "#db4437" }]}
             >
               <Text style={styles.socialButtonText}>GOOGLE</Text>
@@ -214,8 +200,6 @@ const LoginScreen = ({ navigation, route }) => {
             </Text>
           </View>
         </View>
-
-        {/* Text chuyển sang Đăng ký */}
       </View>
     </KeyboardAvoidingView>
   );

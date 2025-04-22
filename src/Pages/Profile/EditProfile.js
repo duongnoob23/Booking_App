@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useEffect, useRef } from "react";
+import React, { useState, useLayoutEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -6,46 +6,39 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  navigation,
-  ImageBackground,
+  Alert,
 } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import * as ImagePicker from "expo-image-picker";
-// import { Ionicons } from "@expo/vector-icons";
 import Ionicons from "react-native-vector-icons/Ionicons";
-// import PhoneInput from "react-native-phone-number-input";
-// import { parsePhoneNumberFromString } from "libphonenumber-js"; // Import thư viện để phân tích số điện thoại
-import AsyncStorage from "@react-native-async-storage/async-storage";
-// import PhoneInput from "react-native-phone-input";
+import * as ImagePicker from "expo-image-picker";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import PhoneInput from "react-native-phone-number-input";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
+import { useDispatch } from "react-redux";
+import { updateUserInfo, fetchUserInfo } from "../../Redux/Slice/authSlice";
 
-const EditProfile = ({ navigation }) => {
+const EditProfile = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const dispatch = useDispatch();
+  const { userData } = route.params;
+  console.log(userData);
   useLayoutEffect(() => {
     navigation.getParent().setOptions({ tabBarStyle: { display: "none" } });
     return () => {
       navigation.getParent().setOptions({ tabBarStyle: { display: "flex" } });
     };
   }, [navigation]);
-  // const navigation = useNavigation();
-  const route = useRoute();
-  const {} = route.params;
-  const { userData, onSave } = route.params;
-  console.log(">>> check userData", userData);
-  // const userData = [{}];
-  // State để lưu dữ liệu chỉnh sửa
-  const [name, setName] = useState(userData.name);
-  const [email, setEmail] = useState(userData.email);
-  const [phone, setPhone] = useState(userData.phone);
-  const [avatar, setAvatar] = useState(userData.avatar);
+
+  const [firstName, setFirstName] = useState(userData.firstName || "");
+  const [lastName, setLastName] = useState(userData.lastName || "");
+  const [email, setEmail] = useState(userData.email || "");
+  const [phone, setPhone] = useState(userData.phone || "");
+  const [avatar, setAvatar] = useState(
+    userData.avatar || "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+  );
 
   const phoneInputRef = useRef(null);
-  const tmp = phone;
-  const Sphone = parsePhoneNumberFromString(tmp);
 
-  // const tmp = phone;
-  // const Sphone = parsePhoneNumberFromString(tmp);
-  // Xử lý chọn ảnh
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -53,140 +46,128 @@ const EditProfile = ({ navigation }) => {
       aspect: [1, 1],
       quality: 1,
     });
-    console.log("Image URI:", result.assets[0].uri);
     if (!result.canceled) {
       setAvatar(result.assets[0].uri);
-      const newAvatar = result.assets[0].uri;
-      await handleSaveAvatar(newAvatar);
     }
   };
 
-  const handleSaveAvatar = async (newAvatar) => {
-    const updatedData = { name, email, phone, avatar: newAvatar };
-    await AsyncStorage.setItem("userProfile", JSON.stringify(updatedData));
-  };
-
   const handleSave = async () => {
-    const updatedData = { name, email, phone, avatar };
-    await AsyncStorage.setItem("userProfile", JSON.stringify(updatedData));
-    navigation.navigate("Profile", { updated: true }); // Truyền tham số để báo màn hình trước cập nhật
-  };
+    if (!validateFields(firstName, lastName, phone)) return;
+    const updatedInfo = {
+      firstName,
+      lastName,
+      email,
+      phone,
+      // image: avatar,
+    };
 
-  const handleToProfile = () => {
-    navigation.navigate("Profile");
+    try {
+      const result = await dispatch(updateUserInfo(updatedInfo)).unwrap();
+      await dispatch(fetchUserInfo());
+      Alert.alert("Thành công", "Cập nhật thông tin thành công!");
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert("Lỗi", "Không thể cập nhật thông tin. Vui lòng thử lại.");
+    }
+  };
+  const validateFields = (firstName, lastName, phone) => {
+    const nameRegex = /^[A-Za-zÀ-ỹ\s]+$/; // chấp nhận tiếng Việt + space
+    const phoneRegex = /^\d{10}$/;
+
+    if (!nameRegex.test(firstName)) {
+      Alert.alert("Lỗi", "Họ chỉ được chứa chữ cái và khoảng trắng.");
+      return false;
+    }
+
+    if (!nameRegex.test(lastName)) {
+      Alert.alert("Lỗi", "Tên chỉ được chứa chữ cái và khoảng trắng.");
+      return false;
+    }
+
+    if (!phoneRegex.test(phone)) {
+      Alert.alert("Lỗi", "Số điện thoại phải gồm đúng 10 chữ số.");
+      return false;
+    }
+
+    return true;
   };
 
   return (
     <View style={styles.container}>
-      {/* Avatar */}
-
-      <TouchableOpacity style={styles.header} onPress={() => handleToProfile()}>
-        <View style={styles.headerItem}>
-          <Ionicons name="chevron-back-outline" size={24} color="black" />
-        </View>
-        <View style={styles.headerItem}>
-          <Text style={styles.headerText}>Chỉnh sửa hồ sơ </Text>
-        </View>
+      <TouchableOpacity
+        style={styles.header}
+        onPress={() => navigation.goBack()}
+      >
+        <Ionicons name="chevron-back-outline" size={24} color="black" />
+        <Text style={styles.headerText}>Chỉnh sửa hồ sơ</Text>
       </TouchableOpacity>
 
-      <View style={styles.avatarContainer} onPress={pickImage}>
-        <View style={styles.avatarWapper}>
-          <Image
-            source={{
-              uri: `${avatar}`,
-            }}
-            style={styles.avatar}
-          />
-          <View style={styles.avatarOverlay}>{/* <Text>hello</Text> */}</View>
-        </View>
-        <TouchableOpacity>
-          <Ionicons
-            name="camera-outline"
-            size={24}
-            color="white"
-            style={styles.cameraIcon}
-            onPress={pickImage}
-          />
+      <View style={styles.avatarContainer}>
+        <Image source={{ uri: avatar }} style={styles.avatar} />
+        <TouchableOpacity style={styles.cameraIcon} onPress={pickImage}>
+          <Ionicons name="camera-outline" size={24} color="white" />
         </TouchableOpacity>
       </View>
 
-      {/* Form nhập thông tin */}
+      {/* First name */}
       <View style={styles.inputContainer}>
-        <Text style={styles.inputLabel}>Tên đầy đủ</Text>
+        <Text style={styles.inputLabel}>Họ</Text>
         <View style={styles.inputText}>
           <Ionicons name="person-outline" size={20} color="#0090FF" />
           <TextInput
             style={styles.input}
-            value={name}
-            onChangeText={setName}
-            placeholder="Tên"
+            value={firstName}
+            onChangeText={setFirstName}
+            placeholder="Nhập họ"
           />
         </View>
       </View>
+
+      {/* Last name */}
       <View style={styles.inputContainer}>
-        <Text style={styles.inputLabel}>Email </Text>
+        <Text style={styles.inputLabel}>Tên</Text>
+        <View style={styles.inputText}>
+          <Ionicons name="person-circle-outline" size={20} color="#0090FF" />
+          <TextInput
+            style={styles.input}
+            value={lastName}
+            onChangeText={setLastName}
+            placeholder="Nhập tên"
+          />
+        </View>
+      </View>
+
+      {/* Email */}
+      <View style={styles.inputContainer}>
+        <Text style={styles.inputLabel}>Email</Text>
         <View style={styles.inputText}>
           <Ionicons name="mail-outline" size={20} color="#0090FF" />
           <TextInput
             style={styles.input}
             value={email}
-            keyboardType="email-address"
             onChangeText={setEmail}
+            keyboardType="email-address"
             placeholder="Email"
           />
         </View>
       </View>
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputLabel}>Số điện thoại </Text>
-        <View style={styles.inputText}>
-          <Ionicons name="phone-portrait-outline" size={20} color="#0090FF" />
-          <View style={styles.inputGroup}>
-            <Text>+225</Text>
-            <Ionicons
-              name="chevron-down-outline"
-              size={20}
-              color="#00F598"
-              marginLeft="5"
-              marginRight="5"
-            />
-            <TextInput
-              style={[
-                styles.input,
-                { borderLeftColor: "gray" },
-                { borderLeftWidth: 1 },
-              ]}
-              value={phone}
-              onChangeText={setPhone}
-              placeholder="số điện thoại"
-            />
-          </View>
-        </View>
-      </View>
 
+      {/* Phone */}
       <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Số điện thoại</Text>
         <View style={styles.inputText}>
-          <Ionicons
-            name="phone-portrait-outline"
-            size={20}
-            color="#0090FF"
-            style={styles.icon}
-          />
-          <PhoneInput
-            // ref={phoneInputRef}
-            // defaultValue={phone}
-            defaultValue={
-              Sphone && Sphone.nationalNumber ? Sphone.nationalNumber : ""
-            }
-            defaultCode={Sphone && Sphone.country ? Sphone.country : ""}
-            onChangeFormattedText={(text) => setPhone(text)}
-            containerStyle={styles.phoneContainer}
-            textContainerStyle={styles.textContainer}
+          <Ionicons name="call-outline" size={20} color="#0090FF" />
+          <TextInput
+            style={styles.input}
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="email-address"
+            placeholder="Phone"
           />
         </View>
       </View>
 
-      {/* Nút cập nhật */}
+      {/* Save button */}
       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
         <Text style={styles.saveText}>Cập nhật</Text>
       </TouchableOpacity>
@@ -195,94 +176,54 @@ const EditProfile = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F7F8FA",
-    padding: 20,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  headerItem: {
-    marginTop: 15,
-  },
-  headerText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginLeft: 15,
-  },
+  container: { flex: 1, backgroundColor: "#F7F8FA", padding: 20 },
+  header: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
+  headerText: { fontSize: 20, fontWeight: "bold", marginLeft: 10 },
   avatarContainer: {
     alignSelf: "center",
     position: "relative",
     marginBottom: 20,
   },
-  avatarWrapper: {
-    position: "relative", // Đặt wrapper để chứa ảnh và overlay
-    width: 120,
-    height: 120,
-  },
-  avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-  },
-  avatarOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    backgroundColor: "white",
-    opacity: 0.6,
-    borderRadius: 60, // Đảm bảo overlay cũng bo tròn như ảnh
-  },
+  avatar: { width: 120, height: 120, borderRadius: 60 },
   cameraIcon: {
     position: "absolute",
     bottom: 5,
     right: 5,
     backgroundColor: "#00C853",
-    padding: 5,
+    padding: 6,
     borderRadius: 20,
   },
   inputContainer: {
     borderBottomColor: "gray",
     borderBottomWidth: 1,
-    marginBottom: 20,
-    marginBottom: 30,
+    marginBottom: 25,
   },
-  inputLabel: {
-    fontSize: 12,
-  },
-  input: {
-    // backgroundColor: "#F1F1F1",
-    // padding: 12,
-    // borderRadius: 8,
-    // marginBottom: 10,
-  },
+  inputLabel: { fontSize: 12, marginBottom: 5 },
   inputText: {
     flexDirection: "row",
-    justifyContent: "flex-start",
     alignItems: "center",
-    // backgroundColor: "#F1F1F1",
+    gap: 5,
   },
-  inputGroup: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  input: { flex: 1, paddingLeft: 8 },
   saveButton: {
     backgroundColor: "#00F598",
     padding: 12,
     borderRadius: 12,
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 30,
   },
   saveText: {
     color: "white",
     fontSize: 16,
-    fontWeight: "400",
+    fontWeight: "bold",
+  },
+  phoneContainer: {
+    width: "100%",
+    height: 50,
+    backgroundColor: "transparent",
+  },
+  textContainer: {
+    backgroundColor: "transparent",
   },
 });
 

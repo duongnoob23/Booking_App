@@ -1,14 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE_URL } from "../../Constant/Constant";
-// isLoggedIn: false,
+
 const initValue = {
   accessToken: null,
-
-  // accessToken:
-  //   "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQ0ODg2NDU3LCJleHAiOjE3NDQ5NzI4NTd9.2GWk9wXr2GcxEtFPG34vapyVZ_T-7ah9tS_n9FhVglY",
   isLoggedIn: false,
-  // isLoggedIn: true,
   loading: false,
   error: null,
   loadingInfoUser: false,
@@ -17,15 +13,15 @@ const initValue = {
     firstName: "Lâm",
     lastName: "Tiến Dưỡng ",
     email: "lamtiendung11082002@gmail.com",
-    phoneNumber: "0982474802",
+    phoneNumber: "0982474802", // Thống nhất dùng phoneNumber
     country: "+84",
   },
   infoUser: null,
   inforUserChange: null,
-
-  registerLoading: false, // Thêm trạng thái loading cho đăng ký
-  registerError: null, // Thêm trạng thái lỗi cho đăng ký
-  registerSuccess: false, // Thêm trạng thái thành công cho đăng ký
+  registerLoading: false,
+  registerError: null,
+  registerSuccess: false,
+  prePage: null, // Từ phiên bản 2
 };
 
 export const fetchUserInfo = createAsyncThunk(
@@ -45,7 +41,7 @@ export const fetchUserInfo = createAsyncThunk(
       });
 
       const data = await response.json();
-      console.log("fetchUserInfo", data.data);
+      console.log("fetchUserInfo", data.data); // Debug từ phiên bản 2
       return data.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -53,8 +49,9 @@ export const fetchUserInfo = createAsyncThunk(
   }
 );
 
-export const updateUserInfo = createAsyncThunk(
-  "auth/updateUserInfo",
+// Logic từ phiên bản 2: Dùng PUT, JSON
+export const updateUserInfoJson = createAsyncThunk(
+  "auth/updateUserInfoJson",
   async (userInfo, { getState, rejectWithValue }) => {
     try {
       const { accessToken } = getState().auth;
@@ -68,6 +65,47 @@ export const updateUserInfo = createAsyncThunk(
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(userInfo),
+      });
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Logic từ phiên bản 1: Dùng POST, FormData
+export const updateUserInfoFormData = createAsyncThunk(
+  "auth/updateUserInfoFormData",
+  async (userInfo, { getState, rejectWithValue }) => {
+    try {
+      const { accessToken } = getState().auth;
+      if (!accessToken) {
+        throw new Error("Không có token để gọi API");
+      }
+
+      const formData = new FormData();
+      formData.append("firstName", userInfo.firstName);
+      formData.append("lastName", userInfo.lastName);
+      formData.append("email", userInfo.email);
+      formData.append("phoneNumber", userInfo.phoneNumber); // Thống nhất dùng phoneNumber
+
+      // Hỗ trợ upload hình ảnh (nếu cần)
+      // if (userInfo.image) {
+      //   formData.append("image", {
+      //     uri: userInfo.image.uri,
+      //     name: userInfo.image.name || "avatar.jpg",
+      //     type: userInfo.image.type || "image/jpeg",
+      //   });
+      // }
+
+      const response = await fetch(`${API_BASE_URL}/api/user/update`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: formData,
       });
 
       const data = await response.json();
@@ -123,15 +161,14 @@ const authSlice = createSlice({
     },
     logout(state) {
       state.accessToken = null;
-      state.infoUser = null;
-      state.inforUserChange = null;
+      state.infoUser = null; // Từ phiên bản 2
+      state.inforUserChange = null; // Từ phiên bản 2
       state.isLoggedIn = false;
       AsyncStorage.removeItem("accessToken");
     },
     updateInforUserChange(state, action) {
       state.inforUserChange = action.payload;
     },
-
     clearInforUserChange(state) {
       state.inforUserChange = null;
     },
@@ -139,6 +176,12 @@ const authSlice = createSlice({
       state.registerLoading = false;
       state.registerError = null;
       state.registerSuccess = false;
+    },
+    setPrePage(state, action) {
+      state.prePage = action.payload; // Từ phiên bản 2
+    },
+    clearPrePage(state) {
+      state.prePage = null; // Từ phiên bản 2
     },
   },
   extraReducers: (builder) => {
@@ -149,7 +192,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchUserInfo.fulfilled, (state, action) => {
-        console.log(">>> 78 AS >>>", action.payload);
+        console.log(">>> fetchUserInfo fulfilled >>>", action.payload);
         state.loadingInfoUser = false;
         state.infoUser = action.payload;
       })
@@ -171,6 +214,20 @@ const authSlice = createSlice({
         state.registerLoading = false;
         state.registerError = action.payload;
         state.registerSuccess = false;
+      })
+      // Xử lý updateUserInfoJson
+      .addCase(updateUserInfoJson.fulfilled, (state, action) => {
+        state.infoUser = action.payload; // Từ phiên bản 1
+      })
+      .addCase(updateUserInfoJson.rejected, (state, action) => {
+        state.error = action.payload || "Cập nhật thông tin thất bại"; // Từ phiên bản 1
+      })
+      // Xử lý updateUserInfoFormData
+      .addCase(updateUserInfoFormData.fulfilled, (state, action) => {
+        state.infoUser = action.payload; // Từ phiên bản 1
+      })
+      .addCase(updateUserInfoFormData.rejected, (state, action) => {
+        state.error = action.payload || "Cập nhật thông tin thất bại"; // Từ phiên bản 1
       });
   },
 });
@@ -183,6 +240,8 @@ export const {
   updateInforUserChange,
   clearInforUserChange,
   resetRegisterState,
-  updateInforUser,
+  setPrePage,
+  clearPrePage,
 } = authSlice.actions;
+
 export default authSlice.reducer;

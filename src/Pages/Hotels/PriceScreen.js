@@ -207,6 +207,9 @@ const PriceScreen = ({ navigation, route }) => {
   const ratingsData =
     (hotelDetail && hotelDetail?.review?.feedback?.comments) || [];
 
+  const handleViewAllComments = () => {
+    navigation.navigate("AllComments", { comments: ratingsData });
+  };
   // console.log("ratingsData", ratingsData);
   return (
     <ScrollView style={styles.body}>
@@ -460,7 +463,7 @@ const PriceScreen = ({ navigation, route }) => {
           </View>
         </View>
 
-        {ratingsData?.map((item, index) => (
+        {/* {ratingsData?.map((item, index) => (
           <TouchableOpacity
             key={item.reviewId}
             style={styles.ratings__item}
@@ -468,7 +471,7 @@ const PriceScreen = ({ navigation, route }) => {
           >
             <Image
               source={{
-                // uri: `${item.urlAvatar}`,
+               
                 uri: `${item.urlAvatar}`,
               }}
               style={styles.ratings__itemAvatar}
@@ -478,11 +481,48 @@ const PriceScreen = ({ navigation, route }) => {
                 <Text style={styles.ratings__itemName}>{item.username}</Text>
                 <Text style={styles.ratings__itemScore}>{item.rating}/5</Text>
               </View>
-              {/* <Text style={styles.ratings__itemTime}>{item.time}</Text> */}
+             
               <Text style={styles.ratings__itemText}>{item.comment}</Text>
             </View>
           </TouchableOpacity>
-        ))}
+        ))} */}
+        <View style={styles.commentsSection}>
+          <View style={styles.commentsHeader}>
+            <Text style={styles.commentsTitle}>Nhận xét</Text>
+            {ratingsData?.length > 5 && (
+              <TouchableOpacity onPress={handleViewAllComments}>
+                <Text style={styles.viewAllText}>Xem tất cả</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          {ratingsData?.length > 0 ? (
+            ratingsData.slice(-5).map((item, index) => (
+              <TouchableOpacity
+                key={item.reviewId}
+                style={styles.ratings__item}
+                onPress={() => handleToRateDetails(item)}
+              >
+                <Image
+                  source={{ uri: `${item.urlAvatar}` }}
+                  style={styles.ratings__itemAvatar}
+                />
+                <View style={styles.ratings__itemContent}>
+                  <View style={styles.ratings__itemHeader}>
+                    <Text style={styles.ratings__itemName}>
+                      {item.username}
+                    </Text>
+                    <Text style={styles.ratings__itemScore}>
+                      {item.rating}/5
+                    </Text>
+                  </View>
+                  <Text style={styles.ratings__itemText}>{item.comment}</Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={styles.noCommentsText}>Chưa có nhận xét nào.</Text>
+          )}
+        </View>
       </View>
     </ScrollView>
   );
@@ -928,5 +968,30 @@ const styles = StyleSheet.create({
     color: "black",
     fontWeight: "400",
     fontSize: 18,
+  },
+
+  commentsSection: {
+    paddingVertical: 10,
+  },
+  commentsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  commentsTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  viewAllText: {
+    fontSize: 14,
+    color: "#007AFF",
+    fontWeight: "500",
+  },
+  noCommentsText: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
   },
 });

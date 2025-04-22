@@ -58,7 +58,7 @@ export const fetchConfirmBookingCancelled = createAsyncThunk(
       });
 
       const data = await response.json();
-      console.log("data ", data);
+      console.log("---------------------------------- ", data);
       // console.log("fetchConfirmBookingCancelled", data.data);
     } catch (error) {
       console.log("error in fetchConfirmBookingCancelled error", error);
@@ -72,6 +72,9 @@ const initValue = {
   loadingBookingDetail: false,
   bookingDetailData: [],
   loadingCancel: false,
+
+  loadingSaveVoucher: false,
+  myVoucherData: [],
 };
 
 const bookingSlice = createSlice({
