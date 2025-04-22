@@ -27,16 +27,6 @@ import { CommonActions } from "@react-navigation/native";
 import { fetchListNotification } from "../../Redux/Slice/notificationSlice";
 import { registerForPushNotificationsAsync } from "../../Utils/notificationsQuan";
 import { registerDevice } from "../../Redux/apiQuan";
-/* 
-{"data": 
-{"accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpZCI6MSwic3ViIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQzMTgyOTA3LCJleHAiOjE3NDMyNjkzMDd9.QPIwLj0wTe5y1n98COb4H8SeWYk11w3FQpe31BunkqA", 
-"roles": ["ROLE_USER"]}, 
-"message": "Authenticated successfully", 
-"statusCode": 200} 
- */
-
-// "https://api-booking-app-gbfsg5f0e4hwfzh0.japaneast-01.azurewebsites.net/api/auth/firebase",
-// "https://localhost:9090/api/auth/firebase",
 const LoginScreen = ({ navigation, route }) => {
   useLayoutEffect(() => {
     navigation.getParent().setOptions({ tabBarStyle: { display: "none" } });
