@@ -67,13 +67,16 @@ const LoginScreen = ({ navigation, route }) => {
       if (data?.data?.accessToken) {
         const deviceToken = await registerForPushNotificationsAsync();
         console.log('Device os:', Platform.OS);
-                if (deviceToken) {
-                    await registerDevice(
-                        deviceToken,
-                        Platform.OS === 'ios' ? 'IOS' : 'ANDROID'
-                    );
-                }
-        dispatch(loginSuccess(data?.data?.accessToken));
+        if (deviceToken) {
+          await registerDevice(
+            deviceToken,
+            Platform.OS === 'ios' ? 'IOS' : 'ANDROID'
+          );
+        }
+        dispatch(loginSuccess({
+          accessToken: data?.data?.accessToken,
+          userId: data?.data?.userId // Giả sử API trả về userId
+        }));
         dispatch(fetchHotelList());
         dispatch(fetchBookingStatus());
         dispatch(fetchListNotification());

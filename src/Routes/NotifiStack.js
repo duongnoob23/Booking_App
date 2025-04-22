@@ -10,7 +10,7 @@ const NotificationStackNavigator = ({ navigation }) => {
       }}
     >
       <Stack.Screen
-        name="Notification"
+        name="Thông báo"
         component={NotificationsScreen}
       />
     </Stack.Navigator>

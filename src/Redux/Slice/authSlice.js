@@ -111,7 +111,8 @@ const authSlice = createSlice({
       state.error = null;
     },
     loginSuccess(state, action) {
-      state.accessToken = action.payload;
+      state.accessToken = action.payload.accessToken;
+      state.userId = action.payload.userId;
       state.isLoggedIn = true;
       state.loading = false;
       AsyncStorage.setItem("accessToken", action.payload);

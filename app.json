@@ -17,6 +17,15 @@
         "googleMapsApiKey": "AIzaSyCYD4Gw2FYRAP60aK7t5PlbDQxGulZ7RQ8"
       }
     },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#ffffff"
+        }
+      ]
+    ],
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

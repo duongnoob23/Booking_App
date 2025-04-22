@@ -64,7 +64,8 @@
     "react-native-web": "~0.19.13",
     "react-native-webview": "^13.12.5",
     "react-native-wheel-pick": "^1.2.4",
-    "react-redux": "^9.2.0"
+    "react-redux": "^9.2.0",
+    "sockjs-client": "^1.6.1"
   },
   "devDependencies": {
     "@babel/core": "7.25.2",
